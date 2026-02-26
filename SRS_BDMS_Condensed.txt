@@ -1,0 +1,240 @@
+================================================================================
+BLOOD DONATION MANAGEMENT SYSTEM (BDMS)
+SOFTWARE REQUIREMENTS SPECIFICATION - CONDENSED
+Version 1.0
+================================================================================
+
+1. INTRODUCTION
+
+1.1 Purpose
+The BDMS is a web-based application designed to manage donation appointments, 
+monitor blood inventory stocks, track registered donors, identify eligible donors, 
+and facilitate staff contact with donors for blood donation requests.
+
+1.2 Scope
+The system includes:
+- User registration and donor tracking
+- Appointment booking and scheduling
+- Real-time blood inventory monitoring
+- Eligible donor identification based on 56-day deferral period
+- Donor contact and notification capabilities
+- Health metrics recording during donations
+- Staff dashboard with key statistics
+
+The system excludes:
+- Laboratory blood testing
+- Physical blood collection equipment interfacing
+- SMS notifications (email only)
+- Backend database implementation (Phase 2)
+- Third-party payment processing
+
+1.3 Document Overview
+This SRS defines functional and non-functional requirements for BDMS. It serves 
+as a specification for development, testing, and deployment.
+
+================================================================================
+2. OVERALL DESCRIPTION
+
+2.1 System Perspective
+The BDMS is a standalone web-based single-page application (SPA) that operates 
+independently. The system coordinates between donors and medical staff for all 
+appointment and donor engagement activities.
+
+2.2 Key Functions
+- User Registration & Authentication: Email/password authentication with role-based access
+- Appointment Management: Multi-step booking (location → date/time → confirmation)
+- Blood Inventory Monitoring: Real-time tracking by type, center, and status (green/yellow/red)
+- Eligible Donor Identification: 56-day deferral calculation and donor flagging
+- Donor Contact Capabilities: Search, notification, and engagement tools
+- Health Metrics Recording: Hemoglobin, blood pressure, blood type collection
+- Staff Dashboard: Statistics, appointment overview, inventory status
+
+2.3 User Classes
+- Donors: Register, book appointments, view eligibility and donation history
+- Medical Staff: Manage appointments, record health metrics, search donors, manage inventory
+- Administrators: User management, system configuration, reports
+
+2.4 Operating Environment
+- Frontend: React 19.2.0, Vite 7.3.1, React Router v6
+- Browsers: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- Devices: Desktop (1280x720+), Tablets (768x1024+), Mobile (320px+)
+- MVP uses mock data; production will use Node.js/Express backend with database
+
+================================================================================
+3. EXTERNAL INTERFACE REQUIREMENTS
+
+3.1 Donor User Interface
+- Authentication portal (login/registration)
+- Dashboard with:
+  * Donation history timeline
+  * Eligibility status with countdown or "Book Appointment" button
+  * Health record summary (hemoglobin, blood pressure, blood type)
+  * Profile information section
+
+3.2 Staff User Interface
+- Staff dashboard with statistics:
+  * Total blood units in inventory
+  * Critical/low stock blood types
+  * Upcoming confirmed appointments
+  * Total registered donors
+- Appointment management with weekly calendar and daily timeline
+- Donor search and information management interface
+- Blood inventory management with status indicators
+
+3.3 Responsive Design
+- Desktop: 1280x720 and above
+- Tablets: 768x1024 and above
+- Mobile: 320px width minimum, touch-friendly buttons (48x48 pixels)
+- WCAG 2.1 Level AA accessibility compliance
+
+================================================================================
+4. SYSTEM FEATURES
+
+4.1 User Registration and Authentication
+SR1.1: Registration with email, password (6+ chars), full name, phone
+SR1.2: Email validation and duplicate prevention
+SR1.3: Login with email/password credentials
+SR1.4: Automatic session logout after 30 minutes of inactivity
+SR1.5: Blood type not required during registration (determined during first donation)
+
+4.2 Donor Dashboard
+SR2.1: Display donation history in chronological timeline format
+SR2.2: Calculate and display eligibility status (eligible/ineligible with countdown)
+SR2.3: Show last donation date and next eligible date
+SR2.4: Display health record summary (hemoglobin, blood pressure, blood type)
+SR2.5: Profile information display with edit capability
+
+4.3 Appointment Management
+SR3.1: Multi-step appointment booking (select center → select date/time → confirm)
+SR3.2: Real-time slot availability checking (default: 1 donor per slot)
+SR3.3: Prevention of double-booking and overbooking
+SR3.4: Display next 7 days for appointment selection
+SR3.5: Eligibility verification before booking confirmation
+SR3.6: Send confirmation email with appointment details and preparation instructions
+
+4.4 Staff Appointment Calendar
+SR4.1: Display 7-day calendar with appointment counts and status indicators
+SR4.2: Click date to view detailed timeline of appointments
+SR4.3: Status tracking: Pending → Confirmed → Checked-In → Completed
+SR4.4: Update appointment status with color-coded badges
+SR4.5: Log all status changes with timestamp and staff ID
+
+4.5 Donation Processing
+SR5.1: Capture health metrics during check-in (blood type, hemoglobin, blood pressure)
+SR5.2: Validate hemoglobin (7-20 g/dL) and blood pressure format (SYS/DIA)
+SR5.3: Update donor record with blood type from first donation
+SR5.4: Calculate next eligible date (last donation + 56 days)
+SR5.5: Create and store donation record with all metrics
+
+4.6 Blood Inventory Management
+SR6.1: Track 8 blood types (A+, A-, B+, B-, AB+, AB-, O+, O-)
+SR6.2: Display inventory by type with unit count and status
+SR6.3: Color-coded status: Green (20+), Yellow (10-19), Red (<10)
+SR6.4: Allow staff to add/remove units
+SR6.5: Automatically decrement inventory upon completed donation
+SR6.6: Alert staff for expiring units (within 7 days)
+
+4.7 Donor Search and Management
+SR7.1: Search donors by name, ID, email, phone number (case-insensitive)
+SR7.2: Filter by blood type, status, eligibility
+SR7.3: Display donor records in table format with all relevant info
+SR7.4: View complete donor profile with health information
+SR7.5: Edit blood type, hemoglobin, blood pressure, and status
+
+================================================================================
+5. NON-FUNCTIONAL REQUIREMENTS
+
+5.1 Performance
+- Page load time: Maximum 3 seconds
+- Search results: Display within 1 second
+- Form submission: Confirmation within 2 seconds
+- Support minimum 50 concurrent donors and 20 concurrent staff
+
+5.2 Security
+- HTTPS protocol for all communications
+- Email/password authentication
+- Session tokens with 30-minute expiration
+- Role-based access control
+- Audit logging for all status changes and data modifications
+- PII visible only to authorized personnel
+
+5.3 Availability
+- System uptime: Target 99% during operating hours
+- Automatic backup of critical data
+- Disaster recovery procedures
+
+5.4 Usability
+- Intuitive interface for novice and advanced users
+- Clear feedback and confirmation messages
+- Keyboard navigation support
+- Screen reader compatibility (ARIA labels)
+- Minimum font size: 14px for body text
+
+5.5 Data Integrity
+- Prevent invalid data entry through validation
+- Enforce referential integrity constraints
+- Maintain transaction consistency
+- No concurrent session login from different devices
+
+================================================================================
+6. BUSINESS RULES
+
+BR1: Donors must wait 56 days between whole blood donations
+BR2: Blood type determination happens during first donation
+BR3: Maximum 1 appointment per slot per center
+BR4: Cannot book appointment if donor not eligible
+BR5: Inventory status updates automatically based on thresholds
+BR6: Health metrics stored with each donation
+BR7: Session expires after 30 minutes of inactivity
+BR8: Appointment status only transitions forward (no backwards transitions)
+BR9: PII protected and accessible only to authorized staff
+BR10: All data changes logged with timestamp and user ID
+
+================================================================================
+7. ASSUMPTIONS AND DEPENDENCIES
+
+Assumptions:
+- Users have reliable internet connection
+- Modern web browser is available
+- Users provide accurate information during registration
+- Staff have proper training on system usage
+- AABB blood banking standards are applicable
+
+Dependencies:
+- React framework and dependencies must be available
+- Email service for sending confirmations (Phase 2)
+- Donor data from blood bank systems (future integration)
+- Hospital management system integration (Phase 2 enhancement)
+
+================================================================================
+8. GLOSSARY
+
+Blood Type                 Classification of blood (A+, A-, B+, B-, AB+, AB-, O+, O-)
+Deferral Period            56-day minimum period between whole blood donations
+Donor                      Registered user who provides blood donations
+Eligible Donor             Donor who meets all criteria for donation
+Hemoglobin                 Protein in blood; measured in g/dL (7-20 range)
+Ineligible Donor           Donor within deferral period; cannot donate
+Session                    User's logged-in period; expires after 30 minutes
+Staff                      Medical professionals (phlebotomists, nurses, technicians)
+Inventory                  Current stock of blood units by type
+Appointment Slot           Single time slot available for one donor at a center
+
+================================================================================
+9. ACCEPTANCE CRITERIA SUMMARY
+
+Feature Acceptance:
+✓ New donor can register with valid information
+✓ System prevents duplicate emails
+✓ Eligible donor can book multi-step appointment
+✓ Real-time slot availability prevents double-booking
+✓ Confirmation email sent upon successful booking
+✓ Staff can access calendar and update appointment status
+✓ Donation metrics recorded and validation applied
+✓ Inventory levels tracked and status indicators displayed
+✓ Eligible donors identified correctly (56-day rule)
+✓ Donors can search and view their profile information
+
+================================================================================
+END OF SRS
+================================================================================

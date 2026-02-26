@@ -1,0 +1,523 @@
+================================================================================
+BLOOD DONATION MANAGEMENT SYSTEM - DATABASE ARCHITECTURE
+Class Diagram (ASCII Format)
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         DATABASE SCHEMA OVERVIEW                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────┐
+│           USER                     │
+├────────────────────────────────────┤
+│ PK: userID (INT)                   │
+│ ─────────────────────────────────  │
+│ email (VARCHAR, UNIQUE)            │
+│ password (VARCHAR)                 │
+│ userRole (ENUM)                    │
+│     - DONOR                        │
+│     - STAFF                        │
+│     - ADMIN                        │
+│ createDate (TIMESTAMP)             │
+│ lastLogin (TIMESTAMP)              │
+│ isActive (BOOLEAN)                 │
+│ sessionToken (VARCHAR, NULLABLE)   │
+│ sessionExpiry (TIMESTAMP)          │
+└────────────────────────────────────┘
+           ▲ 1                 1 ▲
+           │                     │
+      has │                      │ has
+           │                     │
+     ┌─────┴──────────┬──────────┴─────┐
+     │                │                │
+     ▼                ▼                ▼
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│   DONOR      │ │    STAFF     │ │    ADMIN     │
+├──────────────┤ ├──────────────┤ ├──────────────┤
+│ FK: userID   │ │ FK: userID   │ │ FK: userID   │
+│ donorID (PK) │ │ staffID (PK) │ │ adminID (PK) │
+│ ─────────────│ │ ─────────────│ │ ─────────────│
+│ fullName     │ │ fullName     │ │ fullName     │
+│ phoneNumber  │ │ phoneNumber  │ │ phoneNumber  │
+│ bloodType    │ │ department   │ │ department   │
+│ totalDonations│ │ license#     │ │ permissions  │
+│ status       │ │ specialization│ │ status      │
+│   - ACTIVE   │ │ hireDate     │ │ adminLevel   │
+│   - ELIGIBLE │ │ status       │ │ joinDate     │
+│   - DEFERRED │ │   - ACTIVE   │ │ status       │
+│ lastDonation │ │   - INACTIVE │ │   - ACTIVE   │
+│ nextEligDate │ │              │ │   - INACTIVE │
+│ registDate   │ │              │ │              │
+└──────────────┘ └──────────────┘ └──────────────┘
+      │ N
+      │
+      │ donates
+      │
+      ▼ 1
+┌────────────────────────────────────────┐
+│         DONATION_RECORD                │
+├────────────────────────────────────────┤
+│ PK: donationID (INT)                   │
+│ FK: donorID (INT)                      │
+│ FK: centerID (INT)                     │
+│ FK: staffID (INT, NULLABLE)            │
+│ ────────────────────────────────────   │
+│ donationDate (DATE)                    │
+│ donationType (ENUM)                    │
+│     - WHOLE_BLOOD                      │
+│     - PLATELETS                        │
+│     - RBC                              │
+│ volumeDonated (DECIMAL) [mL]           │
+│ status (ENUM)                          │
+│     - COMPLETED                        │
+│     - PENDING                          │
+│ healthMetricsID (FK)                   │
+└────────────────────────────────────────┘
+      │ 1
+      │
+      │ has
+      │
+      ▼ N
+┌────────────────────────────────────────┐
+│        HEALTH_METRICS                  │
+├────────────────────────────────────────┤
+│ PK: metricsID (INT)                    │
+│ FK: donorID (INT)                      │
+│ FK: staffID (INT, NULLABLE)            │
+│ ────────────────────────────────────   │
+│ measurementDate (TIMESTAMP)            │
+│ bloodType (VARCHAR) [e.g., "A+"]       │
+│ hemoglobin (DECIMAL) [g/dL]            │
+│ bloodPressure (VARCHAR) [mmHg]         │
+│     - Format: "SYS/DIA"                │
+│ status (ENUM)                          │
+│     - NORMAL                           │
+│     - ABNORMAL                         │
+│ notes (TEXT, NULLABLE)                 │
+│ recordDate (TIMESTAMP)                 │
+└────────────────────────────────────────┘
+
+┌────────────────────────────────────────┐
+│      DONATION_CENTER                   │
+├────────────────────────────────────────┤
+│ PK: centerID (INT)                     │
+│ ────────────────────────────────────   │
+│ centerName (VARCHAR)                   │
+│ streetAddress (VARCHAR)                │
+│ city (VARCHAR)                         │
+│ state (VARCHAR)                        │
+│ zipCode (VARCHAR)                      │
+│ phoneNumber (VARCHAR)                  │
+│ operatingHours (JSON) [optional]       │
+│     {                                  │
+│       "Monday": "9:00-17:00",         │
+│       "Tuesday": "9:00-17:00",        │
+│       ...                              │
+│     }                                  │
+│ maxAppointmentsPerSlot (INT) [default:1]
+│ isActive (BOOLEAN)                     │
+│ createdDate (TIMESTAMP)                │
+└────────────────────────────────────────┘
+      ▲ 1
+      │
+      │ at
+      │ N
+      │
+     ┌┴─────────────────────────────────────┐
+     │                                       │
+     ▼ 1                                     ▼ 1
+┌────────────────────────────────┐  ┌────────────────────────────────┐
+│       APPOINTMENT              │  │    BLOOD_INVENTORY             │
+├────────────────────────────────┤  ├────────────────────────────────┤
+│ PK: appointmentID (INT)        │  │ PK: inventoryID (INT)          │
+│ FK: donorID (INT)              │  │ FK: centerID (INT)             │
+│ FK: centerID (INT)             │  │ ────────────────────────────── │
+│ ────────────────────────────── │  │ bloodType (VARCHAR)            │
+│ appointmentDate (DATE)         │  │     - A+, A-, B+, B-, AB+,     │
+│ appointmentTime (TIME)         │  │       AB-, O+, O-              │
+│ status (ENUM)                  │  │ unitCount (INT)                │
+│     - PENDING                  │  │ maxCapacity (INT)              │
+│     - CONFIRMED                │  │ expirationDate (DATE)          │
+│     - CHECKED_IN               │  │ lastUpdated (TIMESTAMP)        │
+│     - COMPLETED                │  │ status (ENUM)                  │
+│     - CANCELLED                │  │     - ADEQUATE (20+)           │
+│ createdDate (TIMESTAMP)        │  │     - LOW (10-19)              │
+│ modifiedDate (TIMESTAMP)       │  │     - CRITICAL (<10)           │
+│ notes (TEXT, NULLABLE)         │  └────────────────────────────────┘
+└────────────────────────────────┘
+
+┌────────────────────────────────────────┐
+│        APPOINTMENT_STATUS_LOG          │
+├────────────────────────────────────────┤
+│ PK: logID (INT)                        │
+│ FK: appointmentID (INT)                │
+│ FK: staffID (INT, NULLABLE)            │
+│ ────────────────────────────────────   │
+│ previousStatus (ENUM)                  │
+│ newStatus (ENUM)                       │
+│ changedDate (TIMESTAMP)                │
+│ changedBy (VARCHAR)                    │
+│ reason (TEXT, NULLABLE)                │
+└────────────────────────────────────────┘
+
+┌────────────────────────────────────────┐
+│      PREPARATION_INSTRUCTIONS          │
+├────────────────────────────────────────┤
+│ PK: instructionID (INT)                │
+│ ────────────────────────────────────   │
+│ title (VARCHAR)                        │
+│ description (TEXT)                     │
+│ sequence (INT)                         │
+│ isActive (BOOLEAN)                     │
+└────────────────────────────────────────┘
+
+================================================================================
+ENTITY RELATIONSHIP DIAGRAM (ERD)
+================================================================================
+
+                              ┌─────────┐
+                              │  USER   │
+                              └────┬────┘
+                                   │
+                    ┌──────────────┼──────────────┐
+                    │              │              │
+                    │ userRole     │ userRole     │ userRole
+                    │              │              │
+             ┌──────▼──────┐  ┌───▼──────┐  ┌───▼──────┐
+             │   DONOR     │  │  STAFF   │  │  ADMIN   │
+             └──────┬──────┘  └──────────┘  └──────────┘
+                    │
+          ┌─────────┼─────────┐
+          │         │         │
+        "books"   "has"   "becomes"
+          │         │         │
+          │         │         │
+     ┌────▼──┐      │    ┌────▼──────────┐
+     │        │      │    │               │
+     │        │      │    │               │
+┌────▼──────┐ │   ┌─▼────────────┐   ┌──▼────────────┐
+│ APPOINTMENT│ │   │HEALTH_METRICS│   │DONATION_RECORD│
+└────┬───────┘ │   └──────────────┘   └─┬──────────────┘
+     │         │                        │
+     │ "at"    └────────────────────────┘
+     │
+┌────▼─────────────────────┐
+│  DONATION_CENTER         │
+├──────────────────────────┤
+│ centerID (PK)            │
+│ centerName               │
+│ streetAddress            │
+│ city, state, zipCode     │
+│ phoneNumber              │
+│ operating Hours (JSON)   │
+│ maxAppointmentsPerSlot   │
+│ isActive                 │
+│ createdDate              │
+└────┬─────────────────────┘
+     │ "manages"
+     │
+┌────▼──────────────────────┐
+│ BLOOD_INVENTORY          │
+├───────────────────────────┤
+│ inventoryID (PK)         │
+│ centerID (FK)            │
+│ bloodType                │
+│ unitCount                │
+│ maxCapacity              │
+│ expirationDate           │
+│ lastUpdated              │
+│ status(ADEQUATE|LOW|CRIT)│
+└──────────────────────────┘
+
+
+                         DETAILED ERD VIEW
+
+┌──────────────────────────┐
+│         USER             │
+├──────────────────────────┤
+│ PK: userID               │
+├──────────────────────────┤
+│ email (UNIQUE)           │
+│ password                 │
+│ userRole (ENUM)          │
+│ createDate               │
+│ lastLogin                │
+│ isActive                 │
+│ sessionToken             │
+│ sessionExpiry            │
+└──────┬────────┬──────────┘
+       │        │
+    1:1│        │1:1
+   ────┼────────┼────
+       │        │
+  ┌────▼─┐  ┌──▼────┐  ┌──────┐
+  │DONOR │  │STAFF  │  │ADMIN │
+  └────┬─┘  └───────┘  └──────┘
+   1   │
+       │ N
+       │ "donates"
+       │
+  ┌────▼────────────────────────┐
+  │   DONATION_RECORD           │
+  ├─────────────────────────────┤
+  │ PK: donationID              │
+  │ FK: donorID ────────┐       │
+  │ FK: centerID        │       │
+  │ FK: staffID         │       │
+  │ FK: healthMetricsID │       │
+  ├─────────────────────────────┤
+  │ donationDate                │
+  │ donationType (ENUM)         │
+  │ volumeDonated               │
+  │ status (ENUM)               │
+  │ createdDate                 │
+  └────────┬──────────┬─────────┘
+           │          │
+           │ 1        │ N
+      "at" │          │ "includes"
+           │          │
+   ┌───────▼──────┐   │
+   │               │   │
+   │ DONATION_     │   │
+   │ CENTER        │   │
+   │               │   │
+   │ centerID (PK) │   │
+   │ centerName    │   │
+   │ address       │   │
+   │ city, state   │   │
+   │ zipCode       │   │
+   │ phone         │   │
+   │ hours (JSON)  │   │
+   │ maxAppts      │   │
+   │ isActive      │   │
+   │ createdDate   │   │
+   └───────┬───────┘   │
+           │           │
+        1  │N          │
+  "manages"│           │
+           │           │
+   ┌───────▼──────┐    │
+   │ BLOOD_       │    │
+   │ INVENTORY    │    │
+   │              │    │
+   │ inventoryID  │    │
+   │ centerID(FK) │    │
+   │ bloodType    │    │
+   │ unitCount    │    │
+   │ maxCapacity  │    │
+   │ expirationDt │    │
+   │ lastUpdated  │    │
+   │ status       │    │
+   └──────────────┘    │
+                       │
+               ┌───────▼─────────────┐
+               │  HEALTH_METRICS     │
+               ├─────────────────────┤
+               │ PK: metricsID       │
+               │ FK: donorID         │
+               │ FK: staffID         │
+               ├─────────────────────┤
+               │ measurementDate     │
+               │ bloodType           │
+               │ hemoglobin          │
+               │ bloodPressure       │
+               │ status (ENUM)       │
+               │ notes               │
+               │ recordDate          │
+               └─────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────┐
+│                    APPOINTMENT FLOW                           │
+└──────────────────────────────────────────────────────────────┘
+
+        ┌─────────────┐
+        │   DONOR     │
+        └──────┬──────┘
+               │
+        1 : N  │ "books"
+               │
+        ┌──────▼──────────────────┐
+        │   APPOINTMENT           │
+        ├─────────────────────────┤
+        │ PK: appointmentID       │
+        │ FK: donorID             │
+        │ FK: centerID   ─────┐   │
+        ├─────────────────────┼───┤
+        │ appointmentDate     │   │
+        │ appointmentTime     │   │
+        │ status (ENUM)   ←───┤   │ N:1 "at"
+        │   - PENDING         │   │
+        │   - CONFIRMED       │   │
+        │   - CHECKED_IN      │   │
+        │   - COMPLETED       │   │
+        │   - CANCELLED       │   │
+        │                     │   │
+        └─────┬──────────────┬┘   │
+              │              │    │
+           1:N│              │    │
+    "logged"  │              │    │
+              │              │    │
+       ┌──────▼─────────┐    │    │
+       │ APPOINTMENT_   │    │    │
+       │ STATUS_LOG     │    │    │
+       ├────────────────┤    │    │
+       │ PK: logID      │    │    │
+       │ FK: appointID  │    │    │
+       │ FK: staffID    │    │    │
+       ├────────────────┤    │    │
+       │ previousStatus │    │    │
+       │ newStatus      │    │    │
+       │ changedDate    │    │    │
+       │ changedBy      │    │    │
+       │ reason         │    │    │
+       └────────────────┘    │    │
+                             │    │
+                    ┌────────▼────▼──────────┐
+                    │  DONATION_CENTER       │
+                    ├────────────────────────┤
+                    │ PK: centerID           │
+                    │ centerName             │
+                    │ streetAddress          │
+                    │ city, state, zipCode   │
+                    │ phoneNumber            │
+                    │ operatingHours         │
+                    │ maxAppointmentsPerSlot │
+                    │ isActive               │
+                    └──────┬─────────────────┘
+                           │
+                        1:N│ "manages"
+                           │
+                    ┌──────▼──────────────┐
+                    │ BLOOD_INVENTORY     │
+                    ├─────────────────────┤
+                    │ PK: inventoryID     │
+                    │ FK: centerID        │
+                    ├─────────────────────┤
+                    │ bloodType           │
+                    │   - A+, A-, B+, B-, │
+                    │   - AB+, AB-, O+, O-│
+                    │ unitCount           │
+                    │ maxCapacity         │
+                    │ expirationDate      │
+                    │ lastUpdated         │
+                    │ status              │
+                    │   - GREEN (20+)     │
+                    │   - YELLOW (10-19)  │
+                    │   - RED (<10)       │
+                    └─────────────────────┘
+
+
+================================================================================
+CARDINALITY LEGEND
+================================================================================
+
+1:1  = One-to-One Relationship
+      One entity in table A relates to exactly one entity in table B
+
+1:N  = One-to-Many Relationship
+      One entity in table A can relate to many entities in table B
+
+N:M  = Many-to-Many Relationship
+      Many entities in table A can relate to many entities in table B
+
+KEY SYMBOLS:
+PK   = Primary Key (uniquely identifies each record)
+FK   = Foreign Key (references primary key in another table)
+
+================================================================================
+KEY RELATIONSHIPS SUMMARY
+================================================================================
+
+1. USER (1) ──has──> (1) DONOR/STAFF/ADMIN (Inheritance Pattern)
+   - One user account for authentication
+   - User role determines access level
+
+2. DONOR (1) ──donates──> (N) DONATION_RECORD
+   - One donor can have many donation records
+   - Tracks donation history
+
+3. DONATION_RECORD (1) ──includes──> (1) HEALTH_METRICS
+   - Health metrics captured during each donation
+
+4. DONOR (1) ──has──> (N) HEALTH_METRICS
+   - Multiple health records per donor over time
+
+5. DONOR (1) ──books──> (N) APPOINTMENT
+   - One donor can have multiple appointments
+
+6. APPOINTMENT (N) ──at──> (1) DONATION_CENTER
+   - Multiple appointments at one center
+
+7. DONATION_CENTER (1) ──manages──> (N) BLOOD_INVENTORY
+   - Each center tracks inventory for each blood type
+
+8. APPOINTMENT (1) ──logged_by──> (N) APPOINTMENT_STATUS_LOG
+   - Status changes tracked for audit trail
+
+9. STAFF (1) ──processes──> (N) DONATION_RECORD
+   - Staff member processes donations
+
+10. STAFF (1) ──records──> (N) HEALTH_METRICS
+    - Staff member records health metrics
+
+================================================================================
+ENTITY CARDINALITY NOTATION
+================================================================================
+
+1:1  = One to One
+1:N  = One to Many
+N:M  = Many to Many
+
+PK   = Primary Key
+FK   = Foreign Key
+
+================================================================================
+DATA INTEGRITY CONSTRAINTS
+================================================================================
+
+1. DONATION_RECORD:
+   - nextEligibleDate = lastDonationDate + 56 days (for whole blood)
+   - Status transition: Pending → Confirmed → Checked-In → Completed/Cancelled
+
+2. BLOOD_INVENTORY:
+   - Status alerts when unitCount falls below thresholds
+   - Automatic status updates: GREEN (20+), YELLOW (10-19), RED (<10)
+
+3. APPOINTMENT:
+   - Cannot book appointment if donor is not eligible
+   - Max 1 appointment per time slot per center (enforced at application level)
+   - Cannot double-book same donor
+
+4. HEALTH_METRICS:
+   - Hemoglobin: Valid range 7-20 g/dL
+   - Blood Pressure: Format validation SYS/DIA (e.g., 120/80)
+
+5. USER/SESSION:
+   - Automatic session expiry after 30 minutes of inactivity
+   - Only one active session per user (optional feature)
+
+================================================================================
+INDEXING STRATEGY
+================================================================================
+
+Performance Indexes:
+- USER.email (UNIQUE)
+- DONOR.userID (FK)
+- DONOR.bloodType
+- DONOR.status
+- DONATION_RECORD.donorID (FK)
+- DONATION_RECORD.donationDate
+- APPOINTMENT.donorID (FK)
+- APPOINTMENT.centerID (FK)
+- APPOINTMENT.appointmentDate
+- APPOINTMENT.status
+- HEALTH_METRICS.donorID (FK)
+- HEALTH_METRICS.measurementDate
+- BLOOD_INVENTORY.centerID (FK)
+- BLOOD_INVENTORY.bloodType
+- BLOOD_INVENTORY.status
+
+================================================================================
+EOF
+================================================================================

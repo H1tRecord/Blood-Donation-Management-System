@@ -1,48 +1,7 @@
-/* =============================================
-   Blood Donation Management System - Main Styles
-   ============================================= */
-
-/* CSS Variables */
-:root {
-  --primary-color: #dc3545;
-  --primary-dark: #c82333;
-  --primary-light: #f8d7da;
-  --secondary-color: #6c757d;
-  --success-color: #28a745;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
-  --info-color: #17a2b8;
-  --light-bg: #f8f9fa;
-  --dark-bg: #343a40;
-  --white: #ffffff;
-  --text-primary: #212529;
-  --text-secondary: #6c757d;
-  --border-color: #dee2e6;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --transition: all 0.3s ease;
-}
-
-/* Reset & Base */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background-color: var(--light-bg);
-  color: var(--text-primary);
-  line-height: 1.6;
-}
-
+/* Main App Styles */
 .app {
   min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   flex-direction: column;
 }
@@ -51,1595 +10,212 @@ body {
   flex: 1;
   padding: 2rem;
   max-width: 1400px;
-  margin: 0 auto;
   width: 100%;
+  margin: 0 auto;
 }
 
-/* =============================================
-   Navbar Styles
-   ============================================= */
-.navbar {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--white);
-  padding: 0 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 70px;
-  box-shadow: var(--shadow-md);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+/* Global Card Styles */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
 }
 
-.navbar-brand a {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-  color: var(--white);
-}
-
-.blood-icon {
-  font-size: 1.75rem;
-}
-
-.brand-text {
-  font-size: 1.25rem;
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #2d3748;
+  font-size: 1.5rem;
   font-weight: 600;
 }
 
-.navbar-menu {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+.card h3 {
+  color: #4a5568;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
 }
 
-.navbar-menu a {
-  color: rgba(255, 255, 255, 0.9);
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  transition: var(--transition);
-}
-
-.navbar-menu a:hover,
-.navbar-menu a.active {
-  background: rgba(255, 255, 255, 0.2);
-  color: var(--white);
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding-left: 1.5rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.user-name {
-  font-weight: 500;
-}
-
-.user-role {
-  font-size: 0.85rem;
-  opacity: 0.8;
-}
-
-.btn-logout,
-.btn-login {
-  background: rgba(255, 255, 255, 0.2);
-  color: var(--white);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: var(--transition);
-}
-
-.btn-logout:hover,
-.btn-login:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* =============================================
-   Button Styles
-   ============================================= */
+/* Button Styles */
 .btn-primary {
-  background: var(--primary-color);
-  color: var(--white);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-md);
-  cursor: pointer;
+  border-radius: 8px;
   font-size: 1rem;
-  font-weight: 500;
-  transition: var(--transition);
-  text-decoration: none;
-  display: inline-block;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
 }
 
-.btn-primary:hover {
-  background: var(--primary-dark);
-  transform: translateY(-1px);
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-secondary {
-  background: var(--secondary-color);
-  color: var(--white);
+  background: #e2e8f0;
+  color: #2d3748;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-md);
-  cursor: pointer;
+  border-radius: 8px;
   font-size: 1rem;
-  font-weight: 500;
-  transition: var(--transition);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .btn-secondary:hover {
-  background: #5a6268;
+  background: #cbd5e0;
 }
 
-.btn-block {
-  width: 100%;
-  display: block;
-}
-
-/* =============================================
-   Login Page Styles
-   ============================================= */
-.login-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 150px);
-  padding: 2rem;
-}
-
-.login-container {
-  background: var(--white);
-  padding: 3rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  width: 100%;
-  max-width: 450px;
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.blood-icon-large {
-  font-size: 3.5rem;
-  display: block;
-  margin-bottom: 1rem;
-}
-
-.login-header h1 {
-  font-size: 1.5rem;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.login-header p {
-  color: var(--text-secondary);
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
+/* Form Styles */
 .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-group label {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.form-group input,
-.form-group select {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  transition: var(--transition);
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-light);
-}
-
-.error-message {
-  background: var(--primary-light);
-  color: var(--danger-color);
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-}
-
-.login-footer {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: var(--text-secondary);
-}
-
-.link-button {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  cursor: pointer;
-  font-size: 1rem;
-  text-decoration: underline;
-}
-
-.link-button:hover {
-  color: var(--primary-dark);
-}
-
-/* =============================================
-   Dashboard Styles
-   ============================================= */
-.donor-dashboard,
-.staff-dashboard {
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.dashboard-header {
-  margin-bottom: 2rem;
-}
-
-.dashboard-header h1 {
-  font-size: 2rem;
-  color: var(--text-primary);
-}
-
-.dashboard-header .subtitle {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1.5rem;
-}
-
-/* Card Styles */
-.card {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  transition: var(--transition);
-}
-
-.card:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.card-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-header h2 {
-  font-size: 1.1rem;
-  color: var(--text-primary);
-}
-
-.card-header .subtitle {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.card-header .badge {
-  background: var(--primary-light);
-  color: var(--primary-color);
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.card-body {
-  padding: 1.5rem;
-}
-
-/* Profile Card */
-.profile-card .profile-avatar {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.avatar-initials {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.blood-type-badge {
-  background: var(--primary-color);
-  color: var(--white);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.profile-info .info-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.profile-info .info-item:last-child {
-  border-bottom: none;
-}
-
-.profile-info .label {
-  color: var(--text-secondary);
-}
-
-.profile-info .value {
-  font-weight: 500;
-}
-
-.profile-info .highlight {
-  color: var(--primary-color);
-  font-size: 1.25rem;
-}
-
-/* Eligibility Card */
-.eligibility-card .eligibility-content {
-  text-align: center;
-  padding: 1rem 0;
-}
-
-.eligibility-card.eligible {
-  border: 2px solid var(--success-color);
-}
-
-.eligibility-card.not-eligible {
-  border: 2px solid var(--warning-color);
-}
-
-.eligibility-card .status-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.countdown-circle {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--warning-color), #ffca2c);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-  color: var(--text-primary);
-}
-
-.countdown-circle .days-number {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.countdown-circle .days-label {
-  font-size: 0.9rem;
-}
-
-.eligibility-content h3 {
+  display: block;
   margin-bottom: 0.5rem;
-  color: var(--text-primary);
-}
-
-.eligibility-content .next-date {
-  color: var(--primary-color);
+  color: #2d3748;
   font-weight: 500;
-  margin-top: 0.5rem;
-}
-
-.eligibility-info {
-  text-align: center;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
-  color: var(--text-secondary);
-}
-
-/* Health Card */
-.health-metrics {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.health-metrics .metric {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--light-bg);
-  border-radius: var(--radius-md);
-}
-
-.metric-icon {
-  font-size: 1.5rem;
-}
-
-.metric-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.metric-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.metric-value {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.metric-status {
-  font-size: 0.8rem;
-}
-
-.metric-status.normal {
-  color: var(--success-color);
-}
-
-.health-note {
-  margin-top: 1rem;
-  color: var(--text-secondary);
-  text-align: center;
-}
-
-/* Donation Timeline */
-.donation-timeline {
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.timeline-item {
-  display: flex;
-  gap: 1rem;
-  padding-bottom: 1.5rem;
-}
-
-.timeline-marker {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.marker-dot {
-  width: 12px;
-  height: 12px;
-  background: var(--primary-color);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.marker-line {
-  width: 2px;
-  flex: 1;
-  background: var(--border-color);
-  margin-top: 0.5rem;
-}
-
-.timeline-content {
-  flex: 1;
-}
-
-.timeline-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.donation-date {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.status-badge.completed {
-  background: #d4edda;
-  color: var(--success-color);
-}
-
-.donation-details {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.donation-details .location {
-  margin-bottom: 0.25rem;
-}
-
-/* =============================================
-   Appointment Booking Styles
-   ============================================= */
-.booking-page {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.booking-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.booking-header h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.eligibility-warning {
-  background: #fff3cd;
-  border: 1px solid var(--warning-color);
-  padding: 1rem 1.5rem;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.warning-icon {
-  font-size: 1.5rem;
-}
-
-/* Progress Steps */
-.booking-steps {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-}
-
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  opacity: 0.5;
-  transition: var(--transition);
-}
-
-.step.active {
-  opacity: 1;
-}
-
-.step.completed .step-number {
-  background: var(--success-color);
-}
-
-.step-number {
-  width: 40px;
-  height: 40px;
-  background: var(--secondary-color);
-  color: var(--white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-}
-
-.step.active .step-number {
-  background: var(--primary-color);
-}
-
-.step span {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.step-connector {
-  width: 60px;
-  height: 2px;
-  background: var(--border-color);
-  margin: 0 1rem;
-}
-
-/* Booking Sections */
-.booking-section {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-sm);
-}
-
-.booking-section h2 {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  font-size: 1.25rem;
-}
-
-.check-icon {
-  color: var(--success-color);
-}
-
-.completed-section {
-  background: #f8f9fa;
-}
-
-.selected-summary {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--light-bg);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-}
-
-.selected-summary strong {
-  flex: 1;
-}
-
-.btn-change {
-  background: none;
-  border: 1px solid var(--primary-color);
-  color: var(--primary-color);
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-/* Centers List */
-.centers-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.center-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.center-card:hover {
-  border-color: var(--primary-color);
-  background: var(--primary-light);
-}
-
-.center-info h3 {
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-}
-
-.center-info p {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.25rem;
-}
-
-.select-arrow {
-  font-size: 1.5rem;
-  color: var(--primary-color);
-}
-
-/* Date & Time Selection */
-.datetime-selection {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.date-picker h3,
-.time-picker h3 {
-  margin-bottom: 1rem;
-  font-size: 1rem;
-}
-
-.dates-grid {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.date-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  min-width: 80px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--white);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.date-btn:hover {
-  border-color: var(--primary-color);
-}
-
-.date-btn.selected {
-  background: var(--primary-color);
-  color: var(--white);
-  border-color: var(--primary-color);
-}
-
-.date-btn .day-name {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-}
-
-.date-btn .day-date {
-  font-size: 1.5rem;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.date-btn .month {
-  font-size: 0.8rem;
-}
-
-.slots-grid {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.slot-btn {
-  padding: 0.75rem 1.25rem;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--white);
-  cursor: pointer;
-  transition: var(--transition);
   font-size: 0.95rem;
 }
 
-.slot-btn:hover {
-  border-color: var(--primary-color);
-}
-
-.slot-btn.selected {
-  background: var(--primary-color);
-  color: var(--white);
-  border-color: var(--primary-color);
-}
-
-.no-slots {
-  color: var(--text-secondary);
-  padding: 1rem;
-  background: var(--light-bg);
-  border-radius: var(--radius-md);
-}
-
-/* Confirmation Preview */
-.confirmation-preview {
-  display: flex;
-  justify-content: center;
-}
-
-.preview-card {
+.form-group input,
+.form-group select,
+.form-group textarea {
   width: 100%;
-  max-width: 500px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.preview-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--white);
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.preview-header .blood-icon-large {
-  font-size: 2.5rem;
-}
-
-.preview-details {
-  padding: 1.5rem;
-}
-
-.preview-item {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.preview-item:last-child {
-  border-bottom: none;
-}
-
-.preview-item .icon {
-  font-size: 1.5rem;
-}
-
-.preview-item .label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.preview-item .value {
-  font-weight: 600;
-  display: block;
-}
-
-.preview-item .subvalue {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.preview-actions {
-  padding: 1.5rem;
-  display: flex;
-  gap: 1rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.preview-actions button {
-  flex: 1;
-}
-
-/* Booking Confirmed */
-.booking-confirmed {
-  text-align: center;
-  padding: 3rem;
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.confirmation-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
-
-.booking-confirmed h1 {
-  color: var(--success-color);
-  margin-bottom: 2rem;
-}
-
-.confirmation-details {
-  text-align: left;
-  background: var(--light-bg);
-  padding: 1.5rem;
-  border-radius: var(--radius-md);
-  margin-bottom: 2rem;
-}
-
-.confirmation-details .detail-item {
-  display: flex;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.confirmation-details .detail-item:last-child {
-  border-bottom: none;
-}
-
-.confirmation-details .label {
-  width: 100px;
-  color: var(--text-secondary);
-}
-
-.confirmation-details .value {
-  flex: 1;
-  font-weight: 500;
-}
-
-.confirmation-note {
-  text-align: left;
-  margin-bottom: 2rem;
-}
-
-.confirmation-note p {
-  padding: 0.5rem 0;
-  color: var(--text-secondary);
-}
-
-/* =============================================
-   Staff Dashboard Styles
-   ============================================= */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  background: var(--white);
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.stat-card.warning {
-  border-left: 4px solid var(--warning-color);
-}
-
-.stat-icon {
-  font-size: 2rem;
-}
-
-.stat-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-/* Inventory Overview */
-.inventory-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
-}
-
-.inventory-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  background: var(--light-bg);
-}
-
-.inventory-item .blood-type {
-  font-weight: 700;
-  font-size: 1.1rem;
-  margin-bottom: 0.25rem;
-}
-
-.inventory-item .units {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.inventory-item.critical {
-  background: #f8d7da;
-}
-
-.inventory-item.low {
-  background: #fff3cd;
-}
-
-.inventory-item.adequate {
-  background: #d4edda;
-}
-
-.view-all {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-.view-all:hover {
-  text-decoration: underline;
-}
-
-/* Appointments List */
-.appointments-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.appointment-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--light-bg);
-  border-radius: var(--radius-md);
-}
-
-.apt-time {
-  display: flex;
-  flex-direction: column;
-  min-width: 100px;
-}
-
-.apt-time .date {
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.apt-time .time {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.apt-details {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.apt-details .donor-name {
-  font-weight: 500;
-}
-
-.blood-type-small {
-  background: var(--primary-color);
-  color: var(--white);
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.apt-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-}
-
-.apt-status.confirmed {
-  background: #d4edda;
-  color: var(--success-color);
-}
-
-.apt-status.pending {
-  background: #fff3cd;
-  color: #856404;
-}
-
-/* Donors List */
-.donors-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.donor-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
   padding: 0.75rem;
-  border-radius: var(--radius-md);
-  transition: var(--transition);
-}
-
-.donor-item:hover {
-  background: var(--light-bg);
-}
-
-.donor-avatar {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.donor-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.donor-info .donor-name {
-  font-weight: 500;
-}
-
-.donor-info .donor-email {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.donor-blood-type {
-  background: var(--light-bg);
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  color: var(--primary-color);
-}
-
-/* Quick Actions */
-.quick-actions {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
-.action-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1.5rem;
-  background: var(--light-bg);
-  border: 2px solid transparent;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition);
-  text-decoration: none;
-  color: var(--text-primary);
-}
-
-.action-btn:hover {
-  border-color: var(--primary-color);
-  background: var(--primary-light);
-}
-
-.action-icon {
-  font-size: 1.5rem;
-}
-
-/* =============================================
-   Inventory Management Page
-   ============================================= */
-.inventory-page,
-.donor-search-page {
-  animation: fadeIn 0.3s ease;
-}
-
-.page-header {
-  margin-bottom: 2rem;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.page-header p {
-  color: var(--text-secondary);
-}
-
-.inventory-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.stat-box {
-  background: var(--white);
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-  text-align: center;
-  box-shadow: var(--shadow-sm);
-}
-
-.stat-box.warning {
-  border-left: 4px solid var(--warning-color);
-}
-
-.stat-box.danger {
-  border-left: 4px solid var(--danger-color);
-}
-
-.stat-box.success {
-  border-left: 4px solid var(--success-color);
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  display: block;
-  color: var(--text-primary);
-}
-
-.stat-text {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.inventory-control-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.blood-type-card {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-  transition: var(--transition);
-  border: 2px solid transparent;
-}
-
-.blood-type-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--primary-color);
-}
-
-.blood-type-card.critical {
-  border-left: 4px solid var(--danger-color);
-}
-
-.blood-type-card.low {
-  border-left: 4px solid var(--warning-color);
-}
-
-.blood-type-card.adequate {
-  border-left: 4px solid var(--success-color);
-}
-
-.blood-type-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.type-label {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--primary-color);
-}
-
-.status-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.blood-type-body {
-  margin-bottom: 1rem;
-}
-
-.units-display {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.units-number {
-  font-size: 3rem;
-  font-weight: 700;
-  display: block;
-}
-
-.units-label {
-  color: var(--text-secondary);
-}
-
-.blood-type-bar {
-  height: 8px;
-  background: var(--border-color);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.5s ease;
-}
-
-.blood-type-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.status-text {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.status-text.critical {
-  color: var(--danger-color);
-}
-
-.status-text.low {
-  color: #856404;
-}
-
-.status-text.adequate {
-  color: var(--success-color);
-}
-
-.expiring-badge {
-  font-size: 0.85rem;
-  color: var(--warning-color);
-}
-
-.inventory-legend {
-  background: var(--white);
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-}
-
-.inventory-legend h3 {
-  margin-bottom: 1rem;
-}
-
-.legend-items {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.legend-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-}
-
-/* =============================================
-   Donor Search Page
-   ============================================= */
-.search-section {
-  background: var(--white);
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-sm);
-}
-
-.search-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: var(--light-bg);
-  border-radius: var(--radius-md);
-  border: 2px solid transparent;
-  transition: var(--transition);
-  margin-bottom: 1rem;
-}
-
-.search-bar:focus-within {
-  border-color: var(--primary-color);
-  background: var(--white);
-}
-
-.search-icon {
-  font-size: 1.25rem;
-}
-
-.search-input {
-  flex: 1;
-  border: none;
-  background: transparent;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 1rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
+  border-color: #667eea;
 }
 
-.clear-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  line-height: 1;
-}
-
-.filters {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.filter-group label {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.filter-group select {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-}
-
-.results-count {
-  margin-bottom: 1rem;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.donors-table-container {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-
-.donors-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.donors-table th,
-.donors-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.donors-table th {
-  background: var(--light-bg);
-  font-weight: 600;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  text-transform: uppercase;
-}
-
-.donors-table tr:hover {
-  background: var(--light-bg);
-}
-
-.donor-id {
-  font-family: monospace;
-  color: var(--text-secondary);
-}
-
-.name-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.avatar-small {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.contact-info {
-  font-size: 0.9rem;
-}
-
-.contact-info .phone {
-  color: var(--text-secondary);
+.form-group small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #718096;
   font-size: 0.85rem;
 }
 
-.total-donations {
-  font-weight: 600;
-  color: var(--primary-color);
-}
-
+/* Status Badges */
 .status-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.status-active {
-  background: #cce5ff;
-  color: #004085;
-}
-
-.status-eligible {
-  background: #d4edda;
-  color: var(--success-color);
-}
-
-.status-deferred {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.btn-view {
-  background: var(--primary-color);
-  color: var(--white);
-  border: none;
-  padding: 0.4rem 1rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
   font-size: 0.85rem;
-  transition: var(--transition);
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
-.btn-view:hover {
-  background: var(--primary-dark);
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
 }
 
-.no-results {
-  text-align: center;
-  color: var(--text-secondary);
-  padding: 3rem !important;
+.status-badge.confirmed {
+  background: #dbeafe;
+  color: #1e40af;
 }
 
-/* =============================================
-   Modal Styles
-   ============================================= */
+.status-badge.checked-in {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.status-badge.completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Blood Type Badge */
+.blood-type-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+.blood-type-small {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Message Styles */
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #dc2626;
+}
+
+.success-message {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #10b981;
+}
+
+.success-banner {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: #d1fae5;
+  color: #065f46;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1650,736 +226,77 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
-  animation: fadeIn 0.2s ease;
+  z-index: 1000;
+  padding: 1rem;
 }
 
-.modal-content {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  width: 90%;
-  max-width: 500px;
+.modal-card {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
   max-height: 90vh;
-  overflow: auto;
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-header h2 {
-  font-size: 1.25rem;
+  margin: 0;
+  color: #2d3748;
 }
 
 .close-btn {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 2rem;
+  color: #718096;
   cursor: pointer;
-  color: var(--text-secondary);
-  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
 }
 
 .close-btn:hover {
-  color: var(--text-primary);
+  color: #2d3748;
 }
 
-.modal-body {
+.modal-content {
   padding: 1.5rem;
 }
 
-.modal-footer {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--border-color);
+.modal-actions {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
+  margin-top: 1.5rem;
 }
 
-/* Add Units Modal */
-.current-stock,
-.new-total {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem;
-  background: var(--light-bg);
-  border-radius: var(--radius-md);
-  margin-bottom: 1rem;
-}
-
-.units-input {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.units-input input {
-  width: 80px;
-  text-align: center;
-  font-size: 1.25rem;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-}
-
-.unit-btn {
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--border-color);
-  background: var(--white);
-  border-radius: 50%;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.unit-btn:hover {
-  background: var(--primary-color);
-  color: var(--white);
-  border-color: var(--primary-color);
-}
-
-/* Donor Modal */
-.donor-modal {
-  max-width: 550px;
-}
-
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.avatar-large {
-  width: 70px;
-  height: 70px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.profile-name {
+.modal-actions button {
   flex: 1;
 }
 
-.profile-name h3 {
-  margin-bottom: 0.25rem;
-}
-
-.donor-id-label {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.blood-type-large {
-  background: var(--primary-color);
-  color: var(--white);
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--radius-md);
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.profile-details .detail-row {
-  display: flex;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.profile-details .detail-row:last-child {
-  border-bottom: none;
-}
-
-.profile-details .label {
-  width: 140px;
-  color: var(--text-secondary);
-}
-
-.profile-details .value {
-  flex: 1;
-}
-
-.profile-details .value.highlight {
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-/* =============================================
-   Responsive Design
-   ============================================= */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .navbar {
-    padding: 0 1rem;
-    height: auto;
-    flex-direction: column;
-    padding: 1rem;
-  }
-
-  .navbar-menu {
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 1rem;
-    gap: 0.75rem;
-  }
-
-  .user-info {
-    padding-left: 0;
-    border-left: none;
-    padding-top: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    width: 100%;
-    justify-content: center;
-  }
-
   .main-content {
     padding: 1rem;
   }
 
-  .dashboard-grid {
-    grid-template-columns: 1fr;
+  .card {
+    padding: 1rem;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .inventory-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .booking-steps {
+  .modal-actions {
     flex-direction: column;
-    gap: 1rem;
-  }
-
-  .step-connector {
-    width: 2px;
-    height: 30px;
-    margin: 0;
-  }
-
-  .dates-grid {
-    justify-content: center;
-  }
-
-  .quick-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .filters {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .donors-table-container {
-    overflow-x: auto;
-  }
-
-  .donors-table {
-    min-width: 700px;
-  }
-}
-
-@media (max-width: 480px) {
-  .brand-text {
-    font-size: 1rem;
-  }
-
-  .login-container {
-    padding: 1.5rem;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .inventory-control-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-content {
-    width: 95%;
-    margin: 1rem;
-  }
-}
-
-/* =============================================
-   Staff Appointments Page Styles
-   ============================================= */
-.staff-appointments-page {
-  animation: fadeIn 0.3s ease;
-}
-
-.apt-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.apt-stat {
-  background: var(--white);
-  padding: 1.25rem;
-  border-radius: var(--radius-lg);
-  text-align: center;
-  box-shadow: var(--shadow-sm);
-}
-
-.apt-stat.highlight {
-  border-left: 4px solid var(--info-color);
-}
-
-.apt-stat.success {
-  border-left: 4px solid var(--success-color);
-}
-
-.apt-stat .stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  display: block;
-  color: var(--text-primary);
-}
-
-.apt-stat .stat-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-/* Week Calendar */
-.calendar-section {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: var(--shadow-sm);
-}
-
-.calendar-section h2 {
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-}
-
-.week-calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.75rem;
-}
-
-.calendar-day {
-  background: var(--light-bg);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  cursor: pointer;
-  transition: var(--transition);
-  border: 2px solid transparent;
-  min-height: 120px;
-}
-
-.calendar-day:hover {
-  border-color: var(--primary-color);
-}
-
-.calendar-day.selected {
-  background: var(--primary-light);
-  border-color: var(--primary-color);
-}
-
-.calendar-day.today {
-  border-color: var(--success-color);
-}
-
-.calendar-day.today .day-number {
-  background: var(--success-color);
-  color: var(--white);
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.day-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.day-name {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-.day-number {
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.day-appointments {
-  text-align: center;
-}
-
-.apt-count {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.apt-dots {
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.apt-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.more-dots {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-}
-
-.no-apt {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-/* Day Detail Section */
-.day-detail-section {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.section-header h2 {
-  font-size: 1.25rem;
-}
-
-.appointment-count {
-  background: var(--primary-light);
-  color: var(--primary-color);
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-}
-
-/* Appointments Timeline */
-.appointments-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.appointment-card {
-  display: flex;
-  background: var(--light-bg);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border-left: 4px solid var(--border-color);
-}
-
-.appointment-card.pending {
-  border-left-color: #ffc107;
-}
-
-.appointment-card.confirmed {
-  border-left-color: #17a2b8;
-}
-
-.appointment-card.checked-in {
-  border-left-color: #28a745;
-}
-
-.appointment-card.completed {
-  border-left-color: #6c757d;
-  opacity: 0.8;
-}
-
-.appointment-card.cancelled {
-  border-left-color: #dc3545;
-  opacity: 0.6;
-}
-
-.apt-time-col {
-  background: var(--white);
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 100px;
-  border-right: 1px solid var(--border-color);
-}
-
-.apt-time {
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.apt-main {
-  flex: 1;
-  padding: 1rem;
-}
-
-.apt-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-}
-
-.apt-header .donor-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.apt-header .donor-name {
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.apt-header .donor-id {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.blood-type-unknown {
-  background: #e9ecef;
-  color: var(--text-secondary);
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-}
-
-.apt-details {
-  margin-bottom: 0.75rem;
-}
-
-.center-name {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.apt-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.status-section {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.status-select {
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  background: var(--white);
-}
-
-.btn-process {
-  background: var(--success-color);
-  color: var(--white);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 500;
-  transition: var(--transition);
-}
-
-.btn-process:hover {
-  background: #218838;
-}
-
-.completed-badge {
-  color: var(--success-color);
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-.no-appointments {
-  text-align: center;
-  padding: 3rem;
-  color: var(--text-secondary);
-}
-
-.empty-icon {
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 1rem;
-}
-
-/* Process Modal */
-.process-modal {
-  max-width: 550px;
-}
-
-.process-donor-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--light-bg);
-  border-radius: var(--radius-md);
-  margin-bottom: 1.5rem;
-}
-
-.donor-avatar-large {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.process-form h4 {
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.form-group textarea {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  resize: vertical;
-  font-family: inherit;
-}
-
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-light);
-}
-
-/* Registration Info Note */
-.info-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #e7f3ff;
-  border-radius: var(--radius-md);
-  margin-bottom: 0.5rem;
-}
-
-.info-icon {
-  font-size: 1.25rem;
-}
-
-.info-note small {
-  color: #0056b3;
-  line-height: 1.5;
-}
-
-/* Blood type unknown in donor search */
-.blood-type-unknown-large {
-  background: #e9ecef;
-  color: var(--text-secondary);
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-/* Edit form in donor modal */
-.edit-form {
-  margin-top: 1rem;
-}
-
-.edit-form h4 {
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-/* Responsive for appointments page */
-@media (max-width: 1024px) {
-  .week-calendar {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .week-calendar {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  .appointment-card {
-    flex-direction: column;
-  }
-  
-  .apt-time-col {
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-    padding: 0.75rem;
-  }
-  
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .week-calendar {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .apt-footer {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-start;
   }
 }

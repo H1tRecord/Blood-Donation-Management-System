@@ -1,169 +1,134 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import './Login.css';
 
-function Login({ onLogin }) {
-  const [isRegister, setIsRegister] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
-    phone: '',
-    role: 'donor',
-  });
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
-    // Simple validation
-    if (!formData.email || !formData.password) {
-      setError('Please fill in all required fields');
+    // Validate inputs
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      setIsLoading(false);
       return;
     }
 
-    if (isRegister && (!formData.name || !formData.phone)) {
-      setError('Please fill in all required fields');
-      return;
-    }
-
-    // Mock authentication - in real app this would call an API
-    const user = {
-      id: isRegister ? `D${Date.now()}` : 'D001',
-      name: isRegister ? formData.name : (formData.role === 'donor' ? 'John Smith' : 'Admin User'),
-      email: formData.email,
-      phone: isRegister ? formData.phone : '555-123-4567',
-      bloodType: null, // Blood type set by staff during appointment
-      role: formData.role,
-    };
-
-    onLogin(user);
+    // Attempt login
+    const result = login(email, password);
     
-    // Navigate based on role
-    if (formData.role === 'donor') {
-      navigate('/donor/dashboard');
+    if (result.success) {
+      // Redirect based on role
+      if (result.user.role === 'donor') {
+        navigate('/donor-dashboard');
+      } else if (result.user.role === 'staff') {
+        navigate('/staff-dashboard');
+      } else if (result.user.role === 'admin') {
+        navigate('/admin-dashboard');
+      }
     } else {
-      navigate('/staff/dashboard');
+      setError(result.message);
+      setIsLoading(false);
+    }
+  };
+
+  const handleDemoLogin = (role) => {
+    if (role === 'donor') {
+      setEmail('john.smith@email.com');
+      setPassword('donor123');
+    } else if (role === 'staff') {
+      setEmail('nurse.smith@bdms.org');
+      setPassword('staff123');
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
+    <div className="login-container">
+      <div className="login-card">
         <div className="login-header">
-          <span className="blood-icon-large">🩸</span>
           <h1>Blood Donation Management System</h1>
-          <p>{isRegister ? 'Create your donor account' : 'Sign in to your account'}</p>
+          <h2>Sign In</h2>
         </div>
 
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="login-form">
-          {error && <div className="error-message">{error}</div>}
-
-          {isRegister && (
-            <>
-              <div className="form-group">
-                <label htmlFor="name">Full Name *</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Enter your full name"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="phone">Phone Number *</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="Enter your phone number"
-                />
-              </div>
-
-              <div className="info-note">
-                <span className="info-icon">ℹ️</span>
-                <small>Your blood type will be determined by our staff during your first donation appointment.</small>
-              </div>
-            </>
-          )}
-
           <div className="form-group">
-            <label htmlFor="email">Email Address *</label>
+            <label htmlFor="email">Email Address</label>
             <input
               type="email"
               id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password *</label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
+              required
             />
           </div>
 
-          {!isRegister && (
-            <div className="form-group">
-              <label htmlFor="role">Login As</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-              >
-                <option value="donor">Donor</option>
-                <option value="staff">Staff/Admin</option>
-              </select>
-            </div>
-          )}
-
-          <button type="submit" className="btn-primary btn-block">
-            {isRegister ? 'Create Account' : 'Sign In'}
+          <button type="submit" className="btn-primary" disabled={isLoading}>
+            {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
+        <div className="login-divider">
+          <span>Demo Accounts</span>
+        </div>
+
+        <div className="demo-buttons">
+          <button
+            onClick={() => handleDemoLogin('donor')}
+            className="btn-demo"
+          >
+            Demo Donor Login
+          </button>
+          <button
+            onClick={() => handleDemoLogin('staff')}
+            className="btn-demo"
+          >
+            Demo Staff Login
+          </button>
+        </div>
+
         <div className="login-footer">
-          {isRegister ? (
-            <p>
-              Already have an account?{' '}
-              <button onClick={() => setIsRegister(false)} className="link-button">
-                Sign In
-              </button>
-            </p>
-          ) : (
-            <p>
-              Don't have an account?{' '}
-              <button onClick={() => setIsRegister(true)} className="link-button">
-                Register as Donor
-              </button>
-            </p>
-          )}
+          <p>
+            Don't have an account?{' '}
+            <a href="/register" onClick={(e) => {
+              e.preventDefault();
+              navigate('/register');
+            }}>
+              Register here
+            </a>
+          </p>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Login;

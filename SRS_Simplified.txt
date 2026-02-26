@@ -1,0 +1,408 @@
+================================================================================
+BLOOD DONATION MANAGEMENT SYSTEM (BDMS)
+SOFTWARE REQUIREMENTS SPECIFICATION (SIMPLIFIED)
+Version 1.0
+================================================================================
+
+TABLE OF CONTENTS
+
+1. Introduction
+   1.1 Purpose
+   1.2 Scope
+   1.3 References
+
+2. Overall Description
+   2.1 Product Perspective
+   2.2 Product Functions
+   2.3 User Classes
+   2.4 Operating Environment
+   2.5 Assumptions and Dependencies
+
+3. External Interface Requirements
+   3.1 User Interfaces
+   3.2 Communications Interfaces
+
+4. System Features
+   4.1 User Management
+   4.2 Appointment Management
+   4.3 Blood Inventory Management
+   4.4 Donor Request System
+
+5. Non-Functional Requirements
+   5.1 Performance
+   5.2 Security
+   5.3 Usability
+   5.4 Business Rules
+
+Appendix A: Glossary
+
+================================================================================
+1. INTRODUCTION
+================================================================================
+
+1.1 PURPOSE
+
+The Blood Donation Management System (BDMS) is a web-based application designed 
+to manage donation appointments, track blood inventory levels, and enable staff 
+to request donations from eligible registered users for specific blood types.
+
+1.2 SCOPE
+
+INCLUDED IN SCOPE:
+- User registration and authentication
+- Appointment booking and scheduling
+- Blood inventory tracking by blood type
+- Display of needed blood types
+- Staff capability to request donations from eligible donors
+- Eligibility tracking based on 56-day deferral period
+- Donor profile and donation history
+
+EXCLUDED FROM SCOPE:
+- Laboratory testing and analysis
+- Blood collection equipment integration
+- SMS notifications (email only)
+
+1.3 REFERENCES
+
+- React 19.2.0 Documentation
+- Vite 7.3.1 Build Tool
+- AABB Blood Banking Standards
+- IEEE 830-1998 SRS Standard
+
+================================================================================
+2. OVERALL DESCRIPTION
+================================================================================
+
+2.1 PRODUCT PERSPECTIVE
+
+The BDMS is a standalone web-based single-page application (SPA) that enables:
+1. Donors to register, manage appointments, and view their donation history
+2. Staff to manage appointments, track blood inventory, and request donations 
+   from eligible donors for specific blood types
+3. System administrators to manage users and configure settings
+
+The system operates as the central hub for appointment scheduling and blood 
+inventory management at a single donation center.
+
+2.2 PRODUCT FUNCTIONS
+
+The system provides four primary functions:
+
+A) USER MANAGEMENT
+   - User registration for donors and staff
+   - Secure authentication and login
+   - Profile management
+   - Role-based access control (Donor, Staff, Admin)
+
+B) APPOINTMENT MANAGEMENT
+   - Donors book appointments
+   - Staff view and manage appointment calendar
+   - Appointment status tracking (pending, confirmed, completed, cancelled)
+   - Appointment notifications
+
+C) BLOOD INVENTORY MANAGEMENT
+   - Track blood units by type (A+, A-, B+, B-, AB+, AB-, O+, O-)
+   - Display inventory levels and status (adequate, low, critical)
+   - Record new donations and update inventory
+   - Alert staff when inventory is low
+
+D) DONOR REQUEST SYSTEM
+   - Staff identify eligible donors
+   - Staff request specific blood types from eligible donors
+   - Notification to donors of requests
+   - Donor response to requests
+
+2.3 USER CLASSES
+
+DONOR USERS:
+- Age 18-65 years
+- Book appointments
+- View eligibility and donation history
+- Receive and respond to donation requests
+
+STAFF USERS:
+- Medical professionals (phlebotomists, nurses)
+- Manage appointments
+- Manage blood inventory
+- Request donations from eligible donors
+
+ADMINISTRATOR USERS:
+- System configuration and user management
+
+2.4 OPERATING ENVIRONMENT
+
+Frontend:
+- React 19.2.0
+- Modern web browsers (Chrome, Firefox, Safari, Edge)
+- Desktop, tablet, and mobile devices
+- JavaScript enabled
+
+Backend (Phase 2):
+- Node.js/Express
+- Database: PostgreSQL or MongoDB
+- Email service integration
+
+2.5 ASSUMPTIONS AND DEPENDENCIES
+
+ASSUMPTIONS:
+- Donors provide accurate registration information
+- Staff trained on system usage
+- Internet connectivity available at donation center
+- Email service available for notifications
+
+DEPENDENCIES:
+- Modern web browser required
+- Email service provider for notifications
+- User authentication system
+- Database for data persistence (Phase 2)
+
+================================================================================
+3. EXTERNAL INTERFACE REQUIREMENTS
+================================================================================
+
+3.1 USER INTERFACES
+
+DONOR INTERFACE:
+- Registration form
+- Login page
+- Dashboard showing:
+  * Eligibility status (eligible/ineligible with countdown)
+  * Donation history timeline
+  * Upcoming appointment
+  * Blood type and health metrics
+- Appointment booking interface
+- Donation requests inbox
+- Profile management
+
+STAFF INTERFACE:
+- Login page
+- Dashboard showing:
+  * Blood inventory by type with status
+  * Today's appointments
+  * Blood types needed (low/critical)
+- Appointment calendar and management
+- Blood inventory management
+- Donor search interface
+- Donation request interface to eligible donors
+
+3.2 COMMUNICATIONS INTERFACES
+
+- Email notifications for appointment confirmations
+- Email notifications for donation requests
+- Email reminders before appointments
+- Email notifications for inventory status changes
+
+================================================================================
+4. SYSTEM FEATURES
+================================================================================
+
+4.1 USER MANAGEMENT
+
+4.1.1 User Registration
+
+Description:
+Allow new donors and staff to create accounts.
+
+Requirements:
+- Display registration form with fields:
+  * Full Name
+  * Email (unique)
+  * Phone Number
+  * Password (minimum 6 characters)
+  * Role (Donor or Staff)
+- Validate all inputs
+- Prevent duplicate emails
+- Generate unique User ID
+- Send confirmation email
+
+4.1.2 User Authentication
+
+Description:
+Secure login for registered users.
+
+Requirements:
+- Email and password login
+- Session management (30-minute timeout)
+- Role-based dashboard routing
+- Logout functionality
+
+4.1.3 Donor Profile
+
+Description:
+Allow donors to view and manage their profile.
+
+Requirements:
+- Display donor information:
+  * Name, email, phone
+  * Blood type (if determined)
+  * Donation count
+  * Last donation date
+- Allow editing of name and phone
+- Display health metrics
+
+4.2 APPOINTMENT MANAGEMENT
+
+4.2.1 Appointment Booking
+
+Description:
+Enable eligible donors to book donation appointments.
+
+Requirements:
+- Display appointment booking interface only for eligible donors
+- Show calendar for next 7 days
+- Display available time slots
+- Allow selection of date and time
+- Prevent double-booking (1 donor per slot)
+- Display confirmation summary
+- Generate confirmation number
+- Send confirmation email
+
+4.2.2 Staff Appointment Management
+
+Description:
+Enable staff to view and manage appointments.
+
+Requirements:
+- Display 7-day calendar with appointment counts
+- Show daily appointment list with:
+  * Donor name
+  * Appointment time
+  * Status
+  * Blood type (if known)
+- Allow status updates (pending → confirmed → checked-in → completed)
+- Cancel appointments if needed
+- Record appointment details
+
+4.3 BLOOD INVENTORY MANAGEMENT
+
+4.3.1 Inventory Tracking
+
+Description:
+Track blood units by type with status indicators.
+
+Requirements:
+- Track 8 blood types: A+, A-, B+, B-, AB+, AB-, O+, O-
+- Display unit count for each type
+- Color-coded status:
+  * Green: 20+ units (adequate)
+  * Yellow: 10-19 units (low)
+  * Red: <10 units (critical)
+- Display expiration date tracking
+- Update inventory when donations recorded
+
+4.3.2 Inventory Management
+
+Description:
+Allow staff to add/remove blood units.
+
+Requirements:
+- Interface to add new units (type, quantity, expiration date)
+- Interface to remove units
+- Record inventory changes with timestamp and staff ID
+- Display inventory history
+
+4.4 DONOR REQUEST SYSTEM
+
+4.4.1 Identify Eligible Donors
+
+Description:
+Identify donors eligible to donate specific blood types.
+
+Requirements:
+- Search function to find eligible donors
+- Filter by blood type needed
+- Display eligible donors:
+  * Name, email, phone
+  * Last donation date
+  * Donation count
+  * Current eligibility status
+
+4.4.2 Request Donation
+
+Description:
+Enable staff to request donations from eligible donors.
+
+Requirements:
+- Select eligible donor
+- Specify requested blood type
+- Send notification to donor with request details
+- Record request with timestamp
+- Track donor response:
+  * Accept
+  * Decline
+  * No response
+- Allow follow-up communications
+
+4.4.3 Donor Request Response
+
+Description:
+Allow donors to respond to donation requests.
+
+Requirements:
+- Display donation requests in donor inbox
+- Show request details:
+  * Blood type requested
+  * Staff contact information
+  * Appointment options
+- Allow donor to accept or decline
+- Link to appointment booking if accepted
+- Notify staff of donor response
+
+================================================================================
+5. NON-FUNCTIONAL REQUIREMENTS
+================================================================================
+
+5.1 PERFORMANCE
+
+- Page load time: Maximum 3 seconds
+- Search results: Display within 1 second
+- Form submission: Response within 2 seconds
+- Support 50+ concurrent users
+
+5.2 SECURITY
+
+- HTTPS for all communications
+- Password hashing and encryption
+- Session tokens with 30-minute expiration
+- Role-based access control
+- Audit logging of all transactions
+- Protection of personal health information
+
+5.3 USABILITY
+
+- Intuitive interface for all users
+- Clear feedback and error messages
+- Mobile responsive design (desktop, tablet, mobile)
+- Keyboard navigation support
+- Minimum 14px font size
+- Color contrast WCAG 2.1 Level AA
+
+5.4 BUSINESS RULES
+
+BR1: Donors must wait 56 days between whole blood donations
+BR2: Blood type determined during first donation (not at registration)
+BR3: Maximum 1 appointment per time slot per center
+BR4: Cannot book appointment if donor is ineligible
+BR5: Inventory status alerts when blood types drop below 20 units
+BR6: Staff can only request from eligible donors
+BR7: All user sessions expire after 30 minutes of inactivity
+BR8: Donation requests stored with response tracking
+BR9: Inventory changes logged with staff ID and timestamp
+
+================================================================================
+APPENDIX A: GLOSSARY
+================================================================================
+
+Blood Type              Classification of blood (A+, A-, B+, B-, AB+, AB-, O+, O-)
+Deferral Period         56-day period between whole blood donations
+Donor                   Registered user who provides blood donations
+Eligible Donor          Donor beyond deferral period and able to donate
+Hemoglobin             Protein in blood measured in g/dL (minimum 12.5)
+Inventory              Stock of blood units by type at donation center
+Session                User's logged-in period (30-minute timeout)
+Staff                   Medical professionals managing donations and inventory
+Blood Type Need         Blood type with inventory below adequate level (20 units)
+
+================================================================================
+END OF SRS
+================================================================================

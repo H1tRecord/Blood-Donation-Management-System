@@ -1,195 +1,294 @@
-import { useState } from 'react';
-import { mockBloodInventory } from '../data/mockData';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import {
+  bloodInventory,
+  getInventoryStatus,
+  getInventoryColor
+} from '../data/mockData';
+import './InventoryManagement.css';
 
-function InventoryManagement() {
-  const [inventory, setInventory] = useState(mockBloodInventory);
-  const [selectedType, setSelectedType] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [addUnits, setAddUnits] = useState(1);
+const InventoryManagement = () => {
+  const { currentUser, resetSessionTimeout } = useAuth();
+  const [inventory, setInventory] = useState([]);
+  const [selectedType, setSelectedType] = useState('');
+  const [action, setAction] = useState('add'); // 'add' or 'remove'
+  const [quantity, setQuantity] = useState(1);
+  const [expirationDate, setExpirationDate] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'critical': return '#dc3545';
-      case 'low': return '#ffc107';
-      case 'adequate': return '#28a745';
-      default: return '#6c757d';
-    }
+  useEffect(() => {
+    resetSessionTimeout();
+    loadInventory();
+  }, []);
+
+  const loadInventory = () => {
+    setInventory([...bloodInventory]);
   };
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 'critical': return 'Critical - Urgent Need';
-      case 'low': return 'Low Stock';
-      case 'adequate': return 'Adequate Supply';
-      default: return 'Unknown';
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!selectedType || quantity < 1) {
+      alert('Please select a blood type and enter a valid quantity');
+      return;
     }
+
+    const inventoryItem = bloodInventory.find(item => item.type === selectedType);
+    
+    if (!inventoryItem) {
+      alert('Blood type not found');
+      return;
+    }
+
+    if (action === 'add') {
+      if (!expirationDate) {
+        alert('Please enter an expiration date for new units');
+        return;
+      }
+      inventoryItem.units += quantity;
+      inventoryItem.lastUpdated = new Date().toISOString().split('T')[0];
+      inventoryItem.expirationDate = expirationDate;
+      setSuccessMessage(`Successfully added ${quantity} unit(s) of ${selectedType}`);
+    } else {
+      if (inventoryItem.units < quantity) {
+        alert(`Cannot remove ${quantity} units. Only ${inventoryItem.units} units available.`);
+        return;
+      }
+      inventoryItem.units -= quantity;
+      inventoryItem.lastUpdated = new Date().toISOString().split('T')[0];
+      setSuccessMessage(`Successfully removed ${quantity} unit(s) of ${selectedType}`);
+    }
+
+    // Log the inventory change (in real app, this would be saved to database)
+    console.log({
+      action,
+      bloodType: selectedType,
+      quantity,
+      staffId: currentUser.id,
+      staffName: currentUser.name,
+      timestamp: new Date().toISOString(),
+      expirationDate: action === 'add' ? expirationDate : null
+    });
+
+    loadInventory();
+    setShowSuccess(true);
+    
+    // Reset form
+    setSelectedType('');
+    setQuantity(1);
+    setExpirationDate('');
+    
+    setTimeout(() => {
+      setShowSuccess(false);
+    }, 3000);
   };
 
-  const handleAddUnits = () => {
-    if (selectedType) {
-      setInventory(prev => prev.map(item => {
-        if (item.bloodType === selectedType.bloodType) {
-          const newUnits = item.units + addUnits;
-          let newStatus = 'adequate';
-          if (newUnits < 10) newStatus = 'critical';
-          else if (newUnits < 20) newStatus = 'low';
-          return { ...item, units: newUnits, status: newStatus };
-        }
-        return item;
-      }));
-      setShowAddModal(false);
-      setAddUnits(1);
-      setSelectedType(null);
-    }
+  const getMinExpirationDate = () => {
+    const today = new Date();
+    today.setDate(today.getDate() + 1);
+    return today.toISOString().split('T')[0];
   };
 
-  const getTotalUnits = () => inventory.reduce((sum, item) => sum + item.units, 0);
-  const getExpiringUnits = () => inventory.reduce((sum, item) => sum + item.expiringIn7Days, 0);
+  const getMaxExpirationDate = () => {
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 42); // Blood typically lasts 42 days
+    return maxDate.toISOString().split('T')[0];
+  };
 
   return (
-    <div className="inventory-page">
+    <div className="inventory-management">
       <div className="page-header">
         <h1>Blood Inventory Management</h1>
-        <p>Track and manage blood units from collection to distribution</p>
+        <p className="subtitle">Manage blood stock levels and track inventory</p>
       </div>
 
-      {/* Summary Stats */}
-      <div className="inventory-stats">
-        <div className="stat-box">
-          <span className="stat-number">{getTotalUnits()}</span>
-          <span className="stat-text">Total Units</span>
-        </div>
-        <div className="stat-box warning">
-          <span className="stat-number">{getExpiringUnits()}</span>
-          <span className="stat-text">Expiring in 7 Days</span>
-        </div>
-        <div className="stat-box danger">
-          <span className="stat-number">{inventory.filter(i => i.status === 'critical').length}</span>
-          <span className="stat-text">Critical Types</span>
-        </div>
-        <div className="stat-box success">
-          <span className="stat-number">{inventory.filter(i => i.status === 'adequate').length}</span>
-          <span className="stat-text">Adequate Types</span>
-        </div>
-      </div>
-
-      {/* Inventory Grid */}
-      <div className="inventory-control-grid">
-        {inventory.map((item) => (
-          <div 
-            key={item.bloodType} 
-            className={`blood-type-card ${item.status}`}
-            onClick={() => { setSelectedType(item); setShowAddModal(true); }}
-          >
-            <div className="blood-type-header">
-              <span className="type-label">{item.bloodType}</span>
-              <span 
-                className="status-dot"
-                style={{ backgroundColor: getStatusColor(item.status) }}
-              ></span>
-            </div>
-            <div className="blood-type-body">
-              <div className="units-display">
-                <span className="units-number">{item.units}</span>
-                <span className="units-label">units</span>
-              </div>
-              <div className="blood-type-bar">
-                <div 
-                  className="bar-fill"
-                  style={{ 
-                    width: `${Math.min((item.units / 60) * 100, 100)}%`,
-                    backgroundColor: getStatusColor(item.status)
-                  }}
-                ></div>
-              </div>
-            </div>
-            <div className="blood-type-footer">
-              <span className={`status-text ${item.status}`}>
-                {getStatusLabel(item.status)}
-              </span>
-              {item.expiringIn7Days > 0 && (
-                <span className="expiring-badge">
-                  ⚠️ {item.expiringIn7Days} expiring soon
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Add Units Modal */}
-      {showAddModal && selectedType && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Add Blood Units - {selectedType.bloodType}</h2>
-              <button className="close-btn" onClick={() => setShowAddModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <div className="current-stock">
-                <span>Current Stock:</span>
-                <strong>{selectedType.units} units</strong>
-              </div>
-              <div className="form-group">
-                <label>Units to Add:</label>
-                <div className="units-input">
-                  <button 
-                    onClick={() => setAddUnits(Math.max(1, addUnits - 1))}
-                    className="unit-btn"
-                  >
-                    -
-                  </button>
-                  <input 
-                    type="number" 
-                    value={addUnits} 
-                    onChange={(e) => setAddUnits(Math.max(1, parseInt(e.target.value) || 1))}
-                    min="1"
-                  />
-                  <button 
-                    onClick={() => setAddUnits(addUnits + 1)}
-                    className="unit-btn"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-              <div className="new-total">
-                <span>New Total:</span>
-                <strong>{selectedType.units + addUnits} units</strong>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowAddModal(false)}>
-                Cancel
-              </button>
-              <button className="btn-primary" onClick={handleAddUnits}>
-                Add Units
-              </button>
-            </div>
-          </div>
+      {showSuccess && (
+        <div className="success-banner">
+          {successMessage}
         </div>
       )}
 
-      {/* Legend */}
-      <div className="inventory-legend">
-        <h3>Stock Level Legend</h3>
-        <div className="legend-items">
-          <div className="legend-item">
-            <span className="legend-dot" style={{ backgroundColor: '#dc3545' }}></span>
-            <span>Critical (&lt;10 units)</span>
+      <div className="inventory-content">
+        {/* Current Inventory Display */}
+        <div className="card inventory-display-card">
+          <h2>Current Inventory</h2>
+          <div className="inventory-table">
+            <div className="table-header">
+              <div className="col-type">Blood Type</div>
+              <div className="col-units">Units</div>
+              <div className="col-status">Status</div>
+              <div className="col-expiration">Expiration</div>
+              <div className="col-updated">Last Updated</div>
+            </div>
+            {inventory.map((item) => {
+              const status = getInventoryStatus(item.units);
+              const color = getInventoryColor(item.units);
+              return (
+                <div key={item.type} className={`table-row ${color}`}>
+                  <div className="col-type">
+                    <span className="blood-type-badge">{item.type}</span>
+                  </div>
+                  <div className="col-units">
+                    <span className="units-number">{item.units}</span>
+                  </div>
+                  <div className="col-status">
+                    <span className={`status-badge ${status}`}>
+                      {status.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="col-expiration">
+                    {new Date(item.expirationDate).toLocaleDateString()}
+                  </div>
+                  <div className="col-updated">
+                    {new Date(item.lastUpdated).toLocaleDateString()}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="legend-item">
-            <span className="legend-dot" style={{ backgroundColor: '#ffc107' }}></span>
-            <span>Low (10-19 units)</span>
+
+          <div className="inventory-legend">
+            <div className="legend-item">
+              <span className="legend-color green"></span>
+              <span>Adequate (20+ units)</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-color yellow"></span>
+              <span>Low (10-19 units)</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-color red"></span>
+              <span>Critical (&lt;10 units)</span>
+            </div>
           </div>
-          <div className="legend-item">
-            <span className="legend-dot" style={{ backgroundColor: '#28a745' }}></span>
-            <span>Adequate (20+ units)</span>
+        </div>
+
+        {/* Update Inventory Form */}
+        <div className="card inventory-form-card">
+          <h2>Update Inventory</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="action">Action *</label>
+              <select
+                id="action"
+                value={action}
+                onChange={(e) => setAction(e.target.value)}
+                required
+              >
+                <option value="add">Add Units</option>
+                <option value="remove">Remove Units</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="bloodType">Blood Type *</label>
+              <select
+                id="bloodType"
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                required
+              >
+                <option value="">Select blood type</option>
+                {bloodInventory.map((item) => (
+                  <option key={item.type} value={item.type}>
+                    {item.type} (Currently: {item.units} units)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="quantity">Quantity (units) *</label>
+              <input
+                type="number"
+                id="quantity"
+                min="1"
+                max="50"
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                required
+              />
+            </div>
+
+            {action === 'add' && (
+              <div className="form-group">
+                <label htmlFor="expirationDate">Expiration Date *</label>
+                <input
+                  type="date"
+                  id="expirationDate"
+                  min={getMinExpirationDate()}
+                  max={getMaxExpirationDate()}
+                  value={expirationDate}
+                  onChange={(e) => setExpirationDate(e.target.value)}
+                  required
+                />
+                <small>Blood units typically expire within 42 days</small>
+              </div>
+            )}
+
+            <div className="form-actions">
+              <button type="submit" className="btn-primary">
+                {action === 'add' ? 'Add Units' : 'Remove Units'}
+              </button>
+            </div>
+          </form>
+
+          <div className="form-info">
+            <h3>Inventory Management Guidelines</h3>
+            <ul>
+              <li>
+                <strong>Adding Units:</strong> Record new donations or received units with expiration dates
+              </li>
+              <li>
+                <strong>Removing Units:</strong> Record units used for transfusions or expired units
+              </li>
+              <li>
+                <strong>Status Levels:</strong>
+                <ul>
+                  <li>Adequate: 20 or more units</li>
+                  <li>Low: 10-19 units (consider requesting donations)</li>
+                  <li>Critical: Less than 10 units (urgent action required)</li>
+                </ul>
+              </li>
+              <li>All changes are logged with staff ID and timestamp</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Inventory Stats */}
+        <div className="card inventory-stats-card">
+          <h2>Inventory Statistics</h2>
+          <div className="stats-grid">
+            <div className="stat-box">
+              <div className="stat-value">
+                {inventory.reduce((sum, item) => sum + item.units, 0)}
+              </div>
+              <div className="stat-label">Total Units</div>
+            </div>
+            <div className="stat-box adequate">
+              <div className="stat-value">
+                {inventory.filter(item => item.units >= 20).length}
+              </div>
+              <div className="stat-label">Adequate Types</div>
+            </div>
+            <div className="stat-box low">
+              <div className="stat-value">
+                {inventory.filter(item => item.units >= 10 && item.units < 20).length}
+              </div>
+              <div className="stat-label">Low Types</div>
+            </div>
+            <div className="stat-box critical">
+              <div className="stat-value">
+                {inventory.filter(item => item.units < 10).length}
+              </div>
+              <div className="stat-label">Critical Types</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default InventoryManagement;

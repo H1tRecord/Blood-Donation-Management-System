@@ -1,0 +1,351 @@
+.staff-appointments {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  opacity: 0.9;
+}
+
+.appointments-content {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* Date Selector */
+.date-selector-card {
+  max-width: 100%;
+}
+
+.date-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.date-btn {
+  flex: 1;
+  min-width: 150px;
+  padding: 1rem;
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.date-btn:hover {
+  background: #eff6ff;
+  border-color: #667eea;
+}
+
+.date-btn.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+/* Stats Card */
+.stats-card {
+  background: linear-gradient(135deg, #f7fafc 0%, #e2e8f0 100%);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stat-box.pending {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+.stat-box.confirmed {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+
+.stat-box.checked-in {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+}
+
+.stat-box.completed {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+}
+
+.stat-box .stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.stat-box .stat-label {
+  font-size: 0.95rem;
+  color: #718096;
+  font-weight: 600;
+}
+
+/* Appointments List */
+.appointments-list-card {
+  overflow-x: auto;
+}
+
+.appointments-table {
+  min-width: 900px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 1.5fr 1.5fr 2fr;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 1.5fr 1.5fr 2fr;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.table-row:hover {
+  background: #f7fafc;
+}
+
+.time-badge {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.donor-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.unknown-type {
+  color: #718096;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.confirmation-code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: #718096;
+}
+
+.col-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.25rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btn-icon:hover {
+  background: #e2e8f0;
+}
+
+.btn-icon.confirm:hover {
+  background: #dbeafe;
+}
+
+.btn-icon.checkin:hover {
+  background: #e0e7ff;
+}
+
+.btn-icon.complete:hover {
+  background: #d1fae5;
+}
+
+.btn-icon.cancel:hover {
+  background: #fee2e2;
+}
+
+.no-appointments {
+  text-align: center;
+  padding: 3rem;
+  color: #718096;
+}
+
+/* Status Flow Info */
+.info-card {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.info-card h3 {
+  color: #1e40af;
+}
+
+.status-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.flow-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.flow-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.flow-badge.confirmed {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.flow-badge.checked-in {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.flow-badge.completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.flow-arrow {
+  color: #718096;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.status-descriptions {
+  margin-left: 1.5rem;
+}
+
+.status-descriptions li {
+  margin-bottom: 0.75rem;
+  color: #2d3748;
+}
+
+/* Details Modal */
+.details-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 8px;
+}
+
+.detail-row .detail-label {
+  font-weight: 500;
+  color: #718096;
+}
+
+.detail-row .detail-value {
+  font-weight: 600;
+  color: #2d3748;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .date-buttons {
+    flex-direction: column;
+  }
+
+  .date-btn {
+    min-width: auto;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .appointments-list-card {
+    padding: 1rem;
+  }
+
+  .appointments-table {
+    min-width: auto;
+  }
+
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr 2fr 1fr;
+    font-size: 0.85rem;
+  }
+
+  .col-blood,
+  .col-confirmation,
+  .col-actions {
+    display: none;
+  }
+
+  .status-flow {
+    flex-direction: column;
+  }
+
+  .flow-arrow {
+    transform: rotate(90deg);
+  }
+}

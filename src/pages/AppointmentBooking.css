@@ -1,0 +1,329 @@
+.appointment-booking {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.booking-header {
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.booking-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  opacity: 0.9;
+}
+
+/* Ineligible Notice */
+.ineligible-notice {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.notice-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.ineligible-notice h2 {
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.days-remaining {
+  font-size: 1.25rem;
+  color: #667eea;
+  margin: 1.5rem 0;
+}
+
+.last-donation {
+  color: #718096;
+  margin-bottom: 2rem;
+}
+
+/* Confirmation Card */
+.confirmation-card {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.confirmation-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  margin: 0 auto 1.5rem;
+}
+
+.confirmation-details {
+  background: #f7fafc;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.confirmation-number {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: #2d3748;
+}
+
+.appointment-summary {
+  text-align: left;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: white;
+  border-radius: 8px;
+}
+
+.summary-label {
+  font-weight: 500;
+  color: #718096;
+}
+
+.summary-value {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.confirmation-info {
+  text-align: left;
+  background: #eff6ff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+}
+
+.confirmation-info h3 {
+  color: #1e40af;
+  margin-bottom: 1rem;
+}
+
+.confirmation-info ul {
+  margin-left: 1.5rem;
+}
+
+.confirmation-info li {
+  margin-bottom: 0.5rem;
+  color: #2d3748;
+}
+
+.confirmation-actions {
+  margin-top: 2rem;
+}
+
+/* Booking Container */
+.booking-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.booking-form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-section h3 {
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+/* Date Selector */
+.date-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.date-option {
+  padding: 1rem;
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.date-option:hover {
+  background: #eff6ff;
+  border-color: #667eea;
+}
+
+.date-option.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+/* Time Selector */
+.time-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.time-option {
+  padding: 0.75rem;
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.time-option:hover {
+  background: #eff6ff;
+  border-color: #667eea;
+}
+
+.time-option.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.no-slots {
+  text-align: center;
+  padding: 2rem;
+  color: #718096;
+  background: #f7fafc;
+  border-radius: 8px;
+}
+
+/* Booking Summary */
+.booking-summary {
+  background: #eff6ff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1.5rem;
+}
+
+.booking-summary h3 {
+  color: #1e40af;
+  margin-bottom: 1rem;
+}
+
+.summary-content p {
+  margin-bottom: 0.75rem;
+  color: #2d3748;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.form-actions button {
+  flex: 1;
+}
+
+/* Info Card */
+.booking-info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.booking-info-card h3 {
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.info-list {
+  margin-bottom: 2rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+}
+
+.info-icon {
+  color: #10b981;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.donation-facts {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.donation-facts h4 {
+  color: #1e40af;
+  margin-bottom: 0.75rem;
+}
+
+.donation-facts ul {
+  margin-left: 1.5rem;
+}
+
+.donation-facts li {
+  margin-bottom: 0.5rem;
+  color: #2d3748;
+}
+
+@media (max-width: 1024px) {
+  .booking-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .booking-header h1 {
+    font-size: 2rem;
+  }
+
+  .date-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .time-selector {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .confirmation-card,
+  .ineligible-notice {
+    padding: 2rem;
+  }
+}

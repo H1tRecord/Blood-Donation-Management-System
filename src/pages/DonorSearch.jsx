@@ -1,337 +1,296 @@
-import { useState, useMemo } from 'react';
-import { mockDonorDatabase } from '../data/mockData';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import {
+  users,
+  donationRequests,
+  isEligibleToDonate,
+  calculateDaysSinceLastDonation
+} from '../data/mockData';
+import './DonorSearch.css';
 
-function DonorSearch() {
-  const [donors, setDonors] = useState(mockDonorDatabase);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterBloodType, setFilterBloodType] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
+const DonorSearch = () => {
+  const { currentUser, resetSessionTimeout } = useAuth();
+  const location = useLocation();
+  const [searchBloodType, setSearchBloodType] = useState('');
+  const [eligibleDonors, setEligibleDonors] = useState([]);
   const [selectedDonor, setSelectedDonor] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({});
+  const [requestMessage, setRequestMessage] = useState('');
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-  const statuses = ['Active', 'Eligible', 'Deferred'];
-
-  const filteredDonors = useMemo(() => {
-    return donors.filter(donor => {
-      const matchesSearch = searchQuery === '' || 
-        donor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        donor.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        donor.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        donor.phone.includes(searchQuery);
-
-      const matchesBloodType = filterBloodType === 'all' || donor.bloodType === filterBloodType;
-      const matchesStatus = filterStatus === 'all' || donor.status === filterStatus;
-
-      return matchesSearch && matchesBloodType && matchesStatus;
-    });
-  }, [donors, searchQuery, filterBloodType, filterStatus]);
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
-
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 'Active': return 'status-active';
-      case 'Eligible': return 'status-eligible';
-      case 'Deferred': return 'status-deferred';
-      default: return '';
+  useEffect(() => {
+    resetSessionTimeout();
+    
+    // Check if blood type was passed from Staff Dashboard
+    if (location.state?.bloodType) {
+      setSearchBloodType(location.state.bloodType);
+      searchDonors(location.state.bloodType);
     }
+  }, [location]);
+
+  const searchDonors = (bloodType) => {
+    if (!bloodType) {
+      setEligibleDonors([]);
+      return;
+    }
+
+    // Find all donors with matching blood type who are eligible
+    const donors = users
+      .filter(user => 
+        user.role === 'donor' &&
+        user.bloodType === bloodType &&
+        user.isActive &&
+        isEligibleToDonate(user.lastDonationDate)
+      )
+      .map(donor => ({
+        ...donor,
+        daysSinceLast: calculateDaysSinceLastDonation(donor.lastDonationDate),
+        hasActiveRequest: donationRequests.some(
+          req => req.donorId === donor.id && req.status === 'pending' && req.bloodType === bloodType
+        )
+      }))
+      .sort((a, b) => {
+        // Sort by: 1) no active request first, 2) more days since last donation
+        if (a.hasActiveRequest !== b.hasActiveRequest) {
+          return a.hasActiveRequest ? 1 : -1;
+        }
+        return (b.daysSinceLast || 999) - (a.daysSinceLast || 999);
+      });
+
+    setEligibleDonors(donors);
   };
 
-  const handleViewDonor = (donor) => {
+  const handleSearch = (e) => {
+    e.preventDefault();
+    searchDonors(searchBloodType);
+  };
+
+  const handleRequestDonation = (donor) => {
     setSelectedDonor(donor);
-    setEditData({
-      bloodType: donor.bloodType || '',
-      hemoglobin: donor.hemoglobin || '',
-      bloodPressure: donor.bloodPressure || '',
-      status: donor.status,
-    });
-    setIsEditing(false);
+    setRequestMessage(`We urgently need ${searchBloodType} blood. Would you be able to donate soon? Your donation can save lives!`);
+    setShowRequestForm(true);
   };
 
-  const handleSaveChanges = () => {
-    setDonors(prev => prev.map(d => 
-      d.id === selectedDonor.id 
-        ? { ...d, ...editData }
-        : d
-    ));
-    setSelectedDonor({ ...selectedDonor, ...editData });
-    setIsEditing(false);
-    alert('Donor information updated successfully!');
+  const handleSubmitRequest = (e) => {
+    e.preventDefault();
+    
+    if (!requestMessage.trim()) {
+      alert('Please enter a message');
+      return;
+    }
+
+    // Create new donation request
+    const newRequest = {
+      id: `REQ${(donationRequests.length + 1).toString().padStart(3, '0')}`,
+      bloodType: searchBloodType,
+      requestedBy: currentUser.id,
+      requestedByName: currentUser.name,
+      donorId: selectedDonor.id,
+      donorName: selectedDonor.name,
+      requestDate: new Date().toISOString().split('T')[0],
+      status: 'pending',
+      message: requestMessage
+    };
+
+    // Add to donation requests
+    donationRequests.push(newRequest);
+
+    // Log the request (in real app, would send email notification)
+    console.log('Donation request sent:', newRequest);
+
+    setShowSuccess(true);
+    setShowRequestForm(false);
+    
+    // Refresh the search to update donor status
+    searchDonors(searchBloodType);
+
+    setTimeout(() => {
+      setShowSuccess(false);
+      setSelectedDonor(null);
+      setRequestMessage('');
+    }, 3000);
+  };
+
+  const handleCancelRequest = () => {
+    setShowRequestForm(false);
+    setSelectedDonor(null);
+    setRequestMessage('');
   };
 
   return (
-    <div className="donor-search-page">
+    <div className="donor-search">
       <div className="page-header">
-        <h1>Donor Search & Verification</h1>
-        <p>Search and manage donor records</p>
+        <h1>Search Eligible Donors</h1>
+        <p className="subtitle">Find and request donations from eligible donors</p>
       </div>
 
-      {/* Search & Filter Section */}
-      <div className="search-section">
-        <div className="search-bar">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            placeholder="Search by name, ID, email, or phone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-          {searchQuery && (
-            <button 
-              className="clear-btn"
-              onClick={() => setSearchQuery('')}
-            >
-              ×
+      {showSuccess && (
+        <div className="success-banner">
+          Donation request sent successfully to {selectedDonor?.name}!
+        </div>
+      )}
+
+      <div className="search-content">
+        {/* Search Form */}
+        <div className="card search-card">
+          <h2>Search by Blood Type</h2>
+          <form onSubmit={handleSearch}>
+            <div className="search-form-group">
+              <label htmlFor="bloodType">Blood Type *</label>
+              <select
+                id="bloodType"
+                value={searchBloodType}
+                onChange={(e) => setSearchBloodType(e.target.value)}
+                required
+              >
+                <option value="">Select blood type needed</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </div>
+            <button type="submit" className="btn-primary">
+              Search Eligible Donors
             </button>
-          )}
+          </form>
         </div>
 
-        <div className="filters">
-          <div className="filter-group">
-            <label>Blood Type:</label>
-            <select 
-              value={filterBloodType} 
-              onChange={(e) => setFilterBloodType(e.target.value)}
-            >
-              <option value="all">All Types</option>
-              {bloodTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Status:</label>
-            <select 
-              value={filterStatus} 
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="all">All Statuses</option>
-              {statuses.map(status => (
-                <option key={status} value={status}>{status}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Results Count */}
-      <div className="results-count">
-        Showing {filteredDonors.length} of {donors.length} donors
-      </div>
-
-      {/* Donors Table */}
-      <div className="donors-table-container">
-        <table className="donors-table">
-          <thead>
-            <tr>
-              <th>Donor ID</th>
-              <th>Name</th>
-              <th>Blood Type</th>
-              <th>Contact</th>
-              <th>Last Donation</th>
-              <th>Total Donations</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredDonors.length > 0 ? (
-              filteredDonors.map((donor) => (
-                <tr key={donor.id}>
-                  <td className="donor-id">{donor.id}</td>
-                  <td className="donor-name">
-                    <div className="name-cell">
-                      <div className="avatar-small">
-                        {donor.name.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <span>{donor.name}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="blood-type-badge">{donor.bloodType}</span>
-                  </td>
-                  <td className="contact-info">
-                    <div>{donor.email}</div>
-                    <div className="phone">{donor.phone}</div>
-                  </td>
-                  <td>{formatDate(donor.lastDonation)}</td>
-                  <td className="total-donations">{donor.totalDonations}</td>
-                  <td>
-                    <span className={`status-badge ${getStatusClass(donor.status)}`}>
-                      {donor.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button 
-                      className="btn-view"
-                      onClick={() => handleViewDonor(donor)}
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="no-results">
-                  No donors found matching your search criteria
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Donor Details Modal */}
-      {selectedDonor && (
-        <div className="modal-overlay" onClick={() => setSelectedDonor(null)}>
-          <div className="modal-content donor-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{isEditing ? 'Edit Donor Information' : 'Donor Details'}</h2>
-              <button className="close-btn" onClick={() => setSelectedDonor(null)}>×</button>
+        {/* Search Results */}
+        {searchBloodType && (
+          <div className="card results-card">
+            <div className="results-header">
+              <h2>Eligible Donors for {searchBloodType}</h2>
+              <span className="results-count">
+                {eligibleDonors.length} donor{eligibleDonors.length !== 1 ? 's' : ''} found
+              </span>
             </div>
-            <div className="modal-body">
-              <div className="donor-profile">
-                <div className="profile-header">
-                  <div className="avatar-large">
-                    {selectedDonor.name.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <div className="profile-name">
-                    <h3>{selectedDonor.name}</h3>
-                    <span className="donor-id-label">ID: {selectedDonor.id}</span>
-                  </div>
-                  {selectedDonor.bloodType ? (
-                    <span className="blood-type-large">{selectedDonor.bloodType}</span>
-                  ) : (
-                    <span className="blood-type-unknown-large">TBD</span>
-                  )}
-                </div>
 
-                {isEditing ? (
-                  <div className="edit-form">
-                    <h4>Update Health Information</h4>
-                    <div className="form-group">
-                      <label>Blood Type</label>
-                      <select
-                        value={editData.bloodType}
-                        onChange={(e) => setEditData({ ...editData, bloodType: e.target.value })}
-                      >
-                        <option value="">Not Determined</option>
-                        {bloodTypes.map(type => (
-                          <option key={type} value={type}>{type}</option>
-                        ))}
-                      </select>
+            {eligibleDonors.length > 0 ? (
+              <div className="donors-list">
+                {eligibleDonors.map((donor) => (
+                  <div key={donor.id} className="donor-card">
+                    <div className="donor-info">
+                      <div className="donor-header">
+                        <h3>{donor.name}</h3>
+                        <span className="blood-type-badge">{donor.bloodType}</span>
+                      </div>
+                      <div className="donor-details">
+                        <p className="detail-item">
+                          <span className="detail-label">Email:</span>
+                          <span className="detail-value">{donor.email}</span>
+                        </p>
+                        <p className="detail-item">
+                          <span className="detail-label">Phone:</span>
+                          <span className="detail-value">{donor.phone}</span>
+                        </p>
+                        <p className="detail-item">
+                          <span className="detail-label">Total Donations:</span>
+                          <span className="detail-value">{donor.donationCount}</span>
+                        </p>
+                        <p className="detail-item">
+                          <span className="detail-label">Last Donation:</span>
+                          <span className="detail-value">
+                            {donor.lastDonationDate 
+                              ? `${new Date(donor.lastDonationDate).toLocaleDateString()} (${donor.daysSinceLast} days ago)`
+                              : 'Never donated'}
+                          </span>
+                        </p>
+                      </div>
                     </div>
-                    <div className="form-group">
-                      <label>Hemoglobin Level</label>
-                      <input
-                        type="text"
-                        placeholder="e.g., 14.2 g/dL"
-                        value={editData.hemoglobin}
-                        onChange={(e) => setEditData({ ...editData, hemoglobin: e.target.value })}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Blood Pressure</label>
-                      <input
-                        type="text"
-                        placeholder="e.g., 120/80 mmHg"
-                        value={editData.bloodPressure}
-                        onChange={(e) => setEditData({ ...editData, bloodPressure: e.target.value })}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Status</label>
-                      <select
-                        value={editData.status}
-                        onChange={(e) => setEditData({ ...editData, status: e.target.value })}
-                      >
-                        {statuses.map(status => (
-                          <option key={status} value={status}>{status}</option>
-                        ))}
-                      </select>
+                    <div className="donor-actions">
+                      {donor.hasActiveRequest ? (
+                        <div className="active-request-notice">
+                          <span className="notice-icon">📧</span>
+                          <span>Request Already Sent</span>
+                        </div>
+                      ) : (
+                        <button
+                          className="btn-request"
+                          onClick={() => handleRequestDonation(donor)}
+                        >
+                          Request Donation
+                        </button>
+                      )}
                     </div>
                   </div>
-                ) : (
-                  <div className="profile-details">
-                    <div className="detail-row">
-                      <span className="label">Email:</span>
-                      <span className="value">{selectedDonor.email}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="label">Phone:</span>
-                      <span className="value">{selectedDonor.phone}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="label">Blood Type:</span>
-                      <span className="value">{selectedDonor.bloodType || 'Not determined yet'}</span>
-                    </div>
-                    {selectedDonor.hemoglobin && (
-                      <div className="detail-row">
-                        <span className="label">Last Hemoglobin:</span>
-                        <span className="value">{selectedDonor.hemoglobin}</span>
-                      </div>
-                    )}
-                    {selectedDonor.bloodPressure && (
-                      <div className="detail-row">
-                        <span className="label">Last Blood Pressure:</span>
-                        <span className="value">{selectedDonor.bloodPressure}</span>
-                      </div>
-                    )}
-                    <div className="detail-row">
-                      <span className="label">Last Donation:</span>
-                      <span className="value">{formatDate(selectedDonor.lastDonation)}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="label">Total Donations:</span>
-                      <span className="value highlight">{selectedDonor.totalDonations}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="label">Status:</span>
-                      <span className={`status-badge ${getStatusClass(selectedDonor.status)}`}>
-                        {selectedDonor.status}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                ))}
               </div>
+            ) : (
+              <div className="no-results">
+                <p>No eligible donors found for blood type {searchBloodType}</p>
+                <p className="no-results-info">
+                  All donors of this blood type may be in their deferral period (must wait 56 days between donations)
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Request Form Modal */}
+      {showRequestForm && selectedDonor && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <div className="modal-header">
+              <h2>Request Donation</h2>
+              <button className="close-btn" onClick={handleCancelRequest}>×</button>
             </div>
-            <div className="modal-footer">
-              {isEditing ? (
-                <>
-                  <button className="btn-secondary" onClick={() => setIsEditing(false)}>
+            <div className="modal-content">
+              <div className="request-summary">
+                <p><strong>Donor:</strong> {selectedDonor.name}</p>
+                <p><strong>Blood Type:</strong> {searchBloodType}</p>
+                <p><strong>Email:</strong> {selectedDonor.email}</p>
+              </div>
+              <form onSubmit={handleSubmitRequest}>
+                <div className="form-group">
+                  <label htmlFor="message">Message to Donor *</label>
+                  <textarea
+                    id="message"
+                    rows="6"
+                    value={requestMessage}
+                    onChange={(e) => setRequestMessage(e.target.value)}
+                    placeholder="Enter your message to the donor..."
+                    required
+                  />
+                  <small>This message will be sent to the donor via email</small>
+                </div>
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={handleCancelRequest}
+                  >
                     Cancel
                   </button>
-                  <button className="btn-primary" onClick={handleSaveChanges}>
-                    Save Changes
+                  <button type="submit" className="btn-primary">
+                    Send Request
                   </button>
-                </>
-              ) : (
-                <>
-                  <button className="btn-secondary" onClick={() => setSelectedDonor(null)}>
-                    Close
-                  </button>
-                  <button className="btn-primary" onClick={() => setIsEditing(true)}>
-                    Edit Health Info
-                  </button>
-                </>
-              )}
+                </div>
+              </form>
             </div>
           </div>
         </div>
       )}
+
+      {/* Info Card */}
+      <div className="card info-card">
+        <h3>About Donation Requests</h3>
+        <ul>
+          <li>Only eligible donors (56+ days since last donation) are shown</li>
+          <li>Donors with active pending requests are marked accordingly</li>
+          <li>Donors are sorted by priority: those without active requests and with longer time since last donation appear first</li>
+          <li>Donation requests are sent via email notification to donors</li>
+          <li>Donors can accept or decline requests from their dashboard</li>
+        </ul>
+      </div>
     </div>
   );
-}
+};
 
 export default DonorSearch;

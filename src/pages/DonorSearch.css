@@ -1,0 +1,201 @@
+.donor-search {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  opacity: 0.9;
+}
+
+.search-content {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* Search Card */
+.search-card {
+  max-width: 600px;
+}
+
+.search-form-group {
+  margin-bottom: 1rem;
+}
+
+/* Results Card */
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.results-header h2 {
+  margin: 0;
+}
+
+.results-count {
+  background: #667eea;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.donors-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.donor-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: #f7fafc;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.donor-card:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+}
+
+.donor-info {
+  flex: 1;
+}
+
+.donor-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.donor-header h3 {
+  margin: 0;
+  color: #2d3748;
+}
+
+.donor-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+}
+
+.donor-actions {
+  flex-shrink: 0;
+}
+
+.active-request-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.notice-icon {
+  font-size: 1.25rem;
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: #718096;
+}
+
+.no-results-info {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Request Modal */
+.request-summary {
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.request-summary p {
+  margin-bottom: 0.5rem;
+  color: #2d3748;
+}
+
+/* Info Card */
+.info-card {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.info-card h3 {
+  color: #1e40af;
+}
+
+.info-card ul {
+  margin-left: 1.5rem;
+}
+
+.info-card li {
+  margin-bottom: 0.75rem;
+  color: #2d3748;
+}
+
+@media (max-width: 768px) {
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .donor-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .donor-details {
+    grid-template-columns: 1fr;
+  }
+}

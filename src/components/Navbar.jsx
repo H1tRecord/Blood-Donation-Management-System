@@ -1,84 +1,93 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import './Navbar.css';
 
-function Navbar({ user, onLogout }) {
+const Navbar = () => {
+  const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogout = () => {
-    onLogout();
+    logout();
     navigate('/login');
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path ? 'active' : '';
   };
 
   return (
     <nav className="navbar">
-      <div className="navbar-brand">
-        <Link to="/">
-          <span className="blood-icon">🩸</span>
-          <span className="brand-text">Blood Donation Management System</span>
-        </Link>
-      </div>
+      <div className="navbar-container">
+        <div className="navbar-brand">
+          <Link to="/" className="brand-link">
+            <span className="brand-icon">🩸</span>
+            <span className="brand-text">BDMS</span>
+          </Link>
+        </div>
 
-      <div className="navbar-menu">
-        {user ? (
-          <>
-            {user.role === 'donor' && (
-              <>
-                <Link 
-                  to="/donor/dashboard" 
-                  className={location.pathname === '/donor/dashboard' ? 'active' : ''}
-                >
-                  Dashboard
-                </Link>
-                <Link 
-                  to="/donor/appointments" 
-                  className={location.pathname === '/donor/appointments' ? 'active' : ''}
-                >
-                  Book Appointment
-                </Link>
-              </>
-            )}
-            {user.role === 'staff' && (
-              <>
-                <Link 
-                  to="/staff/dashboard" 
-                  className={location.pathname === '/staff/dashboard' ? 'active' : ''}
-                >
-                  Dashboard
-                </Link>
-                <Link 
-                  to="/staff/appointments" 
-                  className={location.pathname === '/staff/appointments' ? 'active' : ''}
-                >
-                  Appointments
-                </Link>
-                <Link 
-                  to="/staff/inventory" 
-                  className={location.pathname === '/staff/inventory' ? 'active' : ''}
-                >
-                  Inventory
-                </Link>
-                <Link 
-                  to="/staff/donors" 
-                  className={location.pathname === '/staff/donors' ? 'active' : ''}
-                >
-                  Donors
-                </Link>
-              </>
-            )}
-            <div className="user-info">
-              <span className="user-name">{user.name}</span>
-              <span className="user-role">({user.role})</span>
-              <button onClick={handleLogout} className="btn-logout">
-                Logout
-              </button>
-            </div>
-          </>
-        ) : (
-          <Link to="/login" className="btn-login">Login</Link>
-        )}
+        <div className="navbar-menu">
+          {currentUser?.role === 'donor' && (
+            <>
+              <Link
+                to="/donor-dashboard"
+                className={`nav-link ${isActive('/donor-dashboard')}`}
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/appointment-booking"
+                className={`nav-link ${isActive('/appointment-booking')}`}
+              >
+                Book Appointment
+              </Link>
+            </>
+          )}
+
+          {(currentUser?.role === 'staff' || currentUser?.role === 'admin') && (
+            <>
+              <Link
+                to="/staff-dashboard"
+                className={`nav-link ${isActive('/staff-dashboard')}`}
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/staff-appointments"
+                className={`nav-link ${isActive('/staff-appointments')}`}
+              >
+                Appointments
+              </Link>
+              <Link
+                to="/inventory-management"
+                className={`nav-link ${isActive('/inventory-management')}`}
+              >
+                Inventory
+              </Link>
+              <Link
+                to="/donor-search"
+                className={`nav-link ${isActive('/donor-search')}`}
+              >
+                Search Donors
+              </Link>
+            </>
+          )}
+        </div>
+
+        <div className="navbar-user">
+          <div className="user-info">
+            <span className="user-role">
+              {currentUser?.role === 'donor' ? '👤' : '👔'}
+            </span>
+            <span className="user-name">{currentUser?.name}</span>
+          </div>
+          <button onClick={handleLogout} className="logout-btn">
+            Logout
+          </button>
+        </div>
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;

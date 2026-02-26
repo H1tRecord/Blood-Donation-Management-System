@@ -1,223 +1,444 @@
-// Mock data for Blood Donation Management System
+// Mock Data for Blood Donation Management System
+// Based on SRS_Simplified.txt
 
-export const mockDonorProfile = {
-  id: 'D001',
-  name: 'John Smith',
-  email: 'john.smith@email.com',
-  bloodType: 'O+',
-  phone: '555-123-4567',
-  dateOfBirth: '1990-05-15',
-  address: '123 Main St, Springfield, IL 62701',
-  lastDonation: '2025-12-28',
-  totalDonations: 8,
-  nextEligibleDate: '2026-02-22', // 56 days after last donation
-};
+// Current date for calculations
+const TODAY = new Date('2026-02-26');
 
-export const mockDonationHistory = [
-  {
-    id: 'DON008',
-    date: '2025-12-28',
-    location: 'Springfield Blood Center',
-    type: 'Whole Blood',
-    volume: '450ml',
-    hemoglobin: '14.2 g/dL',
-    bloodPressure: '120/78 mmHg',
-    status: 'Completed',
-  },
-  {
-    id: 'DON007',
-    date: '2025-10-15',
-    location: 'Community Hospital Drive',
-    type: 'Whole Blood',
-    volume: '450ml',
-    hemoglobin: '13.8 g/dL',
-    bloodPressure: '118/75 mmHg',
-    status: 'Completed',
-  },
-  {
-    id: 'DON006',
-    date: '2025-08-02',
-    location: 'Springfield Blood Center',
-    type: 'Platelets',
-    volume: '200ml',
-    hemoglobin: '14.0 g/dL',
-    bloodPressure: '122/80 mmHg',
-    status: 'Completed',
-  },
-  {
-    id: 'DON005',
-    date: '2025-05-20',
-    location: 'Mobile Blood Drive - City Hall',
-    type: 'Whole Blood',
-    volume: '450ml',
-    hemoglobin: '13.5 g/dL',
-    bloodPressure: '115/72 mmHg',
-    status: 'Completed',
-  },
-  {
-    id: 'DON004',
-    date: '2025-03-08',
-    location: 'Springfield Blood Center',
-    type: 'Whole Blood',
-    volume: '450ml',
-    hemoglobin: '14.1 g/dL',
-    bloodPressure: '119/76 mmHg',
-    status: 'Completed',
-  },
-];
-
-export const mockDonationCenters = [
-  {
-    id: 'CTR001',
-    name: 'Springfield Blood Center',
-    address: '456 Health Ave, Springfield, IL 62702',
-    phone: '555-DONATE-1',
-    hours: 'Mon-Fri: 8AM-6PM, Sat: 9AM-2PM',
-  },
-  {
-    id: 'CTR002',
-    name: 'Community Hospital Blood Bank',
-    address: '789 Hospital Rd, Springfield, IL 62703',
-    phone: '555-DONATE-2',
-    hours: 'Mon-Sat: 7AM-7PM',
-  },
-  {
-    id: 'CTR003',
-    name: 'Downtown Donation Station',
-    address: '101 Central Blvd, Springfield, IL 62701',
-    phone: '555-DONATE-3',
-    hours: 'Tue-Sat: 10AM-5PM',
-  },
-];
-
-export const mockAvailableSlots = {
-  'CTR001': {
-    '2026-02-25': ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM'],
-    '2026-02-26': ['9:00 AM', '10:30 AM', '1:00 PM', '2:30 PM', '4:00 PM'],
-    '2026-02-27': ['8:30 AM', '10:00 AM', '11:30 AM', '3:00 PM'],
-    '2026-02-28': ['9:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '4:30 PM'],
-    '2026-03-01': ['9:30 AM', '10:30 AM', '11:30 AM'],
-  },
-  'CTR002': {
-    '2026-02-25': ['7:30 AM', '9:00 AM', '11:00 AM', '1:00 PM', '4:00 PM', '5:30 PM'],
-    '2026-02-26': ['8:00 AM', '10:00 AM', '12:00 PM', '2:00 PM', '4:00 PM'],
-    '2026-02-27': ['7:30 AM', '9:30 AM', '11:30 AM', '3:30 PM', '5:00 PM'],
-    '2026-02-28': ['8:00 AM', '10:30 AM', '1:30 PM', '3:00 PM', '5:30 PM'],
-    '2026-03-01': ['9:00 AM', '11:00 AM', '1:00 PM'],
-  },
-  'CTR003': {
-    '2026-02-25': ['10:00 AM', '11:30 AM', '1:00 PM', '2:30 PM', '4:00 PM'],
-    '2026-02-26': ['10:30 AM', '12:00 PM', '2:00 PM', '3:30 PM'],
-    '2026-02-27': ['10:00 AM', '11:00 AM', '1:30 PM', '3:00 PM', '4:30 PM'],
-    '2026-02-28': ['11:00 AM', '12:30 PM', '2:00 PM', '3:30 PM'],
-    '2026-03-01': ['10:00 AM', '11:30 AM', '1:00 PM'],
-  },
-};
-
-// Staff/Admin mock data
-export const mockBloodInventory = [
-  { bloodType: 'A+', units: 45, status: 'adequate', expiringIn7Days: 5 },
-  { bloodType: 'A-', units: 12, status: 'low', expiringIn7Days: 2 },
-  { bloodType: 'B+', units: 38, status: 'adequate', expiringIn7Days: 4 },
-  { bloodType: 'B-', units: 8, status: 'critical', expiringIn7Days: 1 },
-  { bloodType: 'AB+', units: 22, status: 'adequate', expiringIn7Days: 3 },
-  { bloodType: 'AB-', units: 6, status: 'low', expiringIn7Days: 0 },
-  { bloodType: 'O+', units: 52, status: 'adequate', expiringIn7Days: 8 },
-  { bloodType: 'O-', units: 15, status: 'low', expiringIn7Days: 2 },
-];
-
-export const mockDonorDatabase = [
+// Users (Donors, Staff, Admins)
+export const users = [
+  // Donors
   {
     id: 'D001',
-    name: 'John Smith',
-    bloodType: 'O+',
+    role: 'donor',
     email: 'john.smith@email.com',
-    phone: '555-123-4567',
-    lastDonation: '2025-12-28',
-    totalDonations: 8,
-    status: 'Active',
+    password: 'donor123',
+    name: 'John Smith',
+    phone: '555-0101',
+    bloodType: 'O+',
+    registrationDate: '2025-01-15',
+    lastDonationDate: '2026-01-01', // 56 days ago = eligible now
+    donationCount: 5,
+    isActive: true
   },
   {
     id: 'D002',
-    name: 'Sarah Johnson',
-    bloodType: 'A-',
-    email: 'sarah.j@email.com',
-    phone: '555-234-5678',
-    lastDonation: '2026-01-15',
-    totalDonations: 12,
-    status: 'Active',
+    role: 'donor',
+    email: 'sarah.jones@email.com',
+    password: 'donor123',
+    name: 'Sarah Jones',
+    phone: '555-0102',
+    bloodType: 'A+',
+    registrationDate: '2025-03-20',
+    lastDonationDate: '2026-02-15', // 11 days ago = ineligible
+    donationCount: 3,
+    isActive: true
   },
   {
     id: 'D003',
+    role: 'donor',
+    email: 'michael.brown@email.com',
+    password: 'donor123',
     name: 'Michael Brown',
+    phone: '555-0103',
     bloodType: 'B+',
-    email: 'm.brown@email.com',
-    phone: '555-345-6789',
-    lastDonation: '2025-11-20',
-    totalDonations: 5,
-    status: 'Eligible',
+    registrationDate: '2025-02-10',
+    lastDonationDate: '2025-12-20', // 68 days ago = eligible
+    donationCount: 4,
+    isActive: true
   },
   {
     id: 'D004',
+    role: 'donor',
+    email: 'emily.davis@email.com',
+    password: 'donor123',
     name: 'Emily Davis',
+    phone: '555-0104',
     bloodType: 'AB+',
-    email: 'emily.d@email.com',
-    phone: '555-456-7890',
-    lastDonation: '2026-02-10',
-    totalDonations: 3,
-    status: 'Deferred',
+    registrationDate: '2025-04-05',
+    lastDonationDate: '2026-01-10', // 47 days ago = ineligible
+    donationCount: 2,
+    isActive: true
   },
   {
     id: 'D005',
+    role: 'donor',
+    email: 'david.wilson@email.com',
+    password: 'donor123',
     name: 'David Wilson',
+    phone: '555-0105',
     bloodType: 'O-',
-    email: 'd.wilson@email.com',
-    phone: '555-567-8901',
-    lastDonation: '2025-09-05',
-    totalDonations: 20,
-    status: 'Eligible',
+    registrationDate: '2025-05-12',
+    lastDonationDate: '2025-11-30', // 88 days ago = eligible
+    donationCount: 6,
+    isActive: true
   },
   {
     id: 'D006',
-    name: 'Jennifer Taylor',
-    bloodType: 'A+',
-    email: 'j.taylor@email.com',
-    phone: '555-678-9012',
-    lastDonation: '2026-01-22',
-    totalDonations: 7,
-    status: 'Active',
+    role: 'donor',
+    email: 'lisa.martinez@email.com',
+    password: 'donor123',
+    name: 'Lisa Martinez',
+    phone: '555-0106',
+    bloodType: 'A-',
+    registrationDate: '2025-06-18',
+    lastDonationDate: '2026-01-05', // 52 days ago = ineligible
+    donationCount: 3,
+    isActive: true
   },
+  {
+    id: 'D007',
+    role: 'donor',
+    email: 'james.anderson@email.com',
+    password: 'donor123',
+    name: 'James Anderson',
+    phone: '555-0107',
+    bloodType: 'B-',
+    registrationDate: '2025-07-22',
+    lastDonationDate: '2025-12-10', // 78 days ago = eligible
+    donationCount: 2,
+    isActive: true
+  },
+  {
+    id: 'D008',
+    role: 'donor',
+    email: 'jennifer.taylor@email.com',
+    password: 'donor123',
+    name: 'Jennifer Taylor',
+    phone: '555-0108',
+    bloodType: 'AB-',
+    registrationDate: '2025-08-30',
+    lastDonationDate: null, // Never donated
+    donationCount: 0,
+    isActive: true
+  },
+  {
+    id: 'D009',
+    role: 'donor',
+    email: 'robert.thomas@email.com',
+    password: 'donor123',
+    name: 'Robert Thomas',
+    phone: '555-0109',
+    bloodType: 'O+',
+    registrationDate: '2025-09-14',
+    lastDonationDate: '2025-12-25', // 63 days ago = eligible
+    donationCount: 1,
+    isActive: true
+  },
+  {
+    id: 'D010',
+    role: 'donor',
+    email: 'mary.jackson@email.com',
+    password: 'donor123',
+    name: 'Mary Jackson',
+    phone: '555-0110',
+    bloodType: 'A+',
+    registrationDate: '2025-10-20',
+    lastDonationDate: '2026-02-10', // 16 days ago = ineligible
+    donationCount: 2,
+    isActive: true
+  },
+  
+  // Staff
+  {
+    id: 'S001',
+    role: 'staff',
+    email: 'nurse.smith@bdms.org',
+    password: 'staff123',
+    name: 'Nurse Smith',
+    phone: '555-0201',
+    position: 'Registered Nurse',
+    registrationDate: '2025-01-01',
+    isActive: true
+  },
+  {
+    id: 'S002',
+    role: 'staff',
+    email: 'phlebotomist.johnson@bdms.org',
+    password: 'staff123',
+    name: 'Tech Johnson',
+    phone: '555-0202',
+    position: 'Phlebotomist',
+    registrationDate: '2025-01-01',
+    isActive: true
+  },
+  
+  // Admin
+  {
+    id: 'A001',
+    role: 'admin',
+    email: 'admin@bdms.org',
+    password: 'admin123',
+    name: 'Admin User',
+    phone: '555-0301',
+    registrationDate: '2025-01-01',
+    isActive: true
+  }
 ];
 
-export const mockUpcomingAppointments = [
+// Blood Inventory (8 blood types)
+export const bloodInventory = [
+  { type: 'A+', units: 25, lastUpdated: '2026-02-25', expirationDate: '2026-03-30' },
+  { type: 'A-', units: 8, lastUpdated: '2026-02-24', expirationDate: '2026-03-25' },
+  { type: 'B+', units: 15, lastUpdated: '2026-02-25', expirationDate: '2026-04-01' },
+  { type: 'B-', units: 5, lastUpdated: '2026-02-23', expirationDate: '2026-03-20' },
+  { type: 'AB+', units: 12, lastUpdated: '2026-02-25', expirationDate: '2026-03-28' },
+  { type: 'AB-', units: 3, lastUpdated: '2026-02-22', expirationDate: '2026-03-15' },
+  { type: 'O+', units: 30, lastUpdated: '2026-02-26', expirationDate: '2026-04-05' },
+  { type: 'O-', units: 7, lastUpdated: '2026-02-24', expirationDate: '2026-03-22' }
+];
+
+// Appointments
+export const appointments = [
   {
     id: 'APT001',
-    donorId: 'D003',
-    donorName: 'Michael Brown',
-    bloodType: 'B+',
-    date: '2026-02-25',
-    time: '10:00 AM',
-    center: 'Springfield Blood Center',
-    status: 'Confirmed',
+    donorId: 'D001',
+    donorName: 'John Smith',
+    bloodType: 'O+',
+    date: '2026-02-27',
+    time: '09:00 AM',
+    status: 'confirmed',
+    confirmationNumber: 'CONF-001',
+    createdDate: '2026-02-20'
   },
   {
     id: 'APT002',
-    donorId: 'D005',
-    donorName: 'David Wilson',
-    bloodType: 'O-',
-    date: '2026-02-25',
-    time: '11:30 AM',
-    center: 'Springfield Blood Center',
-    status: 'Confirmed',
+    donorId: 'D003',
+    donorName: 'Michael Brown',
+    bloodType: 'B+',
+    date: '2026-02-27',
+    time: '10:00 AM',
+    status: 'confirmed',
+    confirmationNumber: 'CONF-002',
+    createdDate: '2026-02-21'
   },
   {
     id: 'APT003',
-    donorId: 'D006',
-    donorName: 'Jennifer Taylor',
-    bloodType: 'A+',
-    date: '2026-02-26',
-    time: '9:00 AM',
-    center: 'Community Hospital Blood Bank',
-    status: 'Pending',
+    donorId: 'D005',
+    donorName: 'David Wilson',
+    bloodType: 'O-',
+    date: '2026-02-27',
+    time: '02:00 PM',
+    status: 'pending',
+    confirmationNumber: 'CONF-003',
+    createdDate: '2026-02-25'
   },
+  {
+    id: 'APT004',
+    donorId: 'D007',
+    donorName: 'James Anderson',
+    bloodType: 'B-',
+    date: '2026-02-28',
+    time: '09:00 AM',
+    status: 'confirmed',
+    confirmationNumber: 'CONF-004',
+    createdDate: '2026-02-22'
+  },
+  {
+    id: 'APT005',
+    donorId: 'D009',
+    donorName: 'Robert Thomas',
+    bloodType: 'O+',
+    date: '2026-02-28',
+    time: '11:00 AM',
+    status: 'pending',
+    confirmationNumber: 'CONF-005',
+    createdDate: '2026-02-24'
+  },
+  {
+    id: 'APT006',
+    donorId: 'D002',
+    donorName: 'Sarah Jones',
+    bloodType: 'A+',
+    date: '2026-03-01',
+    time: '10:00 AM',
+    status: 'cancelled',
+    confirmationNumber: 'CONF-006',
+    createdDate: '2026-02-18'
+  }
 ];
+
+// Donation History
+export const donationHistory = [
+  {
+    id: 'DON001',
+    donorId: 'D001',
+    donorName: 'John Smith',
+    bloodType: 'O+',
+    date: '2026-01-01',
+    units: 1,
+    staffId: 'S001',
+    status: 'completed',
+    hemoglobin: 14.2
+  },
+  {
+    id: 'DON002',
+    donorId: 'D001',
+    donorName: 'John Smith',
+    bloodType: 'O+',
+    date: '2025-11-05',
+    units: 1,
+    staffId: 'S002',
+    status: 'completed',
+    hemoglobin: 13.8
+  },
+  {
+    id: 'DON003',
+    donorId: 'D002',
+    donorName: 'Sarah Jones',
+    bloodType: 'A+',
+    date: '2026-02-15',
+    units: 1,
+    staffId: 'S001',
+    status: 'completed',
+    hemoglobin: 13.5
+  },
+  {
+    id: 'DON004',
+    donorId: 'D003',
+    donorName: 'Michael Brown',
+    bloodType: 'B+',
+    date: '2025-12-20',
+    units: 1,
+    staffId: 'S002',
+    status: 'completed',
+    hemoglobin: 14.5
+  },
+  {
+    id: 'DON005',
+    donorId: 'D005',
+    donorName: 'David Wilson',
+    bloodType: 'O-',
+    date: '2025-11-30',
+    units: 1,
+    staffId: 'S001',
+    status: 'completed',
+    hemoglobin: 15.1
+  }
+];
+
+// Donation Requests (Staff requests to eligible donors)
+export const donationRequests = [
+  {
+    id: 'REQ001',
+    bloodType: 'A-',
+    requestedBy: 'S001',
+    requestedByName: 'Nurse Smith',
+    donorId: 'D006',
+    donorName: 'Lisa Martinez',
+    requestDate: '2026-02-24',
+    status: 'pending',
+    message: 'We urgently need A- blood. Would you be able to donate soon?'
+  },
+  {
+    id: 'REQ002',
+    bloodType: 'B-',
+    requestedBy: 'S002',
+    requestedByName: 'Tech Johnson',
+    donorId: 'D007',
+    donorName: 'James Anderson',
+    requestDate: '2026-02-23',
+    status: 'accepted',
+    message: 'Our B- inventory is critically low. Can you help?',
+    responseDate: '2026-02-24',
+    responseMessage: 'Yes, I can come in this week.'
+  },
+  {
+    id: 'REQ003',
+    bloodType: 'AB-',
+    requestedBy: 'S001',
+    requestedByName: 'Nurse Smith',
+    donorId: 'D008',
+    donorName: 'Jennifer Taylor',
+    requestDate: '2026-02-22',
+    status: 'declined',
+    message: 'We need AB- donations. Are you available?',
+    responseDate: '2026-02-23',
+    responseMessage: 'Sorry, I am traveling this month.'
+  },
+  {
+    id: 'REQ004',
+    bloodType: 'O-',
+    requestedBy: 'S001',
+    requestedByName: 'Nurse Smith',
+    donorId: 'D005',
+    donorName: 'David Wilson',
+    requestDate: '2026-02-25',
+    status: 'pending',
+    message: 'O- is running low. Your donation would be greatly appreciated!'
+  }
+];
+
+// Available time slots for appointments (next 7 days)
+export const timeSlots = [
+  '09:00 AM',
+  '10:00 AM',
+  '11:00 AM',
+  '12:00 PM',
+  '01:00 PM',
+  '02:00 PM',
+  '03:00 PM',
+  '04:00 PM'
+];
+
+// Helper functions
+export const getInventoryStatus = (units) => {
+  if (units >= 20) return 'adequate';
+  if (units >= 10) return 'low';
+  return 'critical';
+};
+
+export const getInventoryColor = (units) => {
+  if (units >= 20) return 'green';
+  if (units >= 10) return 'yellow';
+  return 'red';
+};
+
+export const calculateDaysSinceLastDonation = (lastDonationDate) => {
+  if (!lastDonationDate) return null;
+  const last = new Date(lastDonationDate);
+  const diffTime = TODAY - last;
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
+
+export const isEligibleToDonate = (lastDonationDate) => {
+  if (!lastDonationDate) return true; // Never donated = eligible
+  const days = calculateDaysSinceLastDonation(lastDonationDate);
+  return days >= 56; // 56-day deferral period
+};
+
+export const getDaysUntilEligible = (lastDonationDate) => {
+  if (!lastDonationDate) return 0;
+  const days = calculateDaysSinceLastDonation(lastDonationDate);
+  if (days >= 56) return 0;
+  return 56 - days;
+};
+
+export const getBloodTypeCompatibility = (bloodType) => {
+  const compatibility = {
+    'O-': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'],
+    'O+': ['O+', 'A+', 'B+', 'AB+'],
+    'A-': ['A-', 'A+', 'AB-', 'AB+'],
+    'A+': ['A+', 'AB+'],
+    'B-': ['B-', 'B+', 'AB-', 'AB+'],
+    'B+': ['B+', 'AB+'],
+    'AB-': ['AB-', 'AB+'],
+    'AB+': ['AB+']
+  };
+  return compatibility[bloodType] || [];
+};
+
+export default {
+  users,
+  bloodInventory,
+  appointments,
+  donationHistory,
+  donationRequests,
+  timeSlots,
+  getInventoryStatus,
+  getInventoryColor,
+  calculateDaysSinceLastDonation,
+  isEligibleToDonate,
+  getDaysUntilEligible,
+  getBloodTypeCompatibility
+};

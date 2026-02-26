@@ -1,181 +1,314 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { mockDonorProfile, mockDonationHistory } from '../data/mockData';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import {
+  appointments,
+  donationHistory,
+  donationRequests,
+  bloodInventory,
+  isEligibleToDonate,
+  getDaysUntilEligible,
+  calculateDaysSinceLastDonation
+} from '../data/mockData';
+import './DonorDashboard.css';
 
-function DonorDashboard({ user }) {
-  const [profile] = useState(mockDonorProfile);
-  const [donationHistory] = useState(mockDonationHistory);
-  const [daysUntilEligible, setDaysUntilEligible] = useState(0);
+const DonorDashboard = () => {
+  const { currentUser, resetSessionTimeout } = useAuth();
+  const navigate = useNavigate();
+  const [userAppointments, setUserAppointments] = useState([]);
+  const [userDonations, setUserDonations] = useState([]);
+  const [userRequests, setUserRequests] = useState([]);
   const [isEligible, setIsEligible] = useState(false);
+  const [daysUntilEligible, setDaysUntilEligible] = useState(0);
+  const [daysSinceLast, setDaysSinceLast] = useState(null);
 
   useEffect(() => {
-    // Calculate eligibility based on 56-day deferral period
-    const nextEligible = new Date(profile.nextEligibleDate);
-    const today = new Date();
-    const diffTime = nextEligible - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    setDaysUntilEligible(diffDays);
-    setIsEligible(diffDays <= 0);
-  }, [profile.nextEligibleDate]);
+    resetSessionTimeout();
+    loadDonorData();
+  }, [currentUser]);
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+  const loadDonorData = () => {
+    if (!currentUser) return;
+
+    // Get user appointments
+    const userAppts = appointments.filter(
+      (apt) => apt.donorId === currentUser.id && apt.status !== 'cancelled'
+    );
+    setUserAppointments(userAppts);
+
+    // Get user donation history
+    const userDons = donationHistory.filter(
+      (don) => don.donorId === currentUser.id
+    ).sort((a, b) => new Date(b.date) - new Date(a.date));
+    setUserDonations(userDons);
+
+    // Get donation requests
+    const requests = donationRequests.filter(
+      (req) => req.donorId === currentUser.id && req.status === 'pending'
+    );
+    setUserRequests(requests);
+
+    // Calculate eligibility
+    const eligible = isEligibleToDonate(currentUser.lastDonationDate);
+    setIsEligible(eligible);
+
+    if (currentUser.lastDonationDate) {
+      const daysUntil = getDaysUntilEligible(currentUser.lastDonationDate);
+      setDaysUntilEligible(daysUntil);
+      
+      const daysSince = calculateDaysSinceLastDonation(currentUser.lastDonationDate);
+      setDaysSinceLast(daysSince);
+    }
   };
 
-  // Get the most recent health metrics
-  const latestDonation = donationHistory[0];
+  const handleRespondToRequest = (requestId, response) => {
+    const request = donationRequests.find(r => r.id === requestId);
+    if (request) {
+      request.status = response;
+      request.responseDate = new Date().toISOString().split('T')[0];
+      
+      if (response === 'accepted') {
+        alert('Thank you for accepting! Please book an appointment to donate.');
+        navigate('/appointment-booking');
+      } else {
+        alert('Request declined. Thank you for your response.');
+      }
+      
+      loadDonorData();
+    }
+  };
+
+  const getNeededBloodTypes = () => {
+    return bloodInventory
+      .filter(inv => inv.units < 20)
+      .sort((a, b) => a.units - b.units)
+      .slice(0, 3);
+  };
+
+  const upcomingAppointment = userAppointments.find(
+    apt => new Date(apt.date) >= new Date() && apt.status !== 'cancelled'
+  );
 
   return (
     <div className="donor-dashboard">
       <div className="dashboard-header">
-        <h1>Welcome back, {user?.name || profile.name}!</h1>
-        <p className="subtitle">Your personalized donor dashboard</p>
+        <h1>Welcome, {currentUser?.name}!</h1>
+        <p className="subtitle">Donor Dashboard</p>
       </div>
 
       <div className="dashboard-grid">
-        {/* Profile Card */}
-        <div className="card profile-card">
-          <div className="card-header">
-            <h2>Your Profile</h2>
-          </div>
-          <div className="card-body">
-            <div className="profile-avatar">
-              <span className="avatar-initials">
-                {profile.name.split(' ').map(n => n[0]).join('')}
-              </span>
-              <span className="blood-type-badge">{profile.bloodType}</span>
+        {/* Eligibility Status Card */}
+        <div className="card eligibility-card">
+          <h2>Donation Eligibility</h2>
+          <div className={`eligibility-status ${isEligible ? 'eligible' : 'ineligible'}`}>
+            <div className="status-icon">
+              {isEligible ? '✓' : '⏳'}
             </div>
-            <div className="profile-info">
-              <div className="info-item">
-                <span className="label">Email:</span>
-                <span className="value">{profile.email}</span>
-              </div>
-              <div className="info-item">
-                <span className="label">Phone:</span>
-                <span className="value">{profile.phone}</span>
-              </div>
-              <div className="info-item">
-                <span className="label">Total Donations:</span>
-                <span className="value highlight">{profile.totalDonations}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Eligibility Status Widget */}
-        <div className={`card eligibility-card ${isEligible ? 'eligible' : 'not-eligible'}`}>
-          <div className="card-header">
-            <h2>Eligibility Status</h2>
-          </div>
-          <div className="card-body">
-            <div className="eligibility-content">
+            <div className="status-content">
               {isEligible ? (
                 <>
-                  <div className="status-icon">✅</div>
-                  <h3>You're Eligible to Donate!</h3>
-                  <p>Your 56-day deferral period has passed.</p>
-                  <Link to="/donor/appointments" className="btn-primary">
-                    Book Appointment
-                  </Link>
+                  <h3>You are ELIGIBLE to donate!</h3>
+                  <p>You can book an appointment now</p>
+                  {daysSinceLast && (
+                    <p className="days-info">
+                      {daysSinceLast} days since your last donation
+                    </p>
+                  )}
                 </>
               ) : (
                 <>
-                  <div className="countdown-circle">
-                    <span className="days-number">{daysUntilEligible}</span>
-                    <span className="days-label">days</span>
-                  </div>
-                  <h3>Until Next Eligibility</h3>
-                  <p>Last donation: {formatDate(profile.lastDonation)}</p>
-                  <p className="next-date">
-                    Eligible on: {formatDate(profile.nextEligibleDate)}
+                  <h3>Currently INELIGIBLE</h3>
+                  <p>
+                    You can donate again in <strong>{daysUntilEligible} days</strong>
                   </p>
+                  {currentUser.lastDonationDate && (
+                    <p className="days-info">
+                      Last donation: {new Date(currentUser.lastDonationDate).toLocaleDateString()}
+                    </p>
+                  )}
                 </>
               )}
             </div>
-            <div className="eligibility-info">
-              <small>Based on 56-day whole blood deferral period</small>
+          </div>
+          {isEligible && (
+            <button
+              className="btn-primary"
+              onClick={() => navigate('/appointment-booking')}
+            >
+              Book Appointment
+            </button>
+          )}
+        </div>
+
+        {/* Profile Summary Card */}
+        <div className="card profile-card">
+          <h2>Your Profile</h2>
+          <div className="profile-info">
+            <div className="info-row">
+              <span className="label">Blood Type:</span>
+              <span className="value blood-type">
+                {currentUser?.bloodType || 'To be determined'}
+              </span>
+            </div>
+            <div className="info-row">
+              <span className="label">Total Donations:</span>
+              <span className="value">{currentUser?.donationCount || 0}</span>
+            </div>
+            <div className="info-row">
+              <span className="label">Email:</span>
+              <span className="value">{currentUser?.email}</span>
+            </div>
+            <div className="info-row">
+              <span className="label">Phone:</span>
+              <span className="value">{currentUser?.phone}</span>
+            </div>
+            <div className="info-row">
+              <span className="label">Member Since:</span>
+              <span className="value">
+                {currentUser?.registrationDate ? 
+                  new Date(currentUser.registrationDate).toLocaleDateString() : 'N/A'}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Health Record Summary */}
-        <div className="card health-card">
-          <div className="card-header">
-            <h2>Health Record Summary</h2>
-            <span className="subtitle">From your last donation</span>
-          </div>
-          <div className="card-body">
-            <div className="health-metrics">
-              <div className="metric">
-                <div className="metric-icon">💉</div>
-                <div className="metric-details">
-                  <span className="metric-label">Hemoglobin Level</span>
-                  <span className="metric-value">{latestDonation.hemoglobin}</span>
-                  <span className="metric-status normal">Normal</span>
-                </div>
-              </div>
-              <div className="metric">
-                <div className="metric-icon">❤️</div>
-                <div className="metric-details">
-                  <span className="metric-label">Blood Pressure</span>
-                  <span className="metric-value">{latestDonation.bloodPressure}</span>
-                  <span className="metric-status normal">Normal</span>
-                </div>
-              </div>
-              <div className="metric">
-                <div className="metric-icon">🩸</div>
-                <div className="metric-details">
-                  <span className="metric-label">Blood Type</span>
-                  <span className="metric-value">{profile.bloodType}</span>
-                  <span className="metric-status">Universal {profile.bloodType === 'O-' ? 'Donor' : ''}</span>
-                </div>
+        {/* Upcoming Appointment Card */}
+        <div className="card appointment-card">
+          <h2>Upcoming Appointment</h2>
+          {upcomingAppointment ? (
+            <div className="appointment-details">
+              <div className="appointment-info">
+                <p className="appointment-date">
+                  📅 {new Date(upcomingAppointment.date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+                <p className="appointment-time">🕒 {upcomingAppointment.time}</p>
+                <p className="appointment-status">
+                  Status: <span className={`status-badge ${upcomingAppointment.status}`}>
+                    {upcomingAppointment.status}
+                  </span>
+                </p>
+                <p className="confirmation">
+                  Confirmation: {upcomingAppointment.confirmationNumber}
+                </p>
               </div>
             </div>
-            <p className="health-note">
-              <small>* Health metrics are recorded during each donation visit</small>
-            </p>
-          </div>
+          ) : (
+            <div className="no-appointment">
+              <p>No upcoming appointments</p>
+              {isEligible && (
+                <button
+                  className="btn-secondary"
+                  onClick={() => navigate('/appointment-booking')}
+                >
+                  Book Now
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Donation History Timeline */}
+        {/* Donation Requests Card */}
+        {userRequests.length > 0 && (
+          <div className="card requests-card">
+            <h2>Donation Requests</h2>
+            <p className="requests-info">Staff has requested your help!</p>
+            {userRequests.map((request) => (
+              <div key={request.id} className="request-item">
+                <div className="request-header">
+                  <span className="blood-type-badge">{request.bloodType}</span>
+                  <span className="request-date">
+                    {new Date(request.requestDate).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="request-message">{request.message}</p>
+                <p className="request-staff">
+                  From: {request.requestedByName}
+                </p>
+                <div className="request-actions">
+                  <button
+                    className="btn-accept"
+                    onClick={() => handleRespondToRequest(request.id, 'accepted')}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    className="btn-decline"
+                    onClick={() => handleRespondToRequest(request.id, 'declined')}
+                  >
+                    Decline
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Blood Types Needed Card */}
+        <div className="card needed-card">
+          <h2>Blood Types Needed</h2>
+          <p className="needed-info">Current inventory status</p>
+          <div className="needed-list">
+            {getNeededBloodTypes().map((inv) => (
+              <div key={inv.type} className="needed-item">
+                <span className="blood-type-badge">{inv.type}</span>
+                <div className="needed-status">
+                  <span className={`status-label ${inv.units < 10 ? 'critical' : 'low'}`}>
+                    {inv.units < 10 ? 'CRITICAL' : 'LOW'}
+                  </span>
+                  <span className="units-count">{inv.units} units</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          {getNeededBloodTypes().length === 0 && (
+            <p className="no-needs">All blood types are adequately stocked</p>
+          )}
+        </div>
+
+        {/* Donation History Card */}
         <div className="card history-card">
-          <div className="card-header">
-            <h2>Donation History</h2>
-            <span className="badge">{donationHistory.length} donations</span>
-          </div>
-          <div className="card-body">
-            <div className="donation-timeline">
-              {donationHistory.map((donation, index) => (
-                <div key={donation.id} className="timeline-item">
-                  <div className="timeline-marker">
-                    <div className="marker-dot"></div>
-                    {index < donationHistory.length - 1 && <div className="marker-line"></div>}
-                  </div>
-                  <div className="timeline-content">
-                    <div className="timeline-header">
-                      <span className="donation-date">{formatDate(donation.date)}</span>
-                      <span className={`status-badge ${donation.status.toLowerCase()}`}>
-                        {donation.status}
-                      </span>
-                    </div>
-                    <div className="donation-details">
-                      <p className="location">📍 {donation.location}</p>
-                      <p className="type">Type: {donation.type} ({donation.volume})</p>
+          <h2>Donation History</h2>
+          {userDonations.length > 0 ? (
+            <div className="history-timeline">
+              {userDonations.map((donation, index) => (
+                <div key={donation.id} className="history-item">
+                  <div className="history-marker">{index + 1}</div>
+                  <div className="history-content">
+                    <p className="history-date">
+                      {new Date(donation.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                    <div className="history-details">
+                      <span className="blood-type-small">{donation.bloodType}</span>
+                      <span className="units">{donation.units} unit(s)</span>
+                      {donation.hemoglobin && (
+                        <span className="hemoglobin">Hb: {donation.hemoglobin} g/dL</span>
+                      )}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          ) : (
+            <div className="no-history">
+              <p>No donation history yet</p>
+              <p className="encouragement">
+                Thank you for considering blood donation!
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default DonorDashboard;
