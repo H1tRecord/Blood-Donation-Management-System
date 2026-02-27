@@ -33,8 +33,7 @@ TABLE OF CONTENTS
    4.2 Appointment Management and Scheduling
    4.3 Blood Inventory Monitoring
    4.4 Eligible Donor Identification and Contact System
-   4.5 Donation Processing and Health Metrics
-   4.6 Staff Dashboard and Administrative Functions
+   4.5 Staff Dashboard and Administrative Functions
 
 5. Other Nonfunctional Requirements
    5.1 Performance Requirements
@@ -70,9 +69,7 @@ registered users in the system, identify eligible donors based on their donation
 history and health criteria, and facilitate staff contact with eligible donors 
 for blood donation requests.
 
-This document provides a comprehensive description of all system features, 
-capabilities, constraints, and interface requirements necessary to develop, 
-test, and deploy the system.
+This document provides a comprehensive description of all system features, capabilities, constraints, and interface requirements necessary to develop, test, and deploy the system.
 
 This SRS serves as:
 - A communication medium between stakeholders and the development team
@@ -129,7 +126,7 @@ D) SYSTEM ADMINISTRATORS
    - Focus: Hardware requirements, security protocols, performance targets
 
 E) MEDICAL STAFF AND HOSPITAL MANAGEMENT
-   - Read: Sections 2.2 (product functions), 4 (system features)
+   - Read: Sections 2.2 (product functions), 4.1-4.3 (system features)
    - Purpose: Understanding system workflow and capabilities
    - Focus: Operational procedures and system benefits
 
@@ -140,13 +137,7 @@ F) END USERS (Donors and Staff)
 
 1.4 PRODUCT SCOPE
 
-The Blood Donation Management System is a web-based application designed to 
-manage donation appointments, monitor current blood stock levels in real-time, 
-keep track of current registered users, identify eligible donors based on 
-health criteria and donation history, and facilitate contact with donors for 
-blood donation requests. The system streamlines 
-communication and coordination between donors, medical staff, and blood bank 
-administrators.
+The Blood Donation Management System is a web-based application designed to manage donation appointments, monitor current blood stock levels in real-time, keep track of current registered users, identify eligible donors based on health criteria and donation history, and facilitate contact with donors for blood donation requests. The system streamlines communication and coordination between donors, medical staff, and blood bank administrators.
 
 A) INCLUDED IN SCOPE
    - Current user registration, tracking, and authentication for all system users
@@ -156,17 +147,16 @@ A) INCLUDED IN SCOPE
    - Eligibility calculation using donation history and health criteria
    - Donor contact and notification capabilities for eligible donors
    - Staff capability to search and identify eligible donors for contact
-   - Donor search with health information management
-   - Health metrics recording during donations
-   - Automated confirmation and reminder email notifications
+   - Donor search and filtering
    - Staff appointment calendar and timeline management
    - Session management and role-based access control
-   - Responsive web interface (desktop, tablet, mobile)
-   - Mock data for MVP testing and demonstration
 
 B) EXCLUDED FROM SCOPE
    - Laboratory blood testing and analysis equipment
    - Physical blood collection equipment interfacing
+   - Health metrics recording and monitoring
+   - Hemoglobin and blood pressure tracking
+   - Donor health status management
    - Integration with external hospital management systems (Phase 2)
    - SMS notifications (email only for MVP)
    - Multi-language support (English only for v1.0)
@@ -294,7 +284,6 @@ D) ELIGIBLE DONOR IDENTIFICATION AND TRACKING
    - Current eligible donor identification and listing
    - Eligibility countdown tracking for ineligible donors
    - Donor search and filtering by eligibility status
-   - Health metrics recording and tracking
    - Blood type determination and storage
 
 E) DONOR CONTACT AND ENGAGEMENT CAPABILITIES
@@ -305,14 +294,6 @@ E) DONOR CONTACT AND ENGAGEMENT CAPABILITIES
    - Automated appointment reminder emails (24 hours prior)
    - Notification system for donors regarding eligibility status
    - Staff portal for managing donor outreach communications
-
-F) DONATION PROCESSING AND HEALTH METRICS
-   - Health screening data collection during appointments
-   - Hemoglobin and blood pressure recording
-   - Blood type verification and confirmation
-   - Donation confirmation and documentation
-   - Health information storage and retrieval
-   - Donation record creation and maintenance
 
 2.3 USER CLASSES AND CHARACTERISTICS
 
@@ -357,9 +338,9 @@ Characteristics:
 
 Primary Tasks:
 - Manage appointment schedule and calendar
-- Process donations and record health metrics
-- Search and update donor information
-- Track inventory levels
+- Update donor blood type information
+- Search and verify donor information
+- Track and manage blood inventory levels
 - Review appointment and donation statistics
 - Update donor blood type and health information
 
@@ -534,7 +515,6 @@ B) USER ASSUMPTIONS
    - Donors will provide accurate personal information during registration
    - Donors will maintain current email addresses for notifications
    - Staff will follow proper authentication protocols
-   - Staff will enter accurate health metrics for donors
    - Donors will arrive for scheduled appointments as booked
    - Users will have JavaScript enabled in their browsers
 
@@ -547,7 +527,6 @@ C) TECHNICAL ASSUMPTIONS
 
 D) DATA ASSUMPTIONS
    - Mock data accurately represents system behavior
-   - Health metrics are collected during each donation event
    - Donor information remains consistent unless manually updated
    - Appointment slots are managed manually by staff (no overbooking)
    - 56-day deferral period applies uniformly to all whole blood donations
@@ -566,8 +545,6 @@ B) INTERNAL DEPENDENCIES
    - Donation history data must be accurate for eligibility calculation
    - Appointment availability depends on donation center configuration
    - Inventory accuracy depends on complete donation processing
-   - Health metrics accuracy depends on staff data entry
-   - Email notification depends on backend implementation (Phase 2)
 
 C) SEQUENTIAL DEPENDENCIES
    - User registration must precede appointment booking
@@ -636,15 +613,7 @@ B) DONOR DASHBOARD (PRIMARY INTERFACE)
         - Next eligible date display
         - 56-day deferral period explanation
 
-   iii) Health Record Summary
-         - Last donation's hemoglobin level
-         - Last donation's blood pressure reading
-         - Blood type (if recorded)
-         - Status indicators (normal/abnormal)
-         - Privacy note about health data handling
-         - Timestamp of last health record update
-
-   iv) Donation History Timeline
+   iii) Donation History Timeline
         - Chronological list of previous donations
         - Visual timeline format with connecting lines
         - For each donation:
@@ -744,13 +713,6 @@ B) APPOINTMENT MANAGEMENT INTERFACE
      * Donor ID
      * Appointment time and date
    
-   - Health Metrics Form:
-     * Blood Type Dropdown (8 blood types)
-     * Hemoglobin Level input (format: "14.2 g/dL")
-     * Blood Pressure input (format: "120/80 mmHg")
-     * Optional Notes text area (max 500 characters)
-     * Form validation with error messages
-   
    - Action Buttons:
      * "Cancel" button to close without saving
      * "Complete Donation" button to save and finish
@@ -781,21 +743,17 @@ B) APPOINTMENT MANAGEMENT INTERFACE
      * Email Address
      * Phone Number
    
-   - Health Information:
-     * Blood Type
-     * Last Hemoglobin Level
-     * Last Blood Pressure
+   - Donation Information:
+     * Blood Type (if recorded)
      * Last Donation Date
      * Total Donations Count
      * Current Status
    
-   - Edit Health Info Button (for authorized staff)
+   - Edit Blood Type Button (for authorized staff)
    - Close Button
 
-   Health Information Edit Form:
+   Blood Type Edit Form:
    - Blood Type Dropdown (editable)
-   - Hemoglobin Level input (editable)
-   - Blood Pressure input (editable)
    - Donor Status dropdown (Active/Eligible/Deferred)
    - Input validation before saving
    - "Save Changes" button
@@ -806,7 +764,6 @@ B) APPOINTMENT MANAGEMENT INTERFACE
 
    Inventory Overview Section:
    - Total units in inventory (all types)
-   - Number of types with expiring units (within 7 days)
    - Number of critical stock types (<10 units)
    - Number of adequate stock types (20+ units)
 
@@ -822,7 +779,6 @@ B) APPOINTMENT MANAGEMENT INTERFACE
      * Current unit count (very large, prominent)
      * Progress bar (visual representation of stock level)
      * Status indicator (color dot: green/yellow/red)
-     * Units expiring within 7 days (if applicable)
      * "Add Units" button (clickable card or dedicated button)
 
    Add Units Modal:
@@ -1059,7 +1015,6 @@ Functional Requirements:
   * Email Address (future: allow with verification)
   * Blood Type
   * Donation History
-  * Health Metrics
 
 - Edit Profile page shall include:
   * Form with current values pre-filled
@@ -1136,7 +1091,6 @@ Functional Requirements:
   * Donation Type (whole blood, platelets, etc.)
   * Volume Donated (in milliliters)
   * Status (Pending/Completed/Cancelled)
-  * Health Metrics (hemoglobin, blood pressure, blood type)
 
 - The system shall display donation history as a visual timeline:
   * Chronological order (most recent first)
@@ -1311,84 +1265,46 @@ Acceptance Criteria:
 - UI clearly shows current day
 - Real-time updates of status changes
 
-4.2.4 Feature 9: Donation Processing Workflow
+4.2.4 Feature 9: Appointment Status Management
 
 Description:
-The system shall provide staff with a structured workflow for checking in donors 
-and recording the donation process with health metrics and blood information.
+The system shall provide staff with the ability to manage and track appointment
+status changes throughout the donation appointment lifecycle.
 
 Functional Requirements:
-- APPOINTMENT CHECK-IN:
-  * Staff changes appointment status to "Checked-In"
-  * System opens Donation Processing Modal
-  * Modal displays donor information:
-    - Donor avatar (initials in circle)
-    - Full name
-    - Donor ID
-    - Appointment date and time
-    - Donation center location
+- APPOINTMENT STATUS UPDATES:
+  * Staff transitions appointment status through valid workflow:
+    - Pending → Confirmed (staff confirmation)
+    - Confirmed → Checked-In (donor arrival)
+    - Checked-In → Completed (donation completed)
+    - Any status → Cancelled (if needed)
+  
+  * Status changes are recorded with:
+    - New status value
+    - Timestamp of change
+    - Staff member who made the change
 
-- HEALTH METRICS COLLECTION:
-  * System displays form with required fields:
-    - Blood Type (dropdown: A+, A-, B+, B-, AB+, AB-, O+, O-)
-      * Default to existing type if previously recorded
-      * Required field
-    
-    - Hemoglobin Level (text input)
-      * Format: "XX.X g/dL" (example: 14.2 g/dL)
-      * Required field
-      * Validation: numeric, 7-20 g/dL range
-    
-    - Blood Pressure (text input)
-      * Format: "XXX/XX mmHg" (example: 120/80 mmHg)
-      * Required field
-      * Validation: proper format, reasonable values
-    
-    - Donation Type (dropdown: Whole Blood, Platelets, etc.)
-      * Required field
-    
-    - Volume Collected (numeric input)
-      * Measured in milliliters
-      * Default: 450-500 ml for whole blood
-      * Required field
-      * Validation: positive number, 200-550 ml range
-    
-    - Notes (text area, optional)
-      * Maximum 500 characters
-      * For recording observations or special circumstances
+- STATUS VALIDATION:
+  * System enforces valid status transitions
+  * Invalid transitions are prevented with error message
+  * User receives confirmation of successful status change
+  * Status updates reflect immediately in calendar and lists
 
-- DATA VALIDATION:
-  * All required fields must be completed before saving
-  * Hemoglobin validated for reasonable range
-  * Blood pressure validated for format and values
-  * Volume validated for appropriate range
-  * Error messages displayed for invalid data
-  * Clear error message indicates which field has issue
-
-- PROCESSING ACTIONS:
-  * "Cancel" button: Close modal without saving
-  * "Complete Donation" button: Validate and save
-  * Upon successful completion:
-    - Appointment status changed to "Completed"
-    - Blood type saved to donor profile (if previously null)
-    - Health metrics saved to donation record
-    - Donation record created in donor's history
-    - Inventory decremented by volume donated
-    - Next eligible date calculated and saved
+- APPOINTMENT CONFIRMATION:
+  * Upon marking appointment as "Completed":
+    - Appointment record is finalized
+    - Donor eligibility date is updated (56-day period starts)
+    - Inventory adjustments are processed
     - Success message displayed
-    - Modal closed
 
-Priority: CRITICAL
-Effort: Large
+Priority: HIGH
+Effort: Small
 Acceptance Criteria:
-- Modal displays with correct donor info
-- All required fields collect proper data
-- Validation prevents incomplete submissions
-- Blood type saved to donor profile
-- Donation record created correctly
-- Inventory updated properly
-- Next eligible date calculated
-- Status transitions correctly to "Completed"
+- Status transitions follow valid workflow
+- Invalid transitions are prevented
+- Status changes persist and display correctly
+- Timestamps recorded accurately
+- Confirmations display to staff
 
 4.3 BLOOD INVENTORY MONITORING
 
@@ -1590,43 +1506,36 @@ Acceptance Criteria:
 - Case-insensitive search
 - Results count accurate
 
-4.4.2 Feature 14: Donor Health Information Management
+4.4.2 Feature 14: Donor Search and Blood Type Management
 
 Description:
-The system shall allow authorized medical staff to view and update donor health 
-information including blood type, hemoglobin levels, and blood pressure readings.
+The system shall allow authorized medical staff to search for and locate donors,
+and to record/verify blood type information during donation processing.
 
 Functional Requirements:
 - DONOR DETAIL VIEW:
   * Staff clicks "View" on donor search result
   * Donor Detail Modal displays:
-    - Donor avatar with initials and blood type badge
+    - Donor avatar with initials
     - Profile Information:
       * Full Name
       * Donor ID
       * Email Address
       * Phone Number
-    - Health Information:
+    - Donation Information:
       * Blood Type (if recorded)
-      * Last Hemoglobin Level
-      * Last Blood Pressure
       * Last Donation Date
       * Total Donations Count
       * Current Status (Active/Eligible/Deferred)
-    - "Edit Health Info" button
+    - "Edit Blood Type" button (if available)
     - "Close" button
 
-- EDIT HEALTH INFORMATION:
-  * Staff clicks "Edit Health Info" button
+- EDIT BLOOD TYPE:
+  * Staff clicks "Edit Blood Type" button
   * Form switches to edit mode with fields:
     - Blood Type (dropdown: all 8 blood types)
-    - Hemoglobin Level (text input, g/dL)
-    - Blood Pressure (text input, mmHg format)
     - Donor Status (dropdown: Active/Eligible/Deferred)
-  * Validation applied (same as donation processing):
-    - Hemoglobin: 7-20 g/dL range
-    - Blood Pressure: proper format and reasonable values
-    - All required fields must be completed
+  * All required fields must be completed
   * Error messages displayed for invalid data
 
 - SAVE CHANGES:
@@ -1638,10 +1547,10 @@ Functional Requirements:
     - Records change timestamp and staff ID
     - Displays success message: "Changes saved successfully"
   * Modal updates to show new information
-  * "Edit Health Info" button available again
+  * "Edit Blood Type" button available again
 
 - SECURITY:
-  * Only authorized staff can edit health information
+  * Only authorized staff can edit blood type information
   * Changes logged with staff ID for audit trail
   * Staff confirmation required before saving (future)
 
@@ -1649,75 +1558,16 @@ Priority: HIGH
 Effort: Medium
 Acceptance Criteria:
 - Donor search finds correct donor
-- All health info displays correctly
+- Blood type information displays correctly
 - Edit mode toggles properly
 - Validation prevents bad data
 - Changes save successfully
 - Success message displays
 - Changes persist after page reload
 
-4.5 DONATION PROCESSING AND HEALTH METRICS
+4.5 STAFF DASHBOARD AND ADMINISTRATIVE FUNCTIONS
 
-4.5.1 Feature 15: Health Metrics Recording and Display
-
-Description:
-The system shall record, store, and display health metrics collected from 
-donors during each donation appointment, maintaining comprehensive health history.
-
-Functional Requirements:
-- HEALTH METRICS STORED:
-  * Hemoglobin Level (measured in g/dL):
-    - Collected during donation processing
-    - Stored with timestamp
-    - Displayed on donor dashboard (last recorded level)
-  
-  * Blood Pressure (measured in mmHg):
-    - Format: systolic/diastolic (e.g., 120/80)
-    - Collected during donation processing
-    - Stored with timestamp
-    - Displayed on donor dashboard
-  
-  * Blood Type:
-    - Determined during first donation
-    - Can be recorded/verified during subsequent donations
-    - Displayed on profile and dashboard
-  
-  * Donation Type:
-    - Whole blood, platelets, plasma, etc.
-    - Associated with each donation record
-  
-  * Volume Collected:
-    - Measured in milliliters
-    - Typical range 450-500 ml for whole blood
-    - Stored with donation record
-
-- HEALTH RECORD DISPLAY ON DONOR DASHBOARD:
-  * Health Record Summary Card shows:
-    - Hemoglobin level (with status indicator)
-    - Blood pressure (with status indicator)
-    - Blood type (if determined)
-    - Last updated timestamp
-    - Status labels (Normal/Abnormal)
-    - Privacy note: "Health metrics are recorded during each donation visit"
-
-- HEALTH HISTORY (FUTURE):
-  * Complete history available to donor (future feature)
-  * Trend analysis capability (future feature)
-  * Multiple readings displayed over time
-
-Priority: HIGH
-Effort: Medium
-Acceptance Criteria:
-- Health metrics collected during donation
-- Stored with proper data types
-- Last metrics displayed on dashboard
-- Privacy note displayed
-- Status indicators shown
-- Data persists correctly
-
-4.6 REPORTING AND STATISTICS SYSTEM
-
-4.6.1 Feature 16: Dashboard Statistics and Metrics
+4.5.1 Feature 15: Dashboard Statistics and Metrics
 
 Description:
 The system shall provide staff with key statistics and metrics on the staff 
@@ -1752,7 +1602,6 @@ Functional Requirements:
 - INVENTORY STATUS:
   * Current blood inventory by type
   * Color-coded status indicators
-  * Units expiring within 7 days counter
 
 - QUICK ACTIONS:
   * Shortcut buttons to primary functions:
@@ -1790,7 +1639,6 @@ B) DATABASE QUERY PERFORMANCE (FUTURE BACKEND PHASE)
    - Donor Search: < 500ms response time for result retrieval
    - Appointment List Retrieval: < 500ms for day's appointments
    - Inventory Status Query: < 500ms for current inventory
-   - Health Metrics Retrieval: < 500ms for last recorded metrics
 
 C) SYSTEM INITIALIZATION
    - Application startup: < 3 seconds
@@ -1940,7 +1788,6 @@ B) DATA AT REST
    - Database passwords encrypted and stored securely
    - Sensitive fields encrypted in database (Phase 2):
      * Social security numbers
-     * Health metrics (optional additional layer)
      * Blood type
    - Encryption algorithm: AES-256 or equivalent
    - Encryption keys managed securely:
@@ -1950,9 +1797,8 @@ B) DATA AT REST
 
 C) DATA PRIVACY AND CONFIDENTIALITY
    - Donor data visible only to donor owner and authorized staff
-   - Health metrics restricted to healthcare personnel
-   - No health data shared with billing or administrative staff
-   - No health data shared with external parties without consent
+   - No sensitive data shared with billing or administrative staff
+   - No data shared with external parties without consent
    - Compliance with HIPAA Privacy Rule
    - Privacy Policy prominently displayed
    - User consent for data collection
@@ -2143,27 +1989,22 @@ BR5: DONATION CENTER OPERATIONS
      bookings during those hours. Staff must update center operating hours if
      the center will be temporarily closed.
 
-BR6: HEALTH METRICS VALIDATION
-     Hemoglobin levels and blood pressure readings must be within medically
-     reasonable ranges before a donation can be marked complete. Out-of-range
-     values must be reviewed by medical staff.
-
-BR7: SESSION SECURITY
+BR6: SESSION SECURITY
      User sessions automatically expire after 30 minutes of inactivity for
      security. Users must re-authenticate to continue using the system.
 
-BR8: DATA RETENTION
-     Donor records, donation history, and health metrics are retained for a
-     minimum of 5 years for medical and legal compliance. Records must be
-     securely archived after this period.
+BR7: DATA RETENTION
+     Donor records and donation history are retained for a minimum of 5 years
+     for medical and legal compliance. Records must be securely archived after
+     this period.
 
-BR9: APPOINTMENT STATUS WORKFLOW
+BR8: APPOINTMENT STATUS WORKFLOW
      Appointments follow a strict status workflow: Pending → Confirmed → 
      Checked-In → Completed, or may be Cancelled at any point. Appointments
      cannot skip steps in this workflow.
 
-BR10: PRIVACY AND CONFIDENTIALITY
-      Donor health information and donation records are private and visible
+BR9: PRIVACY AND CONFIDENTIALITY
+      Donor personal information and donation records are private and visible
       only to the donor themselves and authorized medical staff. No other
       users or systems can access this information without explicit consent.
 
@@ -2409,21 +2250,17 @@ APPOINTMENT BOOKING FLOW:
 DONATION PROCESSING FLOW:
 1. Staff views appointment calendar
 2. Staff marks donor as checked-in
-3. Staff opens donation processing modal
-4. Staff enters health metrics
-5. Donor system validates data
-6. Staff confirms donation completion
-7. System creates donation record
-8. System updates donor blood type (if null)
-9. System calculates next eligible date
-10. System decrements inventory
-11. System sends completion notification (Phase 2)
+3. Staff verifies donor blood type information
+4. Staff marks donation as completed
+5. System creates donation record
+6. System calculates next eligible date
+7. System decrements inventory
+8. System sends completion notification (Phase 2)
 
 B.3 DATA ENTITY RELATIONSHIP DIAGRAM
 
 DONOR (1) ←→ (N) APPOINTMENT
 DONOR (1) ←→ (N) DONATION_RECORD
-DONOR (1) ←→ (1) HEALTH_METRICS
 APPOINTMENT (1) ←→ (1) DONATION_CENTER
 APPOINTMENT (1) ←→ (1) DONATION_RECORD
 BLOOD_INVENTORY (1:string type) ←→ (N) DONATION_RECORD
@@ -2461,7 +2298,6 @@ PHASE 3 - ADVANCED FEATURES:
 [ ] Geolocation-based appointment recommendations
 [ ] Blood type compatibility checker for donations
 [ ] Recurring donation reminder system
-[ ] Donor eligibility prediction based on health metrics
 [ ] Machine learning for appointment optimization
 
 SECURITY ENHANCEMENTS:

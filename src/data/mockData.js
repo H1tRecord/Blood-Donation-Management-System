@@ -137,6 +137,19 @@ export const users = [
     donationCount: 2,
     isActive: true
   },
+  {
+    id: 'D011',
+    role: 'donor',
+    email: 'alex.chen@email.com',
+    password: 'donor123',
+    name: 'Alex Chen',
+    phone: '555-0111',
+    bloodType: null, // First-time donor - blood type to be determined
+    registrationDate: '2026-02-26',
+    lastDonationDate: null,
+    donationCount: 0,
+    isActive: true
+  },
   
   // Staff
   {
@@ -254,6 +267,17 @@ export const appointments = [
     status: 'cancelled',
     confirmationNumber: 'CONF-006',
     createdDate: '2026-02-18'
+  },
+  {
+    id: 'APT007',
+    donorId: 'D011',
+    donorName: 'Alex Chen',
+    bloodType: null, // First-time donor - blood type to be determined by staff
+    date: '2026-02-27',
+    time: '03:00 PM',
+    status: 'confirmed',
+    confirmationNumber: 'CONF-007',
+    createdDate: '2026-02-26'
   }
 ];
 

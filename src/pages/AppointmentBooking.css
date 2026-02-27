@@ -303,6 +303,22 @@
   color: #2d3748;
 }
 
+/* First Time Donor Notice */
+.first-time-notice {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+}
+
+.first-time-notice .notice-text {
+  margin: 0;
+  color: #78350f;
+  font-weight: 500;
+  text-align: left;
+}
+
 @media (max-width: 1024px) {
   .booking-container {
     grid-template-columns: 1fr;

@@ -62,13 +62,22 @@ const Register = () => {
     }
 
     // Attempt registration
-    const result = register(formData);
+    const result = register(formData, formData.role === 'donor'); // Auto-login donors
     
     if (result.success) {
-      setSuccess(result.message);
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      if (formData.role === 'donor') {
+        setSuccess('Registration successful! Please book your first appointment to complete registration.');
+        setTimeout(() => {
+          // Navigate to appointment booking for first-time donors
+          navigate('/book-appointment', { state: { isFirstTime: true } });
+        }, 2000);
+      } else {
+        // Staff members just login normally
+        setSuccess(result.message);
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      }
     } else {
       setError(result.message);
       setIsLoading(false);
@@ -135,20 +144,6 @@ const Register = () => {
               required
             />
             <small>Format: 555-0123</small>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="role">I am a *</label>
-            <select
-              id="role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-            >
-              <option value="donor">Blood Donor</option>
-              <option value="staff">Staff Member</option>
-            </select>
           </div>
 
           <div className="form-group">

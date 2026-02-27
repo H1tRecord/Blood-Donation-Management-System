@@ -4,13 +4,15 @@ import { appointments, bloodInventory } from '../data/mockData';
 import './StaffAppointments.css';
 
 const StaffAppointments = () => {
-  const { currentUser, resetSessionTimeout } = useAuth();
+  const { currentUser, resetSessionTimeout, updateUserBloodType } = useAuth();
   const [allAppointments, setAllAppointments] = useState([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [availableDates, setAvailableDates] = useState([]);
   const [dateAppointments, setDateAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showBloodTypeModal, setShowBloodTypeModal] = useState(false);
+  const [selectedBloodType, setSelectedBloodType] = useState('');
 
   useEffect(() => {
     resetSessionTimeout();
@@ -64,6 +66,13 @@ const StaffAppointments = () => {
   const handleStatusChange = (appointmentId, newStatus) => {
     const appointment = appointments.find(apt => apt.id === appointmentId);
     if (appointment) {
+      // If completing a first-time donor appointment, prompt for blood type
+      if (newStatus === 'completed' && !appointment.bloodType) {
+        setSelectedAppointment(appointment);
+        setShowBloodTypeModal(true);
+        return;
+      }
+      
       appointment.status = newStatus;
       
       // If completed, could add to donation history here
@@ -80,6 +89,30 @@ const StaffAppointments = () => {
     if (window.confirm('Are you sure you want to cancel this appointment?')) {
       handleStatusChange(appointmentId, 'cancelled');
     }
+  };
+
+  const handleAssignBloodType = () => {
+    if (!selectedBloodType) {
+      alert('Please select a blood type');
+      return;
+    }
+    
+    if (!selectedAppointment) return;
+    
+    // Update the donor's blood type
+    updateUserBloodType(selectedAppointment.donorId, selectedBloodType);
+    
+    // Update the appointment
+    selectedAppointment.bloodType = selectedBloodType;
+    selectedAppointment.status = 'completed';
+    
+    // Close modal and refresh
+    setShowBloodTypeModal(false);
+    setSelectedBloodType('');
+    setSelectedAppointment(null);
+    loadAppointments();
+    
+    alert(`Blood type ${selectedBloodType} assigned successfully!`);
   };
 
   const handleViewDetails = (appointment) => {
@@ -197,7 +230,7 @@ const StaffAppointments = () => {
                     {apt.bloodType ? (
                       <span className="blood-type-badge">{apt.bloodType}</span>
                     ) : (
-                      <span className="unknown-type">TBD</span>
+                      <span className="unknown-type" title="First-time donor">TBD ⭐</span>
                     )}
                   </div>
                   <div className="col-status">
@@ -362,6 +395,73 @@ const StaffAppointments = () => {
                 >
                   Close
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Blood Type Assignment Modal */}
+      {showBloodTypeModal && selectedAppointment && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <div className="modal-header">
+              <h2>Assign Blood Type</h2>
+              <button
+                className="close-btn"
+                onClick={() => {
+                  setShowBloodTypeModal(false);
+                  setSelectedBloodType('');
+                  setSelectedAppointment(null);
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-content">
+              <div className="blood-type-assignment">
+                <p className="assignment-info">
+                  <strong>Donor:</strong> {selectedAppointment.donorName}
+                </p>
+                <p className="assignment-notice">
+                  ⭐ This is a first-time donor. Please assign their blood type after testing.
+                </p>
+                
+                <div className="blood-type-selector">
+                  <label>Select Blood Type:</label>
+                  <div className="blood-type-options">
+                    {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        className={`blood-type-btn ${selectedBloodType === type ? 'selected' : ''}`}
+                        onClick={() => setSelectedBloodType(type)}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="modal-actions">
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      setShowBloodTypeModal(false);
+                      setSelectedBloodType('');
+                      setSelectedAppointment(null);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="btn-primary"
+                    onClick={handleAssignBloodType}
+                    disabled={!selectedBloodType}
+                  >
+                    Assign & Complete
+                  </button>
+                </div>
               </div>
             </div>
           </div>

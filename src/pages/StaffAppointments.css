@@ -349,3 +349,68 @@
     transform: rotate(90deg);
   }
 }
+
+/* Blood Type Assignment Modal */
+.blood-type-assignment {
+  padding: 1rem 0;
+}
+
+.assignment-info {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #2d3748;
+}
+
+.assignment-notice {
+  padding: 1rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  color: #78350f;
+}
+
+.blood-type-selector {
+  margin-bottom: 2rem;
+}
+
+.blood-type-selector label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #2d3748;
+}
+
+.blood-type-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.blood-type-btn {
+  padding: 1.25rem;
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #4a5568;
+}
+
+.blood-type-btn:hover {
+  background: #eff6ff;
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+}
+
+.blood-type-btn.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}

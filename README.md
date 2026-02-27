@@ -1,16 +1,126 @@
-# React + Vite
+# Blood Donation Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive web application for managing blood donation processes, appointments, inventory, and donor information.
 
-Currently, two official plugins are available:
+## 🚀 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19.2.0** - UI library
+- **Vite 7.3.1** - Build tool
+- **React Router DOM 7.13.1** - Routing
+- **ESLint** - Code linting
 
-## React Compiler
+## 📁 Project Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+/
+├── docs/                           # Documentation
+│   ├── Database_Architecture.txt
+│   └── SRS_IEEE830_Standard.txt
+├── public/                         # Static assets
+│   └── vite.svg
+├── src/
+│   ├── assets/                     # Images, fonts, icons
+│   │   └── react.svg
+│   ├── components/                 # Reusable UI components
+│   │   └── layout/                 # Layout components
+│   │       ├── Navbar.jsx
+│   │       └── Navbar.css
+│   ├── context/                    # React contexts
+│   │   └── AuthContext.jsx
+│   ├── data/                       # Mock data and constants
+│   │   └── mockData.js
+│   ├── hooks/                      # Custom React hooks
+│   ├── pages/                      # Page components
+│   │   ├── AppointmentBooking.jsx
+│   │   ├── DonorDashboard.jsx
+│   │   ├── DonorSearch.jsx
+│   │   ├── InventoryManagement.jsx
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── StaffAppointments.jsx
+│   │   └── StaffDashboard.jsx
+│   ├── services/                   # API services
+│   ├── styles/                     # Global styles
+│   ├── utils/                      # Utility functions
+│   ├── App.jsx                     # Main app component
+│   ├── App.css
+│   ├── main.jsx                    # Entry point
+│   └── index.css
+├── eslint.config.js
+├── index.html
+├── package.json
+├── vite.config.js
+└── README.md
+```
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **User Authentication** - Secure login and registration for donors and staff
+- **Donor Dashboard** - Personal dashboard for blood donors
+- **Staff Dashboard** - Administrative interface for staff members
+- **Appointment Booking** - Schedule blood donation appointments
+- **Inventory Management** - Track blood inventory levels
+- **Donor Search** - Find and manage donor information
+- **Role-based Access Control** - Different features for donors and staff
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Run linter
+npm run lint
+```
+
+## 📝 Development Guidelines
+
+### Adding New Components
+
+- Place reusable components in `src/components/`
+- Place page components in `src/pages/`
+- Keep component-specific styles with the component
+
+### Adding Custom Hooks
+
+- Place custom hooks in `src/hooks/`
+- Follow the `use` prefix convention
+
+### Adding Services
+
+- Place API services in `src/services/`
+- Keep data fetching logic separate from components
+
+### Adding Utilities
+
+- Place helper functions in `src/utils/`
+- Keep utilities pure and testable
+
+## 🔐 User Roles
+
+- **Donor** - Can book appointments, view donation history
+- **Staff/Admin** - Can manage appointments, inventory, and donor information
+
+## 📄 License
+
+This project is for educational purposes.
+
+---
+
+Built with React + Vite

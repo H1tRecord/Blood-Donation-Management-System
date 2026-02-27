@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Register function
-  const register = (userData) => {
+  const register = (userData, autoLogin = false) => {
     // Check if email already exists
     const existingUser = users.find((u) => u.email === userData.email);
     if (existingUser) {
@@ -114,7 +114,18 @@ export const AuthProvider = ({ children }) => {
     // Add to users array (in real app, this would be a database call)
     users.push(newUser);
 
-    return { success: true, message: 'Registration successful! Please log in.' };
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = newUser;
+    
+    // Auto-login for donors who need to book first appointment
+    if (autoLogin && userData.role === 'donor') {
+      setCurrentUser(userWithoutPassword);
+      setIsAuthenticated(true);
+      localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
+      startSessionTimeout();
+    }
+    
+    return { success: true, message: 'Registration successful! Please log in.', user: userWithoutPassword };
   };
 
   // Logout function
@@ -143,6 +154,24 @@ export const AuthProvider = ({ children }) => {
     return { success: true };
   };
 
+  // Update blood type for a specific user (used by staff)
+  const updateUserBloodType = (userId, bloodType) => {
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+      users[userIndex].bloodType = bloodType;
+      
+      // If it's the current user, update their session too
+      if (currentUser && currentUser.id === userId) {
+        const updatedUser = { ...currentUser, bloodType };
+        setCurrentUser(updatedUser);
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      }
+      
+      return { success: true };
+    }
+    return { success: false, message: 'User not found' };
+  };
+
   const value = {
     currentUser,
     isAuthenticated,
@@ -150,6 +179,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateProfile,
+    updateUserBloodType,
     resetSessionTimeout
   };
 

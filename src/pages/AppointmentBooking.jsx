@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   appointments,
@@ -12,6 +12,7 @@ import './AppointmentBooking.css';
 const AppointmentBooking = () => {
   const { currentUser, resetSessionTimeout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [availableDates, setAvailableDates] = useState([]);
@@ -20,9 +21,16 @@ const AppointmentBooking = () => {
   const [daysUntilEligible, setDaysUntilEligible] = useState(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationNumber, setConfirmationNumber] = useState('');
+  const [isFirstTime, setIsFirstTime] = useState(false);
 
   useEffect(() => {
     resetSessionTimeout();
+    
+    // Check if this is a first-time donor from registration
+    if (location.state?.isFirstTime) {
+      setIsFirstTime(true);
+    }
+    
     checkEligibility();
     generateAvailableDates();
   }, [currentUser]);
@@ -35,6 +43,13 @@ const AppointmentBooking = () => {
 
   const checkEligibility = () => {
     if (!currentUser) return;
+    
+    // First-time donors (no blood type) are always eligible
+    if (currentUser.bloodType === null || currentUser.bloodType === undefined) {
+      setIsEligible(true);
+      setIsFirstTime(true);
+      return;
+    }
     
     const eligible = isEligibleToDonate(currentUser.lastDonationDate);
     setIsEligible(eligible);
@@ -125,7 +140,12 @@ const AppointmentBooking = () => {
   };
 
   const handleBackToDashboard = () => {
-    navigate('/donor-dashboard');
+    if (isFirstTime) {
+      // First-time donors go to login after booking
+      navigate('/login');
+    } else {
+      navigate('/donor-dashboard');
+    }
   };
 
   if (!isEligible) {
@@ -162,6 +182,13 @@ const AppointmentBooking = () => {
         <div className="confirmation-card">
           <div className="confirmation-icon">✓</div>
           <h2>Appointment Confirmed!</h2>
+          {isFirstTime && (
+            <div className="first-time-notice">
+              <p className="notice-text">
+                ⭐ <strong>Welcome!</strong> Your blood type will be determined during your first visit.
+              </p>
+            </div>
+          )}
           <div className="confirmation-details">
             <p className="confirmation-number">
               Confirmation Number: <strong>{confirmationNumber}</strong>
@@ -209,7 +236,7 @@ const AppointmentBooking = () => {
               className="btn-primary"
               onClick={handleBackToDashboard}
             >
-              Back to Dashboard
+              {isFirstTime ? 'Continue to Login' : 'Back to Dashboard'}
             </button>
           </div>
         </div>
@@ -221,7 +248,11 @@ const AppointmentBooking = () => {
     <div className="appointment-booking">
       <div className="booking-header">
         <h1>Book Donation Appointment</h1>
-        <p className="subtitle">Select a date and time for your blood donation</p>
+        {isFirstTime ? (
+          <p className="subtitle">Welcome! Book your first appointment. Staff will determine your blood type during your visit.</p>
+        ) : (
+          <p className="subtitle">Select a date and time for your blood donation</p>
+        )}
       </div>
 
       <div className="booking-container">
