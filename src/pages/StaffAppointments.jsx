@@ -6,8 +6,8 @@ import './StaffAppointments.css';
 const StaffAppointments = () => {
   const { currentUser, resetSessionTimeout, updateUserBloodType } = useAuth();
   const [allAppointments, setAllAppointments] = useState([]);
-  const [selectedDate, setSelectedDate] = useState('');
-  const [calendarMonth, setCalendarMonth] = useState(new Date('2026-02-26'));
+  const [selectedDate, setSelectedDate] = useState('2026-02-28');
+  const [calendarMonth, setCalendarMonth] = useState(new Date(2026, 1, 1));
   const [dateAppointments, setDateAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -17,8 +17,6 @@ const StaffAppointments = () => {
   useEffect(() => {
     resetSessionTimeout();
     loadAppointments();
-    // Default to today
-    setSelectedDate('2026-02-28');
   }, []);
 
   useEffect(() => {
@@ -28,7 +26,6 @@ const StaffAppointments = () => {
   }, [selectedDate, allAppointments]);
 
   const loadAppointments = () => {
-    // Load all appointments (exclude cancelled for default view)
     const appts = [...appointments].sort((a, b) => {
       const dateCompare = a.date.localeCompare(b.date);
       if (dateCompare !== 0) return dateCompare;
@@ -37,27 +34,40 @@ const StaffAppointments = () => {
     setAllAppointments(appts);
   };
 
-  const generateAvailableDates = () => {};
+  // ── Calendar helpers ──────────────────────────
 
-  // Calendar helpers
   const getCalendarDays = () => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const startPad = firstDay.getDay(); // 0=Sun
+    const startPad = firstDay.getDay();
     const days = [];
 
-    // Padding for days before the 1st
-    for (let i = 0; i < startPad; i++) {
-      days.push(null);
+    const prevMonthLast = new Date(year, month, 0);
+    for (let i = startPad - 1; i >= 0; i--) {
+      days.push({ day: prevMonthLast.getDate() - i, dateStr: null, isOtherMonth: true });
     }
 
-    // Actual days of month
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      const apptCount = allAppointments.filter(a => a.date === dateStr).length;
-      days.push({ day: d, dateStr, apptCount });
+      const dayAppts = allAppointments.filter(a => a.date === dateStr);
+      const isToday = dateStr === '2026-02-28';
+      days.push({
+        day: d,
+        dateStr,
+        isOtherMonth: false,
+        isToday,
+        total: dayAppts.length,
+        pending: dayAppts.filter(a => a.status === 'pending').length,
+        confirmed: dayAppts.filter(a => a.status === 'confirmed').length,
+        completed: dayAppts.filter(a => a.status === 'completed').length,
+      });
+    }
+
+    const remaining = 42 - days.length;
+    for (let i = 1; i <= remaining; i++) {
+      days.push({ day: i, dateStr: null, isOtherMonth: true });
     }
 
     return days;
@@ -71,8 +81,29 @@ const StaffAppointments = () => {
     setCalendarMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
+  const handleToday = () => {
+    setCalendarMonth(new Date(2026, 1, 1));
+    setSelectedDate('2026-02-28');
+  };
+
   const calendarMonthLabel = calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const calendarDays = getCalendarDays();
+
+  const handleDayClick = (cell) => {
+    if (cell.isOtherMonth || !cell.dateStr) return;
+    setSelectedDate(cell.dateStr);
+  };
+
+  const selectedDateLabel = selectedDate
+    ? new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : '';
+
+  // ── Filtering & status ────────────────────────
 
   const filterAppointmentsByDate = (date) => {
     const filtered = allAppointments.filter(apt => apt.date === date);
@@ -82,7 +113,6 @@ const StaffAppointments = () => {
   const handleStatusChange = (appointmentId, newStatus) => {
     const appointment = appointments.find(apt => apt.id === appointmentId);
     if (appointment) {
-      // If completing a first-time donor appointment, prompt for blood type
       if (newStatus === 'completed' && !appointment.bloodType) {
         setSelectedAppointment(appointment);
         setShowBloodTypeModal(true);
@@ -91,10 +121,8 @@ const StaffAppointments = () => {
       
       appointment.status = newStatus;
       
-      // If completed, could add to donation history here
       if (newStatus === 'completed') {
         console.log('Appointment completed - would record donation');
-        // In real app, would prompt for donation details (hemoglobin, etc.)
       }
       
       loadAppointments();
@@ -112,17 +140,12 @@ const StaffAppointments = () => {
       alert('Please select a blood type');
       return;
     }
-    
     if (!selectedAppointment) return;
     
-    // Update the donor's blood type
     updateUserBloodType(selectedAppointment.donorId, selectedBloodType);
-    
-    // Update the appointment
     selectedAppointment.bloodType = selectedBloodType;
     selectedAppointment.status = 'completed';
     
-    // Close modal and refresh
     setShowBloodTypeModal(false);
     setSelectedBloodType('');
     setSelectedAppointment(null);
@@ -138,220 +161,175 @@ const StaffAppointments = () => {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'pending': return 'status-pending';
-      case 'confirmed': return 'status-confirmed';
-      case 'checked-in': return 'status-checked-in';
-      case 'completed': return 'status-completed';
-      case 'cancelled': return 'status-cancelled';
+      case 'pending': return 'sa-status-pending';
+      case 'confirmed': return 'sa-status-confirmed';
+      case 'checked-in': return 'sa-status-checkedin';
+      case 'completed': return 'sa-status-completed';
+      case 'cancelled': return 'sa-status-cancelled';
       default: return '';
     }
   };
 
-  const getAppointmentStats = () => {
-    return {
-      total: dateAppointments.length,
-      pending: dateAppointments.filter(a => a.status === 'pending').length,
-      confirmed: dateAppointments.filter(a => a.status === 'confirmed').length,
-      checkedIn: dateAppointments.filter(a => a.status === 'checked-in').length,
-      completed: dateAppointments.filter(a => a.status === 'completed').length,
-      cancelled: dateAppointments.filter(a => a.status === 'cancelled').length
-    };
+  const stats = {
+    total: dateAppointments.length,
+    pending: dateAppointments.filter(a => a.status === 'pending').length,
+    confirmed: dateAppointments.filter(a => a.status === 'confirmed').length,
+    checkedIn: dateAppointments.filter(a => a.status === 'checked-in').length,
+    completed: dateAppointments.filter(a => a.status === 'completed').length,
+    cancelled: dateAppointments.filter(a => a.status === 'cancelled').length,
   };
-
-  const stats = getAppointmentStats();
 
   return (
     <div className="staff-appointments">
-      <div className="page-header">
-        <h1>Appointment Management</h1>
-        <p className="subtitle">View and manage donor appointments</p>
+      {/* Header */}
+      <div className="sa-header">
+        <div>
+          <h1>Appointment Management</h1>
+          <p className="sa-subtitle">View and manage donor appointments</p>
+        </div>
       </div>
 
-      <div className="appointments-content">
-        {/* Calendar */}
-        <div className="card calendar-card">
-          <div className="calendar-header">
-            <button className="cal-nav-btn" onClick={handlePrevMonth}>&lt;</button>
-            <h2 className="cal-month-label">{calendarMonthLabel}</h2>
-            <button className="cal-nav-btn" onClick={handleNextMonth}>&gt;</button>
-          </div>
-          <div className="calendar-grid">
-            <div className="cal-weekday">Sun</div>
-            <div className="cal-weekday">Mon</div>
-            <div className="cal-weekday">Tue</div>
-            <div className="cal-weekday">Wed</div>
-            <div className="cal-weekday">Thu</div>
-            <div className="cal-weekday">Fri</div>
-            <div className="cal-weekday">Sat</div>
-            {calendarDays.map((cell, idx) => (
-              cell ? (
+      {/* Stats Row */}
+      <div className="sa-stats-row">
+        <div className="sa-stat">
+          <span className="sa-stat-num">{stats.total}</span>
+          <span className="sa-stat-lbl">Total</span>
+        </div>
+        <div className="sa-stat pending">
+          <span className="sa-stat-num">{stats.pending}</span>
+          <span className="sa-stat-lbl">Pending</span>
+        </div>
+        <div className="sa-stat confirmed">
+          <span className="sa-stat-num">{stats.confirmed}</span>
+          <span className="sa-stat-lbl">Confirmed</span>
+        </div>
+        <div className="sa-stat checkedin">
+          <span className="sa-stat-num">{stats.checkedIn}</span>
+          <span className="sa-stat-lbl">Checked In</span>
+        </div>
+        <div className="sa-stat completed">
+          <span className="sa-stat-num">{stats.completed}</span>
+          <span className="sa-stat-lbl">Completed</span>
+        </div>
+      </div>
+
+      <div className="sa-layout">
+        {/* Left: Calendar */}
+        <div className="sa-calendar-panel">
+          <div className="sa-cal-card">
+            <div className="sa-cal-controls">
+              <div className="sa-cal-nav">
+                <button className="sa-nav-btn" onClick={handlePrevMonth}>&lt;</button>
+                <h2 className="sa-month-label">{calendarMonthLabel}</h2>
+                <button className="sa-nav-btn" onClick={handleNextMonth}>&gt;</button>
+              </div>
+              <button className="sa-btn sa-btn-ghost" onClick={handleToday}>Today</button>
+            </div>
+
+            <div className="sa-grid">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                <div key={d} className="sa-weekday">{d}</div>
+              ))}
+              {calendarDays.map((cell, idx) => (
                 <button
-                  key={cell.dateStr}
-                  className={`cal-day ${selectedDate === cell.dateStr ? 'selected' : ''} ${cell.apptCount > 0 ? 'has-appts' : ''}`}
-                  onClick={() => setSelectedDate(cell.dateStr)}
+                  key={idx}
+                  className={`sa-cell ${cell.isOtherMonth ? 'other' : ''} ${cell.dateStr === selectedDate ? 'selected' : ''} ${cell.isToday ? 'today' : ''}`}
+                  onClick={() => handleDayClick(cell)}
+                  disabled={cell.isOtherMonth}
                 >
-                  <span className="cal-day-num">{cell.day}</span>
-                  {cell.apptCount > 0 && (
-                    <span className="cal-dot">{cell.apptCount}</span>
+                  <span className="sa-cell-day">{cell.day}</span>
+                  {!cell.isOtherMonth && cell.total > 0 && (
+                    <div className="sa-cell-indicators">
+                      {cell.pending > 0 && <span className="sa-dot pending" />}
+                      {cell.confirmed > 0 && <span className="sa-dot confirmed" />}
+                      {cell.completed > 0 && <span className="sa-dot completed" />}
+                    </div>
+                  )}
+                  {!cell.isOtherMonth && cell.total > 0 && (
+                    <span className="sa-cell-count">{cell.total}</span>
                   )}
                 </button>
-              ) : (
-                <div key={`pad-${idx}`} className="cal-day empty" />
-              )
-            ))}
-          </div>
-        </div>
-
-        {/* Appointment Stats */}
-        {selectedDate && (
-          <div className="card stats-card">
-            <h2>
-              Appointments for{' '}
-              {new Date(selectedDate).toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric'
-              })}
-            </h2>
-            <div className="stats-grid">
-              <div className="stat-box">
-                <div className="stat-value">{stats.total}</div>
-                <div className="stat-label">Total</div>
-              </div>
-              <div className="stat-box pending">
-                <div className="stat-value">{stats.pending}</div>
-                <div className="stat-label">Pending</div>
-              </div>
-              <div className="stat-box confirmed">
-                <div className="stat-value">{stats.confirmed}</div>
-                <div className="stat-label">Confirmed</div>
-              </div>
-              <div className="stat-box checked-in">
-                <div className="stat-value">{stats.checkedIn}</div>
-                <div className="stat-label">Checked In</div>
-              </div>
-              <div className="stat-box completed">
-                <div className="stat-value">{stats.completed}</div>
-                <div className="stat-label">Completed</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Appointments List */}
-        <div className="card appointments-list-card">
-          <h2>Appointments</h2>
-          {dateAppointments.length > 0 ? (
-            <div className="appointments-table">
-              <div className="table-header">
-                <div className="col-time">Time</div>
-                <div className="col-donor">Donor</div>
-                <div className="col-blood">Blood Type</div>
-                <div className="col-status">Status</div>
-                <div className="col-confirmation">Confirmation</div>
-                <div className="col-actions">Actions</div>
-              </div>
-              {dateAppointments.map((apt) => (
-                <div key={apt.id} className="table-row">
-                  <div className="col-time">
-                    <span className="time-badge">{apt.time}</span>
-                  </div>
-                  <div className="col-donor">
-                    <span className="donor-name">{apt.donorName}</span>
-                  </div>
-                  <div className="col-blood">
-                    {apt.bloodType ? (
-                      <span className="blood-type-badge">{apt.bloodType}</span>
-                    ) : (
-                      <span className="unknown-type" title="First-time donor">TBD</span>
-                    )}
-                  </div>
-                  <div className="col-status">
-                    <span className={`status-badge ${getStatusBadgeClass(apt.status)}`}>
-                      {apt.status}
-                    </span>
-                  </div>
-                  <div className="col-confirmation">
-                    <span className="confirmation-code">{apt.confirmationNumber}</span>
-                  </div>
-                  <div className="col-actions">
-                    <button
-                      className="btn-action view"
-                      onClick={() => handleViewDetails(apt)}
-                    >
-                      View
-                    </button>
-                    {apt.status === 'pending' && (
-                      <button
-                        className="btn-action confirm"
-                        onClick={() => handleStatusChange(apt.id, 'confirmed')}
-                      >
-                        Confirm
-                      </button>
-                    )}
-                    {apt.status === 'confirmed' && (
-                      <button
-                        className="btn-action checkin"
-                        onClick={() => handleStatusChange(apt.id, 'checked-in')}
-                      >
-                        Check In
-                      </button>
-                    )}
-                    {apt.status === 'checked-in' && (
-                      <button
-                        className="btn-action complete"
-                        onClick={() => handleStatusChange(apt.id, 'completed')}
-                      >
-                        Complete
-                      </button>
-                    )}
-                    {(apt.status === 'pending' || apt.status === 'confirmed') && (
-                      <button
-                        className="btn-action cancel"
-                        onClick={() => handleCancelAppointment(apt.id)}
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
-                </div>
               ))}
             </div>
-          ) : (
-            <div className="no-appointments">
-              <p>No appointments scheduled for this date</p>
-            </div>
-          )}
-        </div>
 
-        {/* Appointment Status Flow Info */}
-        <div className="card info-card">
-          <h3>Appointment Status Flow</h3>
-          <div className="status-flow">
-            <div className="flow-step">
-              <span className="flow-badge pending">Pending</span>
-              <span className="flow-arrow">→</span>
-            </div>
-            <div className="flow-step">
-              <span className="flow-badge confirmed">Confirmed</span>
-              <span className="flow-arrow">→</span>
-            </div>
-            <div className="flow-step">
-              <span className="flow-badge checked-in">Checked In</span>
-              <span className="flow-arrow">→</span>
-            </div>
-            <div className="flow-step">
-              <span className="flow-badge completed">Completed</span>
+            <div className="sa-legend">
+              <span className="sa-legend-item"><span className="sa-dot pending" /> Pending</span>
+              <span className="sa-legend-item"><span className="sa-dot confirmed" /> Confirmed</span>
+              <span className="sa-legend-item"><span className="sa-dot completed" /> Completed</span>
             </div>
           </div>
-          <ul className="status-descriptions">
-            <li><strong>Pending:</strong> Appointment booked, awaiting confirmation</li>
-            <li><strong>Confirmed:</strong> Appointment confirmed by staff</li>
-            <li><strong>Checked In:</strong> Donor has arrived and checked in</li>
-            <li><strong>Completed:</strong> Donation completed successfully</li>
-            <li><strong>Cancelled:</strong> Appointment cancelled (by donor or staff)</li>
-          </ul>
+        </div>
+
+        {/* Right: Day detail */}
+        <div className="sa-detail-panel">
+          <div className="sa-detail-card">
+            <div className="sa-detail-header">
+              <h2 className="sa-detail-date">{selectedDateLabel}</h2>
+              <p className="sa-detail-count">
+                {dateAppointments.length} appointment{dateAppointments.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+
+            {/* Appointments list */}
+            <div className="sa-appt-list">
+              {dateAppointments.length > 0 ? (
+                dateAppointments.map(apt => (
+                  <div key={apt.id} className={`sa-appt-item ${apt.status === 'cancelled' ? 'cancelled' : ''}`}>
+                    <div className="sa-appt-time-col">
+                      <span className="sa-appt-time">{apt.time}</span>
+                      <span className={`sa-appt-status ${getStatusBadgeClass(apt.status)}`}>
+                        {apt.status}
+                      </span>
+                    </div>
+                    <div className="sa-appt-info">
+                      <span className="sa-appt-name">{apt.donorName}</span>
+                      <span className="sa-appt-meta">
+                        {apt.bloodType ? (
+                          <span className="sa-bt-badge">{apt.bloodType}</span>
+                        ) : (
+                          <span className="sa-tbd">TBD</span>
+                        )}
+                        <span className="sa-appt-conf">{apt.confirmationNumber}</span>
+                      </span>
+                    </div>
+                    <div className="sa-appt-actions">
+                      <button className="sa-action view" onClick={() => handleViewDetails(apt)}>View</button>
+                      {apt.status === 'pending' && (
+                        <button className="sa-action confirm" onClick={() => handleStatusChange(apt.id, 'confirmed')}>Confirm</button>
+                      )}
+                      {apt.status === 'confirmed' && (
+                        <button className="sa-action checkin" onClick={() => handleStatusChange(apt.id, 'checked-in')}>Check In</button>
+                      )}
+                      {apt.status === 'checked-in' && (
+                        <button className="sa-action complete" onClick={() => handleStatusChange(apt.id, 'completed')}>Complete</button>
+                      )}
+                      {(apt.status === 'pending' || apt.status === 'confirmed') && (
+                        <button className="sa-action cancel" onClick={() => handleCancelAppointment(apt.id)}>Cancel</button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="sa-no-appts">
+                  <p>No appointments for this date</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Status Flow Info */}
+          <div className="sa-flow-card">
+            <h3>Status Flow</h3>
+            <div className="sa-flow">
+              <span className="sa-flow-badge pending">Pending</span>
+              <span className="sa-flow-arrow">&rarr;</span>
+              <span className="sa-flow-badge confirmed">Confirmed</span>
+              <span className="sa-flow-arrow">&rarr;</span>
+              <span className="sa-flow-badge checkedin">Checked In</span>
+              <span className="sa-flow-arrow">&rarr;</span>
+              <span className="sa-flow-badge completed">Completed</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -361,69 +339,31 @@ const StaffAppointments = () => {
           <div className="modal-card">
             <div className="modal-header">
               <h2>Appointment Details</h2>
-              <button
-                className="close-btn"
-                onClick={() => setShowDetailsModal(false)}
-              >
-                ×
-              </button>
+              <button className="close-btn" onClick={() => setShowDetailsModal(false)}>×</button>
             </div>
             <div className="modal-content">
-              <div className="details-grid">
-                <div className="detail-row">
-                  <span className="detail-label">Confirmation Number:</span>
-                  <span className="detail-value">{selectedAppointment.confirmationNumber}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Donor Name:</span>
-                  <span className="detail-value">{selectedAppointment.donorName}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Donor ID:</span>
-                  <span className="detail-value">{selectedAppointment.donorId}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Date:</span>
-                  <span className="detail-value">
-                    {new Date(selectedAppointment.date).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
+              <div className="sa-details-grid">
+                <div className="sa-detail-row"><span className="sa-dlabel">Confirmation:</span><span className="sa-dvalue">{selectedAppointment.confirmationNumber}</span></div>
+                <div className="sa-detail-row"><span className="sa-dlabel">Donor:</span><span className="sa-dvalue">{selectedAppointment.donorName}</span></div>
+                <div className="sa-detail-row"><span className="sa-dlabel">Donor ID:</span><span className="sa-dvalue">{selectedAppointment.donorId}</span></div>
+                <div className="sa-detail-row">
+                  <span className="sa-dlabel">Date:</span>
+                  <span className="sa-dvalue">
+                    {new Date(selectedAppointment.date + 'T12:00:00').toLocaleDateString('en-US', {
+                      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
                     })}
                   </span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Time:</span>
-                  <span className="detail-value">{selectedAppointment.time}</span>
+                <div className="sa-detail-row"><span className="sa-dlabel">Time:</span><span className="sa-dvalue">{selectedAppointment.time}</span></div>
+                <div className="sa-detail-row"><span className="sa-dlabel">Blood Type:</span><span className="sa-dvalue">{selectedAppointment.bloodType || 'To be determined'}</span></div>
+                <div className="sa-detail-row">
+                  <span className="sa-dlabel">Status:</span>
+                  <span className={`sa-dvalue sa-appt-status ${getStatusBadgeClass(selectedAppointment.status)}`}>{selectedAppointment.status}</span>
                 </div>
-                <div className="detail-row">
-                  <span className="detail-label">Blood Type:</span>
-                  <span className="detail-value">
-                    {selectedAppointment.bloodType || 'To be determined'}
-                  </span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Status:</span>
-                  <span className={`detail-value status-badge ${getStatusBadgeClass(selectedAppointment.status)}`}>
-                    {selectedAppointment.status}
-                  </span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Booked On:</span>
-                  <span className="detail-value">
-                    {new Date(selectedAppointment.createdDate).toLocaleDateString()}
-                  </span>
-                </div>
+                <div className="sa-detail-row"><span className="sa-dlabel">Booked On:</span><span className="sa-dvalue">{new Date(selectedAppointment.createdDate).toLocaleDateString()}</span></div>
               </div>
-
               <div className="modal-actions">
-                <button
-                  className="btn-secondary"
-                  onClick={() => setShowDetailsModal(false)}
-                >
-                  Close
-                </button>
+                <button className="btn-secondary" onClick={() => setShowDetailsModal(false)}>Close</button>
               </div>
             </div>
           </div>
@@ -436,34 +376,20 @@ const StaffAppointments = () => {
           <div className="modal-card">
             <div className="modal-header">
               <h2>Assign Blood Type</h2>
-              <button
-                className="close-btn"
-                onClick={() => {
-                  setShowBloodTypeModal(false);
-                  setSelectedBloodType('');
-                  setSelectedAppointment(null);
-                }}
-              >
-                ×
-              </button>
+              <button className="close-btn" onClick={() => { setShowBloodTypeModal(false); setSelectedBloodType(''); setSelectedAppointment(null); }}>×</button>
             </div>
             <div className="modal-content">
-              <div className="blood-type-assignment">
-                <p className="assignment-info">
-                  <strong>Donor:</strong> {selectedAppointment.donorName}
-                </p>
-                <p className="assignment-notice">
-                  This is a first-time donor. Please assign their blood type after testing.
-                </p>
-                
-                <div className="blood-type-selector">
+              <div className="sa-bt-assignment">
+                <p className="sa-bt-info"><strong>Donor:</strong> {selectedAppointment.donorName}</p>
+                <p className="sa-bt-notice">This is a first-time donor. Please assign their blood type after testing.</p>
+                <div className="sa-bt-selector">
                   <label>Select Blood Type:</label>
-                  <div className="blood-type-options">
+                  <div className="sa-bt-options">
                     {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((type) => (
                       <button
                         key={type}
                         type="button"
-                        className={`blood-type-btn ${selectedBloodType === type ? 'selected' : ''}`}
+                        className={`sa-bt-btn ${selectedBloodType === type ? 'selected' : ''}`}
                         onClick={() => setSelectedBloodType(type)}
                       >
                         {type}
@@ -471,25 +397,9 @@ const StaffAppointments = () => {
                     ))}
                   </div>
                 </div>
-
                 <div className="modal-actions">
-                  <button
-                    className="btn-secondary"
-                    onClick={() => {
-                      setShowBloodTypeModal(false);
-                      setSelectedBloodType('');
-                      setSelectedAppointment(null);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="btn-primary"
-                    onClick={handleAssignBloodType}
-                    disabled={!selectedBloodType}
-                  >
-                    Assign & Complete
-                  </button>
+                  <button className="btn-secondary" onClick={() => { setShowBloodTypeModal(false); setSelectedBloodType(''); setSelectedAppointment(null); }}>Cancel</button>
+                  <button className="btn-primary" onClick={handleAssignBloodType} disabled={!selectedBloodType}>Assign & Complete</button>
                 </div>
               </div>
             </div>
