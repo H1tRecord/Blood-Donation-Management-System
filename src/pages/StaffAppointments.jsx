@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { appointments, bloodInventory } from '../data/mockData';
+import { appointments, bloodInventory, BLOOD_TYPES } from '../data';
 import './StaffAppointments.css';
 
 const StaffAppointments = () => {
@@ -385,7 +385,7 @@ const StaffAppointments = () => {
                 <div className="sa-bt-selector">
                   <label>Select Blood Type:</label>
                   <div className="sa-bt-options">
-                    {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((type) => (
+                    {BLOOD_TYPES.map((type) => (
                       <button
                         key={type}
                         type="button"

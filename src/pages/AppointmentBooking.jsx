@@ -6,7 +6,7 @@ import {
   timeSlots,
   isEligibleToDonate,
   getDaysUntilEligible
-} from '../data/mockData';
+} from '../data';
 import './AppointmentBooking.css';
 
 const AppointmentBooking = () => {

@@ -4,9 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import {
   users,
   donationRequests,
+  BLOOD_TYPES,
   isEligibleToDonate,
   calculateDaysSinceLastDonation
-} from '../data/mockData';
+} from '../data';
 import './DonorSearch.css';
 
 const DonorSearch = () => {
@@ -161,7 +162,6 @@ const DonorSearch = () => {
     setFilterEligibility('all');
   };
 
-  const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   const hasActiveFilters = searchQuery || filterBloodType !== 'all' || filterEligibility !== 'all';
 
   return (
@@ -196,7 +196,7 @@ const DonorSearch = () => {
             <label>Blood Type</label>
             <select value={filterBloodType} onChange={(e) => setFilterBloodType(e.target.value)}>
               <option value="all">All Types</option>
-              {bloodTypes.map(bt => (
+              {BLOOD_TYPES.map(bt => (
                 <option key={bt} value={bt}>{bt}</option>
               ))}
             </select>

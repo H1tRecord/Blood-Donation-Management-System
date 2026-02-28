@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { appointments, timeSlots } from '../data/mockData';
+import { appointments, timeSlots, APP_CONFIG } from '../data';
 import './AdminCalendar.css';
 
-const DEFAULT_SLOT_CAP = 3;
+const DEFAULT_SLOT_CAP = APP_CONFIG.DEFAULT_SLOT_CAPACITY;
 
 const AdminCalendar = () => {
   const { resetSessionTimeout } = useAuth();

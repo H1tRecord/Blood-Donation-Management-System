@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { users } from '../data/mockData';
+import { users } from '../data';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {

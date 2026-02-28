@@ -6,7 +6,7 @@ import {
   bloodInventory,
   getInventoryStatus,
   getInventoryColor
-} from '../data/mockData';
+} from '../data';
 import './StaffDashboard.css';
 
 const StaffDashboard = () => {

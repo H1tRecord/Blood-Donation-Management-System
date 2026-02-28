@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { DEMO_ACCOUNTS } from '../data';
 import './Login.css';
 
 const Login = () => {
@@ -43,16 +44,10 @@ const Login = () => {
   };
 
   const handleDemoLogin = (role) => {
-    if (role === 'donor') {
-      setEmail('john.smith@email.com');
-      setPassword('donor123');
-    } else if (role === 'staff') {
-      setEmail('nurse.smith@bdms.org');
-      setPassword('staff123');
-    }
-     else if (role === 'admin') {
-      setEmail('admin@bdms.org');
-      setPassword('admin123');
+    const account = DEMO_ACCOUNTS[role];
+    if (account) {
+      setEmail(account.email);
+      setPassword(account.password);
     }
   };
 

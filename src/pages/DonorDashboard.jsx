@@ -9,7 +9,7 @@ import {
   isEligibleToDonate,
   getDaysUntilEligible,
   calculateDaysSinceLastDonation
-} from '../data/mockData';
+} from '../data';
 import './DonorDashboard.css';
 
 const DonorDashboard = () => {
