@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Navbar from './components/layout/Navbar';
+import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DonorDashboard from './pages/DonorDashboard';
@@ -9,6 +9,8 @@ import AppointmentBooking from './pages/AppointmentBooking';
 import StaffAppointments from './pages/StaffAppointments';
 import InventoryManagement from './pages/InventoryManagement';
 import DonorSearch from './pages/DonorSearch';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminCalendar from './pages/AdminCalendar';
 import './App.css';
 
 // Protected route wrapper
@@ -35,6 +37,8 @@ const PublicRoute = ({ children }) => {
       return <Navigate to="/donor-dashboard" />;
     } else if (currentUser?.role === 'staff') {
       return <Navigate to="/staff-dashboard" />;
+    } else if (currentUser?.role === 'admin') {
+      return <Navigate to="/admin-dashboard" />;
     }
   }
 
@@ -47,7 +51,7 @@ function AppContent() {
   return (
     <div className="app">
       {isAuthenticated && <Navbar />}
-      <main className="main-content">
+      <main className={isAuthenticated ? 'main-content' : 'main-content-auth'}>
         <Routes>
           {/* Public routes */}
           <Route
@@ -115,6 +119,24 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={['staff', 'admin']}>
                 <DonorSearch />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin routes */}
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-calendar"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminCalendar />
               </ProtectedRoute>
             }
           />

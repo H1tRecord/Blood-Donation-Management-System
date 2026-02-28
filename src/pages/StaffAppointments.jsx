@@ -7,7 +7,7 @@ const StaffAppointments = () => {
   const { currentUser, resetSessionTimeout, updateUserBloodType } = useAuth();
   const [allAppointments, setAllAppointments] = useState([]);
   const [selectedDate, setSelectedDate] = useState('');
-  const [availableDates, setAvailableDates] = useState([]);
+  const [calendarMonth, setCalendarMonth] = useState(new Date('2026-02-26'));
   const [dateAppointments, setDateAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -17,7 +17,8 @@ const StaffAppointments = () => {
   useEffect(() => {
     resetSessionTimeout();
     loadAppointments();
-    generateAvailableDates();
+    // Default to today
+    setSelectedDate('2026-02-28');
   }, []);
 
   useEffect(() => {
@@ -36,27 +37,42 @@ const StaffAppointments = () => {
     setAllAppointments(appts);
   };
 
-  const generateAvailableDates = () => {
-    const dates = [];
-    const today = new Date('2026-02-26');
-    
-    // Generate next 7 days
-    for (let i = 1; i <= 7; i++) {
-      const date = new Date(today);
-      date.setDate(date.getDate() + i);
-      dates.push({
-        value: date.toISOString().split('T')[0],
-        label: date.toLocaleDateString('en-US', {
-          weekday: 'short',
-          month: 'short',
-          day: 'numeric'
-        })
-      });
+  const generateAvailableDates = () => {};
+
+  // Calendar helpers
+  const getCalendarDays = () => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startPad = firstDay.getDay(); // 0=Sun
+    const days = [];
+
+    // Padding for days before the 1st
+    for (let i = 0; i < startPad; i++) {
+      days.push(null);
     }
-    
-    setAvailableDates(dates);
-    setSelectedDate(dates[0].value); // Default to tomorrow
+
+    // Actual days of month
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const apptCount = allAppointments.filter(a => a.date === dateStr).length;
+      days.push({ day: d, dateStr, apptCount });
+    }
+
+    return days;
   };
+
+  const handlePrevMonth = () => {
+    setCalendarMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCalendarMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const calendarMonthLabel = calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const calendarDays = getCalendarDays();
 
   const filterAppointmentsByDate = (date) => {
     const filtered = allAppointments.filter(apt => apt.date === date);
@@ -152,18 +168,36 @@ const StaffAppointments = () => {
       </div>
 
       <div className="appointments-content">
-        {/* Date Selector */}
-        <div className="card date-selector-card">
-          <h2>Select Date</h2>
-          <div className="date-buttons">
-            {availableDates.map((date) => (
-              <button
-                key={date.value}
-                className={`date-btn ${selectedDate === date.value ? 'selected' : ''}`}
-                onClick={() => setSelectedDate(date.value)}
-              >
-                {date.label}
-              </button>
+        {/* Calendar */}
+        <div className="card calendar-card">
+          <div className="calendar-header">
+            <button className="cal-nav-btn" onClick={handlePrevMonth}>&lt;</button>
+            <h2 className="cal-month-label">{calendarMonthLabel}</h2>
+            <button className="cal-nav-btn" onClick={handleNextMonth}>&gt;</button>
+          </div>
+          <div className="calendar-grid">
+            <div className="cal-weekday">Sun</div>
+            <div className="cal-weekday">Mon</div>
+            <div className="cal-weekday">Tue</div>
+            <div className="cal-weekday">Wed</div>
+            <div className="cal-weekday">Thu</div>
+            <div className="cal-weekday">Fri</div>
+            <div className="cal-weekday">Sat</div>
+            {calendarDays.map((cell, idx) => (
+              cell ? (
+                <button
+                  key={cell.dateStr}
+                  className={`cal-day ${selectedDate === cell.dateStr ? 'selected' : ''} ${cell.apptCount > 0 ? 'has-appts' : ''}`}
+                  onClick={() => setSelectedDate(cell.dateStr)}
+                >
+                  <span className="cal-day-num">{cell.day}</span>
+                  {cell.apptCount > 0 && (
+                    <span className="cal-dot">{cell.apptCount}</span>
+                  )}
+                </button>
+              ) : (
+                <div key={`pad-${idx}`} className="cal-day empty" />
+              )
             ))}
           </div>
         </div>
@@ -230,7 +264,7 @@ const StaffAppointments = () => {
                     {apt.bloodType ? (
                       <span className="blood-type-badge">{apt.bloodType}</span>
                     ) : (
-                      <span className="unknown-type" title="First-time donor">TBD ⭐</span>
+                      <span className="unknown-type" title="First-time donor">TBD</span>
                     )}
                   </div>
                   <div className="col-status">
@@ -243,46 +277,41 @@ const StaffAppointments = () => {
                   </div>
                   <div className="col-actions">
                     <button
-                      className="btn-icon"
+                      className="btn-action view"
                       onClick={() => handleViewDetails(apt)}
-                      title="View Details"
                     >
-                      👁️
+                      View
                     </button>
                     {apt.status === 'pending' && (
                       <button
-                        className="btn-icon confirm"
+                        className="btn-action confirm"
                         onClick={() => handleStatusChange(apt.id, 'confirmed')}
-                        title="Confirm"
                       >
-                        ✓
+                        Confirm
                       </button>
                     )}
                     {apt.status === 'confirmed' && (
                       <button
-                        className="btn-icon checkin"
+                        className="btn-action checkin"
                         onClick={() => handleStatusChange(apt.id, 'checked-in')}
-                        title="Check In"
                       >
-                        📝
+                        Check In
                       </button>
                     )}
                     {apt.status === 'checked-in' && (
                       <button
-                        className="btn-icon complete"
+                        className="btn-action complete"
                         onClick={() => handleStatusChange(apt.id, 'completed')}
-                        title="Complete"
                       >
-                        ✅
+                        Complete
                       </button>
                     )}
                     {(apt.status === 'pending' || apt.status === 'confirmed') && (
                       <button
-                        className="btn-icon cancel"
+                        className="btn-action cancel"
                         onClick={() => handleCancelAppointment(apt.id)}
-                        title="Cancel"
                       >
-                        ❌
+                        Cancel
                       </button>
                     )}
                   </div>
@@ -424,7 +453,7 @@ const StaffAppointments = () => {
                   <strong>Donor:</strong> {selectedAppointment.donorName}
                 </p>
                 <p className="assignment-notice">
-                  ⭐ This is a first-time donor. Please assign their blood type after testing.
+                  This is a first-time donor. Please assign their blood type after testing.
                 </p>
                 
                 <div className="blood-type-selector">

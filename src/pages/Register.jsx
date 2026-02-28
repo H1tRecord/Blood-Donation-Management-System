@@ -86,108 +86,131 @@ const Register = () => {
 
   return (
     <div className="register-container">
-      <div className="register-card">
-        <div className="register-header">
-          <h1>Blood Donation Management System</h1>
-          <h2>Create Account</h2>
+      <div className="register-hero">
+        <div className="hero-content">
+          <div className="hero-logo">
+            <span className="logo-icon">+</span>
+            <span className="logo-text">BDMS</span>
+          </div>
+          <h1>Join the lifesaving community</h1>
+          <p className="hero-tagline">Register as a donor and make a difference. Your first donation could save up to three lives.</p>
+          <ul className="hero-benefits">
+            <li>Quick and easy registration</li>
+            <li>Book appointments at your convenience</li>
+            <li>Track your donation history</li>
+            <li>Get notified when your blood type is needed</li>
+          </ul>
         </div>
+      </div>
 
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="success-message">
-            {success}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="register-form">
-          <div className="form-group">
-            <label htmlFor="name">Full Name *</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-              required
-            />
+      <div className="register-form-side">
+        <div className="register-card">
+          <div className="register-header">
+            <h2>Create your account</h2>
+            <p>Fill in your details to get started</p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="email">Email Address *</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              required
-            />
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="success-message">
+              {success}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="register-form">
+            <div className="form-group">
+              <label htmlFor="name">Full Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="John Smith"
+                required
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="email">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="555-0123"
+                  pattern="\d{3}-\d{4}"
+                  required
+                />
+                <small>Format: 555-0123</small>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Min. 6 characters"
+                  minLength="6"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="confirmPassword">Confirm Password</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Re-enter password"
+                  required
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="btn-primary" disabled={isLoading}>
+              {isLoading ? 'Creating Account...' : 'Create Account'}
+            </button>
+          </form>
+
+          <div className="register-footer">
+            <p>
+              Already have an account?{' '}
+              <a href="/login" onClick={(e) => {
+                e.preventDefault();
+                navigate('/login');
+              }}>
+                Sign in
+              </a>
+            </p>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="phone">Phone Number *</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="555-0123"
-              pattern="\d{3}-\d{4}"
-              required
-            />
-            <small>Format: 555-0123</small>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password *</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Minimum 6 characters"
-              minLength="6"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password *</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Re-enter your password"
-              required
-            />
-          </div>
-
-          <button type="submit" className="btn-primary" disabled={isLoading}>
-            {isLoading ? 'Creating Account...' : 'Create Account'}
-          </button>
-        </form>
-
-        <div className="register-footer">
-          <p>
-            Already have an account?{' '}
-            <a href="/login" onClick={(e) => {
-              e.preventDefault();
-              navigate('/login');
-            }}>
-              Sign in here
-            </a>
-          </p>
         </div>
       </div>
     </div>

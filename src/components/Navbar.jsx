@@ -21,7 +21,7 @@ const Navbar = () => {
       <div className="navbar-container">
         <div className="navbar-brand">
           <Link to="/" className="brand-link">
-            <span className="brand-icon">🩸</span>
+            <span className="brand-icon">+</span>
             <span className="brand-text">BDMS</span>
           </Link>
         </div>
@@ -72,12 +72,29 @@ const Navbar = () => {
               </Link>
             </>
           )}
+
+          {currentUser?.role === 'admin' && (
+            <>
+              <Link
+                to="/admin-calendar"
+                className={`nav-link ${isActive('/admin-calendar')}`}
+              >
+                Master Calendar
+              </Link>
+              <Link
+                to="/admin-dashboard"
+                className={`nav-link ${isActive('/admin-dashboard')}`}
+              >
+                Manage Accounts
+              </Link>
+            </>
+          )}
         </div>
 
         <div className="navbar-user">
           <div className="user-info">
-            <span className="user-role">
-              {currentUser?.role === 'donor' ? '👤' : '👔'}
+            <span className="user-role-tag">
+              {currentUser?.role === 'donor' ? 'Donor' : currentUser?.role === 'admin' ? 'Admin' : 'Staff'}
             </span>
             <span className="user-name">{currentUser?.name}</span>
           </div>

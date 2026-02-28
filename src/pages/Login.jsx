@@ -50,81 +50,121 @@ const Login = () => {
       setEmail('nurse.smith@bdms.org');
       setPassword('staff123');
     }
+     else if (role === 'admin') {
+      setEmail('admin@bdms.org');
+      setPassword('admin123');
+    }
   };
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
+      <div className="login-hero">
+        <div className="hero-content">
+          <div className="hero-logo">
+            <span className="logo-icon">+</span>
+            <span className="logo-text">BDMS</span>
+          </div>
           <h1>Blood Donation Management System</h1>
-          <h2>Sign In</h2>
+          <p className="hero-tagline">Every drop counts. Save lives through the power of giving.</p>
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <span className="stat-number">500+</span>
+              <span className="stat-text">Donors Registered</span>
+            </div>
+            <div className="hero-stat">
+              <span className="stat-number">1,200+</span>
+              <span className="stat-text">Lives Saved</span>
+            </div>
+            <div className="hero-stat">
+              <span className="stat-number">8</span>
+              <span className="stat-text">Blood Types</span>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
+      <div className="login-form-side">
+        <div className="login-card">
+          <div className="login-header">
+            <h2>Welcome back</h2>
+            <p>Sign in to your account to continue</p>
           </div>
 
-          <button type="submit" className="btn-primary" disabled={isLoading}>
-            {isLoading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
 
-        <div className="login-divider">
-          <span>Demo Accounts</span>
-        </div>
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+              />
+            </div>
 
-        <div className="demo-buttons">
-          <button
-            onClick={() => handleDemoLogin('donor')}
-            className="btn-demo"
-          >
-            Demo Donor Login
-          </button>
-          <button
-            onClick={() => handleDemoLogin('staff')}
-            className="btn-demo"
-          >
-            Demo Staff Login
-          </button>
-        </div>
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+              />
+            </div>
 
-        <div className="login-footer">
-          <p>
-            Don't have an account?{' '}
-            <a href="/register" onClick={(e) => {
-              e.preventDefault();
-              navigate('/register');
-            }}>
-              Register here
-            </a>
-          </p>
+            <button type="submit" className="btn-primary" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          <div className="login-divider">
+            <span>Quick Demo Access</span>
+          </div>
+
+          <div className="demo-buttons">
+            <button
+              onClick={() => handleDemoLogin('donor')}
+              className="btn-demo"
+            >
+              <span className="demo-role">Donor</span>
+              <span className="demo-desc">View donor experience</span>
+            </button>
+            <button
+              onClick={() => handleDemoLogin('staff')}
+              className="btn-demo"
+            >
+              <span className="demo-role">Staff</span>
+              <span className="demo-desc">View staff experience</span>
+            </button>
+            <button
+              onClick={() => handleDemoLogin('admin')}
+              className="btn-demo"
+            >
+              <span className="demo-role">Admin</span>
+              <span className="demo-desc">View admin experience</span>
+            </button>
+          </div>
+
+          <div className="login-footer">
+            <p>
+              Don't have an account?{' '}
+              <a href="/register" onClick={(e) => {
+                e.preventDefault();
+                navigate('/register');
+              }}>
+                Create one now
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

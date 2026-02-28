@@ -152,7 +152,7 @@ const AppointmentBooking = () => {
     return (
       <div className="appointment-booking">
         <div className="ineligible-notice">
-          <div className="notice-icon">⏳</div>
+          <div className="notice-icon">Ineligible</div>
           <h2>Unable to Book Appointment</h2>
           <p>
             You are currently ineligible to donate blood. You must wait 56 days between donations.
@@ -180,12 +180,12 @@ const AppointmentBooking = () => {
     return (
       <div className="appointment-booking">
         <div className="confirmation-card">
-          <div className="confirmation-icon">✓</div>
+          <div className="confirmation-icon">Done</div>
           <h2>Appointment Confirmed!</h2>
           {isFirstTime && (
             <div className="first-time-notice">
               <p className="notice-text">
-                ⭐ <strong>Welcome!</strong> Your blood type will be determined during your first visit.
+                <strong>Welcome!</strong> Your blood type will be determined during your first visit.
               </p>
             </div>
           )}
@@ -345,27 +345,27 @@ const AppointmentBooking = () => {
           <h3>Before You Donate</h3>
           <div className="info-list">
             <div className="info-item">
-              <span className="info-icon">✓</span>
+              <span className="info-check">Check</span>
               <p>Be at least 18 years old</p>
             </div>
             <div className="info-item">
-              <span className="info-icon">✓</span>
+              <span className="info-check">Check</span>
               <p>Weigh at least 110 pounds</p>
             </div>
             <div className="info-item">
-              <span className="info-icon">✓</span>
+              <span className="info-check">Check</span>
               <p>Be in good general health</p>
             </div>
             <div className="info-item">
-              <span className="info-icon">✓</span>
+              <span className="info-check">Check</span>
               <p>Bring a valid photo ID</p>
             </div>
             <div className="info-item">
-              <span className="info-icon">✓</span>
+              <span className="info-check">Check</span>
               <p>Eat a healthy meal beforehand</p>
             </div>
             <div className="info-item">
-              <span className="info-icon">✓</span>
+              <span className="info-check">Check</span>
               <p>Drink plenty of water</p>
             </div>
           </div>

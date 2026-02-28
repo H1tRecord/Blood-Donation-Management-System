@@ -292,7 +292,6 @@ export const donationHistory = [
     units: 1,
     staffId: 'S001',
     status: 'completed',
-    hemoglobin: 14.2
   },
   {
     id: 'DON002',
@@ -303,7 +302,6 @@ export const donationHistory = [
     units: 1,
     staffId: 'S002',
     status: 'completed',
-    hemoglobin: 13.8
   },
   {
     id: 'DON003',
@@ -314,7 +312,6 @@ export const donationHistory = [
     units: 1,
     staffId: 'S001',
     status: 'completed',
-    hemoglobin: 13.5
   },
   {
     id: 'DON004',
@@ -325,7 +322,6 @@ export const donationHistory = [
     units: 1,
     staffId: 'S002',
     status: 'completed',
-    hemoglobin: 14.5
   },
   {
     id: 'DON005',
@@ -336,7 +332,6 @@ export const donationHistory = [
     units: 1,
     staffId: 'S001',
     status: 'completed',
-    hemoglobin: 15.1
   }
 ];
 

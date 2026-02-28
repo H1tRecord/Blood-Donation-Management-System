@@ -16,6 +16,8 @@ const InventoryManagement = () => {
   const [expirationDate, setExpirationDate] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [sortField, setSortField] = useState('type');
+  const [sortDirection, setSortDirection] = useState('asc');
 
   useEffect(() => {
     resetSessionTimeout();
@@ -25,6 +27,40 @@ const InventoryManagement = () => {
   const loadInventory = () => {
     setInventory([...bloodInventory]);
   };
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIndicator = (field) => {
+    if (sortField !== field) return '';
+    return sortDirection === 'asc' ? ' ▲' : ' ▼';
+  };
+
+  const sortedInventory = [...inventory].sort((a, b) => {
+    const dir = sortDirection === 'asc' ? 1 : -1;
+    switch (sortField) {
+      case 'type':
+        return dir * a.type.localeCompare(b.type);
+      case 'units':
+        return dir * (a.units - b.units);
+      case 'status': {
+        const statusOrder = (units) => units >= 20 ? 3 : units >= 10 ? 2 : 1;
+        return dir * (statusOrder(a.units) - statusOrder(b.units));
+      }
+      case 'expiration':
+        return dir * (new Date(a.expirationDate) - new Date(b.expirationDate));
+      case 'updated':
+        return dir * (new Date(a.lastUpdated) - new Date(b.lastUpdated));
+      default:
+        return 0;
+    }
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -115,13 +151,23 @@ const InventoryManagement = () => {
           <h2>Current Inventory</h2>
           <div className="inventory-table">
             <div className="table-header">
-              <div className="col-type">Blood Type</div>
-              <div className="col-units">Units</div>
-              <div className="col-status">Status</div>
-              <div className="col-expiration">Expiration</div>
-              <div className="col-updated">Last Updated</div>
+              <div className="col-type sortable" onClick={() => handleSort('type')}>
+                Blood Type{getSortIndicator('type')}
+              </div>
+              <div className="col-units sortable" onClick={() => handleSort('units')}>
+                Units{getSortIndicator('units')}
+              </div>
+              <div className="col-status sortable" onClick={() => handleSort('status')}>
+                Status{getSortIndicator('status')}
+              </div>
+              <div className="col-expiration sortable" onClick={() => handleSort('expiration')}>
+                Expiration{getSortIndicator('expiration')}
+              </div>
+              <div className="col-updated sortable" onClick={() => handleSort('updated')}>
+                Last Updated{getSortIndicator('updated')}
+              </div>
             </div>
-            {inventory.map((item) => {
+            {sortedInventory.map((item) => {
               const status = getInventoryStatus(item.units);
               const color = getInventoryColor(item.units);
               return (

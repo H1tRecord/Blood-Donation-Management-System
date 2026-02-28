@@ -1,88 +1,122 @@
+/* ===== Appointment Booking ===== */
 .appointment-booking {
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .booking-header {
-  margin-bottom: 2rem;
-  color: white;
+  margin-bottom: 1.75rem;
 }
 
 .booking-header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.15rem;
 }
 
-.subtitle {
-  font-size: 1.25rem;
-  opacity: 0.9;
+.booking-header .subtitle {
+  font-size: 0.9rem;
+  color: var(--gray-500);
+  font-weight: 500;
 }
 
-/* Ineligible Notice */
+/* ===== Ineligible Notice ===== */
 .ineligible-notice {
-  background: white;
-  border-radius: 16px;
-  padding: 3rem;
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--gray-200);
+  padding: 2.5rem;
   text-align: center;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 520px;
+  margin: 2rem auto;
+  box-shadow: var(--shadow-sm);
 }
 
-.notice-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+.ineligible-notice .notice-icon {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--danger-50);
+  color: var(--danger-700);
+  display: inline-block;
+  margin-bottom: 0.75rem;
 }
 
 .ineligible-notice h2 {
-  color: #2d3748;
-  margin-bottom: 1rem;
+  color: var(--gray-900);
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.ineligible-notice p {
+  font-size: 0.9rem;
+  color: var(--gray-500);
 }
 
 .days-remaining {
-  font-size: 1.25rem;
-  color: #667eea;
-  margin: 1.5rem 0;
+  font-size: 1rem;
+  color: var(--primary-600);
+  margin: 1rem 0;
+  font-weight: 600;
 }
 
 .last-donation {
-  color: #718096;
-  margin-bottom: 2rem;
+  color: var(--gray-400);
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
 }
 
-/* Confirmation Card */
+/* ===== Confirmation Card ===== */
 .confirmation-card {
-  background: white;
-  border-radius: 16px;
-  padding: 3rem;
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--gray-200);
+  padding: 2.5rem;
   text-align: center;
-  max-width: 700px;
+  max-width: 620px;
   margin: 0 auto;
+  box-shadow: var(--shadow-sm);
 }
 
 .confirmation-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  width: 64px;
+  height: 64px;
+  background: var(--success-600);
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
-  margin: 0 auto 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 auto 1.25rem;
+}
+
+.confirmation-card h2 {
+  font-size: 1.25rem;
+  color: var(--gray-900);
 }
 
 .confirmation-details {
-  background: #f7fafc;
-  border-radius: 12px;
-  padding: 2rem;
-  margin: 2rem 0;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
 }
 
 .confirmation-number {
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
-  color: #2d3748;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  color: var(--gray-700);
+  font-family: var(--font-mono);
 }
 
 .appointment-summary {
@@ -92,231 +126,274 @@
 .summary-item {
   display: flex;
   justify-content: space-between;
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 0.35rem;
   background: white;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-100);
 }
 
 .summary-label {
   font-weight: 500;
-  color: #718096;
+  color: var(--gray-500);
+  font-size: 0.85rem;
 }
 
 .summary-value {
   font-weight: 600;
-  color: #2d3748;
+  color: var(--gray-800);
+  font-size: 0.85rem;
+}
+
+.summary-value.blood-type {
+  color: var(--accent-600);
 }
 
 .confirmation-info {
   text-align: left;
-  background: #eff6ff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  margin: 1.5rem 0;
+  background: var(--primary-50);
+  border: 1px solid var(--primary-100);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  margin: 1.25rem 0;
 }
 
 .confirmation-info h3 {
-  color: #1e40af;
-  margin-bottom: 1rem;
+  color: var(--primary-800);
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
 }
 
 .confirmation-info ul {
-  margin-left: 1.5rem;
+  margin-left: 1.25rem;
 }
 
 .confirmation-info li {
-  margin-bottom: 0.5rem;
-  color: #2d3748;
+  margin-bottom: 0.35rem;
+  color: var(--gray-600);
+  font-size: 0.85rem;
 }
 
 .confirmation-actions {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
 }
 
-/* Booking Container */
+/* ===== Booking Container ===== */
 .booking-container {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 2rem;
+  gap: 1.25rem;
 }
 
 .booking-form-card {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .form-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-section h3 {
-  color: #2d3748;
-  margin-bottom: 1rem;
+  color: var(--gray-800);
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
 }
 
-/* Date Selector */
+/* ===== Date Selector ===== */
 .date-selector {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.65rem;
 }
 
 .date-option {
-  padding: 1rem;
-  background: #f7fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
+  padding: 0.75rem;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.95rem;
+  transition: all var(--transition-fast);
+  font-size: 0.85rem;
+  font-weight: 500;
   text-align: center;
+  color: var(--gray-700);
 }
 
 .date-option:hover {
-  background: #eff6ff;
-  border-color: #667eea;
+  background: var(--primary-50);
+  border-color: var(--primary-300);
+  color: var(--primary-700);
 }
 
 .date-option.selected {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary-600);
   color: white;
-  border-color: #667eea;
+  border-color: var(--primary-600);
 }
 
-/* Time Selector */
+/* ===== Time Selector ===== */
 .time-selector {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.65rem;
 }
 
 .time-option {
-  padding: 0.75rem;
-  background: #f7fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
+  padding: 0.6rem;
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 1rem;
+  transition: all var(--transition-fast);
+  font-size: 0.9rem;
   font-weight: 600;
   text-align: center;
+  color: var(--gray-700);
 }
 
 .time-option:hover {
-  background: #eff6ff;
-  border-color: #667eea;
+  background: var(--primary-50);
+  border-color: var(--primary-300);
+  color: var(--primary-700);
 }
 
 .time-option.selected {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary-600);
   color: white;
-  border-color: #667eea;
+  border-color: var(--primary-600);
 }
 
 .no-slots {
   text-align: center;
-  padding: 2rem;
-  color: #718096;
-  background: #f7fafc;
-  border-radius: 8px;
+  padding: 1.5rem;
+  color: var(--gray-400);
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
 }
 
-/* Booking Summary */
+/* ===== Booking Summary ===== */
 .booking-summary {
-  background: #eff6ff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-top: 1.5rem;
+  background: var(--primary-50);
+  border: 1px solid var(--primary-100);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  margin-top: 1.25rem;
 }
 
 .booking-summary h3 {
-  color: #1e40af;
-  margin-bottom: 1rem;
+  color: var(--primary-800);
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
 }
 
 .summary-content p {
-  margin-bottom: 0.75rem;
-  color: #2d3748;
+  margin-bottom: 0.45rem;
+  color: var(--gray-700);
+  font-size: 0.9rem;
 }
 
 .form-actions {
   display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
 .form-actions button {
   flex: 1;
 }
 
-/* Info Card */
+/* ===== Info Side Card ===== */
 .booking-info-card {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sm);
+  height: fit-content;
 }
 
 .booking-info-card h3 {
-  color: #2d3748;
-  margin-bottom: 1rem;
+  color: var(--gray-800);
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
 }
 
 .info-list {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .info-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: #f7fafc;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.45rem;
 }
 
-.info-icon {
-  color: #10b981;
-  font-size: 1.25rem;
+.info-item p {
+  font-size: 0.85rem;
+  color: var(--gray-600);
+}
+
+.info-check {
+  color: var(--success-600);
+  font-size: 0.7rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  background: var(--success-50);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
 }
 
 .donation-facts {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  padding: 1.5rem;
-  border-radius: 12px;
+  background: var(--primary-50);
+  border: 1px solid var(--primary-100);
+  padding: 1.15rem;
+  border-radius: var(--radius-md);
 }
 
 .donation-facts h4 {
-  color: #1e40af;
-  margin-bottom: 0.75rem;
+  color: var(--primary-800);
+  margin-bottom: 0.6rem;
+  font-size: 0.9rem;
 }
 
 .donation-facts ul {
-  margin-left: 1.5rem;
+  margin-left: 1.25rem;
 }
 
 .donation-facts li {
-  margin-bottom: 0.5rem;
-  color: #2d3748;
+  margin-bottom: 0.35rem;
+  color: var(--gray-600);
+  font-size: 0.85rem;
 }
 
-/* First Time Donor Notice */
+/* ===== First Time Donor Notice ===== */
 .first-time-notice {
-  margin: 1.5rem 0;
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border-left: 4px solid #f59e0b;
-  border-radius: 8px;
+  margin: 1.25rem 0;
+  padding: 0.85rem 1.15rem;
+  background: var(--warning-50);
+  border-left: 3px solid var(--warning-500);
+  border-radius: var(--radius-sm);
 }
 
 .first-time-notice .notice-text {
   margin: 0;
-  color: #78350f;
+  color: var(--warning-700);
   font-weight: 500;
   text-align: left;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 1024px) {
@@ -327,7 +404,7 @@
 
 @media (max-width: 768px) {
   .booking-header h1 {
-    font-size: 2rem;
+    font-size: 1.35rem;
   }
 
   .date-selector {
@@ -340,6 +417,6 @@
 
   .confirmation-card,
   .ineligible-notice {
-    padding: 2rem;
+    padding: 1.75rem;
   }
 }

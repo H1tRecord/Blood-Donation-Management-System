@@ -13,7 +13,7 @@ import {
 import './DonorDashboard.css';
 
 const DonorDashboard = () => {
-  const { currentUser, resetSessionTimeout } = useAuth();
+  const { currentUser, resetSessionTimeout, updateProfile } = useAuth();
   const navigate = useNavigate();
   const [userAppointments, setUserAppointments] = useState([]);
   const [userDonations, setUserDonations] = useState([]);
@@ -21,6 +21,11 @@ const DonorDashboard = () => {
   const [isEligible, setIsEligible] = useState(false);
   const [daysUntilEligible, setDaysUntilEligible] = useState(0);
   const [daysSinceLast, setDaysSinceLast] = useState(null);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [profileSuccess, setProfileSuccess] = useState('');
+  const [profileError, setProfileError] = useState('');
 
   useEffect(() => {
     resetSessionTimeout();
@@ -58,6 +63,42 @@ const DonorDashboard = () => {
       
       const daysSince = calculateDaysSinceLastDonation(currentUser.lastDonationDate);
       setDaysSinceLast(daysSince);
+    }
+  };
+
+  const handleStartEdit = () => {
+    setEditEmail(currentUser?.email || '');
+    setEditPhone(currentUser?.phone || '');
+    setProfileSuccess('');
+    setProfileError('');
+    setIsEditingProfile(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingProfile(false);
+    setProfileError('');
+  };
+
+  const handleSaveProfile = () => {
+    setProfileError('');
+    setProfileSuccess('');
+
+    if (!editEmail || !editPhone) {
+      setProfileError('Email and phone are required');
+      return;
+    }
+
+    const phoneRegex = /^\d{3}-\d{4}$/;
+    if (!phoneRegex.test(editPhone)) {
+      setProfileError('Phone must be in format: 555-0123');
+      return;
+    }
+
+    const result = updateProfile({ email: editEmail, phone: editPhone });
+    if (result.success) {
+      setIsEditingProfile(false);
+      setProfileSuccess('Profile updated successfully');
+      setTimeout(() => setProfileSuccess(''), 3000);
     }
   };
 
@@ -102,7 +143,7 @@ const DonorDashboard = () => {
           <h2>Donation Eligibility</h2>
           <div className={`eligibility-status ${isEligible ? 'eligible' : 'ineligible'}`}>
             <div className="status-icon">
-              {isEligible ? '✓' : '⏳'}
+              {isEligible ? 'Eligible' : 'Wait'}
             </div>
             <div className="status-content">
               {isEligible ? (
@@ -142,34 +183,97 @@ const DonorDashboard = () => {
 
         {/* Profile Summary Card */}
         <div className="card profile-card">
-          <h2>Your Profile</h2>
-          <div className="profile-info">
-            <div className="info-row">
-              <span className="label">Blood Type:</span>
-              <span className="value blood-type">
-                {currentUser?.bloodType || 'To be determined'}
-              </span>
-            </div>
-            <div className="info-row">
-              <span className="label">Total Donations:</span>
-              <span className="value">{currentUser?.donationCount || 0}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Email:</span>
-              <span className="value">{currentUser?.email}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Phone:</span>
-              <span className="value">{currentUser?.phone}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Member Since:</span>
-              <span className="value">
-                {currentUser?.registrationDate ? 
-                  new Date(currentUser.registrationDate).toLocaleDateString() : 'N/A'}
-              </span>
-            </div>
+          <div className="profile-card-header">
+            <h2>Your Profile</h2>
+            {!isEditingProfile && (
+              <button className="btn-edit-profile" onClick={handleStartEdit}>
+                Edit
+              </button>
+            )}
           </div>
+
+          {profileSuccess && (
+            <div className="success-message" style={{ marginBottom: '0.75rem' }}>
+              {profileSuccess}
+            </div>
+          )}
+          {profileError && (
+            <div className="error-message" style={{ marginBottom: '0.75rem' }}>
+              {profileError}
+            </div>
+          )}
+
+          {isEditingProfile ? (
+            <div className="profile-edit-form">
+              <div className="info-row static">
+                <span className="label">Blood Type:</span>
+                <span className="value blood-type">
+                  {currentUser?.bloodType || 'To be determined'}
+                </span>
+              </div>
+              <div className="info-row static">
+                <span className="label">Total Donations:</span>
+                <span className="value">{currentUser?.donationCount || 0}</span>
+              </div>
+              <div className="edit-field">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  placeholder="your@email.com"
+                />
+              </div>
+              <div className="edit-field">
+                <label>Phone</label>
+                <input
+                  type="tel"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  placeholder="555-0123"
+                />
+              </div>
+              <div className="info-row static">
+                <span className="label">Member Since:</span>
+                <span className="value">
+                  {currentUser?.registrationDate ?
+                    new Date(currentUser.registrationDate).toLocaleDateString() : 'N/A'}
+                </span>
+              </div>
+              <div className="edit-actions">
+                <button className="btn-save" onClick={handleSaveProfile}>Save Changes</button>
+                <button className="btn-cancel-edit" onClick={handleCancelEdit}>Cancel</button>
+              </div>
+            </div>
+          ) : (
+            <div className="profile-info">
+              <div className="info-row">
+                <span className="label">Blood Type:</span>
+                <span className="value blood-type">
+                  {currentUser?.bloodType || 'To be determined'}
+                </span>
+              </div>
+              <div className="info-row">
+                <span className="label">Total Donations:</span>
+                <span className="value">{currentUser?.donationCount || 0}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Email:</span>
+                <span className="value">{currentUser?.email}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Phone:</span>
+                <span className="value">{currentUser?.phone}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Member Since:</span>
+                <span className="value">
+                  {currentUser?.registrationDate ?
+                    new Date(currentUser.registrationDate).toLocaleDateString() : 'N/A'}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Upcoming Appointment Card */}
@@ -179,14 +283,14 @@ const DonorDashboard = () => {
             <div className="appointment-details">
               <div className="appointment-info">
                 <p className="appointment-date">
-                  📅 {new Date(upcomingAppointment.date).toLocaleDateString('en-US', {
+                  <span className="appt-label">Date:</span> {new Date(upcomingAppointment.date).toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
                   })}
                 </p>
-                <p className="appointment-time">🕒 {upcomingAppointment.time}</p>
+                <p className="appointment-time"><span className="appt-label">Time:</span> {upcomingAppointment.time}</p>
                 <p className="appointment-status">
                   Status: <span className={`status-badge ${upcomingAppointment.status}`}>
                     {upcomingAppointment.status}
@@ -289,9 +393,6 @@ const DonorDashboard = () => {
                     <div className="history-details">
                       <span className="blood-type-small">{donation.bloodType}</span>
                       <span className="units">{donation.units} unit(s)</span>
-                      {donation.hemoglobin && (
-                        <span className="hemoglobin">Hb: {donation.hemoglobin} g/dL</span>
-                      )}
                     </div>
                   </div>
                 </div>
