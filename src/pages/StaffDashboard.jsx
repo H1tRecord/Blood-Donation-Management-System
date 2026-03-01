@@ -21,209 +21,174 @@ const StaffDashboard = () => {
   }, []);
 
   const loadStaffData = () => {
-    // Get today's appointments
-    const today = new Date('2026-02-26').toISOString().split('T')[0];
-    const todayAppts = appointments.filter(
-      (apt) => apt.date === '2026-02-27' && apt.status !== 'cancelled'
-    ).sort((a, b) => a.time.localeCompare(b.time));
+    const todayAppts = appointments
+      .filter((apt) => apt.date === '2026-02-27' && apt.status !== 'cancelled')
+      .sort((a, b) => a.time.localeCompare(b.time));
     setTodayAppointments(todayAppts);
-
-    // Load inventory
     setInventory(bloodInventory);
   };
 
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 'adequate': return 'status-adequate';
-      case 'low': return 'status-low';
-      case 'critical': return 'status-critical';
-      default: return '';
-    }
-  };
+  const criticalTypes = bloodInventory.filter((inv) => inv.units < 10);
+  const lowTypes      = bloodInventory.filter((inv) => inv.units >= 10 && inv.units < 20);
 
-  const getCriticalBloodTypes = () => {
-    return bloodInventory.filter(inv => inv.units < 10);
-  };
-
-  const getLowBloodTypes = () => {
-    return bloodInventory.filter(inv => inv.units >= 10 && inv.units < 20);
-  };
+  const stats = [
+    { value: todayAppointments.length,                                       label: 'Appointments',  accent: 'blue'   },
+    { value: todayAppointments.filter((a) => a.status === 'confirmed').length, label: 'Confirmed',    accent: 'green'  },
+    { value: todayAppointments.filter((a) => a.status === 'pending').length,   label: 'Pending',      accent: 'yellow' },
+    { value: criticalTypes.length + lowTypes.length,                           label: 'Types Needed', accent: 'red'    },
+  ];
 
   return (
     <div className="staff-dashboard">
-      <div className="dashboard-header">
-        <h1>Welcome, {currentUser?.name}!</h1>
-        <p className="subtitle">Staff Dashboard</p>
+
+      {/* ── Header ── */}
+      <div className="sd-header">
+        <div>
+          <h1>Good morning, {currentUser?.name?.split(' ')[0]}!</h1>
+          <p className="sd-subtitle">Here's what needs your attention today</p>
+        </div>
+        <span className="sd-role-badge">Staff</span>
       </div>
 
-      <div className="dashboard-grid">
-        {/* Blood Inventory Overview Card */}
-        <div className="card inventory-overview-card">
-          <h2>Blood Inventory Overview</h2>
-          <div className="inventory-grid">
+      {/* ── Stat Bar ── */}
+      <div className="sd-stat-bar">
+        {stats.map((s) => (
+          <div key={s.label} className={`sd-stat accent-${s.accent}`}>
+            <span className="sd-stat-value">{s.value}</span>
+            <span className="sd-stat-label">{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Main Grid ── */}
+      <div className="sd-main-grid">
+
+        {/* Left: Blood Inventory */}
+        <div className="card sd-inventory-card">
+          <div className="sd-card-head">
+            <h2>Blood Inventory</h2>
+            <button className="sd-link-btn" onClick={() => navigate('/inventory-management')}>
+              Manage →
+            </button>
+          </div>
+
+          <div className="sd-inventory-list">
             {inventory.map((item) => {
+              const pct    = Math.min((item.units / 40) * 100, 100);
+              const color  = getInventoryColor(item.units);
               const status = getInventoryStatus(item.units);
-              const color = getInventoryColor(item.units);
               return (
-                <div key={item.type} className={`inventory-item ${color}`}>
-                  <div className="blood-type-label">{item.type}</div>
-                  <div className="units-count">{item.units}</div>
-                  <div className="units-label">units</div>
-                  <div className={`status-indicator ${status}`}>
-                    {status.toUpperCase()}
+                <div key={item.type} className="sd-inv-row">
+                  <span className="sd-inv-type">{item.type}</span>
+                  <div className="sd-inv-bar-wrap">
+                    <div className={`sd-inv-bar ${color}`} style={{ width: `${pct}%` }} />
                   </div>
+                  <span className="sd-inv-units">{item.units} <em>units</em></span>
+                  <span className={`sd-inv-status ${color}`}>{status}</span>
                 </div>
               );
             })}
           </div>
-          <button
-            className="btn-primary"
-            onClick={() => navigate('/inventory-management')}
-          >
-            Manage Inventory
-          </button>
         </div>
 
-        {/* Today's Appointments Card */}
-        <div className="card appointments-card">
-          <div className="card-header">
+        {/* Right: Today's Appointments */}
+        <div className="card sd-appts-card">
+          <div className="sd-card-head">
             <h2>Today's Appointments</h2>
-            <span className="appointment-count">{todayAppointments.length} scheduled</span>
+            <span className="sd-count-pill">{todayAppointments.length}</span>
           </div>
-          <div className="appointments-list">
+
+          <div className="sd-appts-list">
             {todayAppointments.length > 0 ? (
               todayAppointments.map((apt) => (
-                <div key={apt.id} className="appointment-item">
-                  <div className="appointment-time-badge">{apt.time}</div>
-                  <div className="appointment-info">
-                    <p className="donor-name">{apt.donorName}</p>
-                    <div className="appointment-meta">
+                <div key={apt.id} className={`sd-appt-item status-${apt.status}`}>
+                  <div className="sd-appt-time">{apt.time}</div>
+                  <div className="sd-appt-body">
+                    <p className="sd-appt-name">{apt.donorName}</p>
+                    <div className="sd-appt-tags">
                       {apt.bloodType && (
-                        <span className="blood-type-small">{apt.bloodType}</span>
+                        <span className="sd-tag blood">{apt.bloodType}</span>
                       )}
-                      <span className={`status-badge ${apt.status}`}>
-                        {apt.status}
-                      </span>
+                      <span className={`sd-tag ${apt.status}`}>{apt.status}</span>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="no-appointments">No appointments scheduled for today</p>
+              <div className="sd-empty">No appointments scheduled for today</div>
             )}
           </div>
-          <button
-            className="btn-secondary"
-            onClick={() => navigate('/staff-appointments')}
-          >
-            View All Appointments
+
+          <button className="sd-ghost-btn" onClick={() => navigate('/staff-appointments')}>
+            View all appointments
           </button>
         </div>
+      </div>
 
-        {/* Critical Blood Types Card */}
-        {getCriticalBloodTypes().length > 0 && (
-          <div className="card critical-card">
-            <h2>🚨 Critical Blood Types</h2>
-            <p className="critical-info">Immediate action required</p>
-            <div className="critical-list">
-              {getCriticalBloodTypes().map((inv) => (
-                <div key={inv.type} className="critical-item">
-                  <span className="blood-type-badge critical">{inv.type}</span>
-                  <div className="critical-details">
-                    <span className="units-remaining">
-                      Only {inv.units} units remaining
-                    </span>
+      {/* ── Bottom Row ── */}
+      <div className="sd-bottom-row">
+
+        {/* Alerts */}
+        {(criticalTypes.length > 0 || lowTypes.length > 0) && (
+          <div className="card sd-alerts-card">
+            <h2>Stock Alerts</h2>
+
+            {criticalTypes.length > 0 && (
+              <div className="sd-alert-group">
+                <p className="sd-alert-heading critical">Critical — immediate action needed</p>
+                {criticalTypes.map((inv) => (
+                  <div key={inv.type} className="sd-alert-row">
+                    <span className="sd-alert-dot critical" />
+                    <span className="sd-alert-type">{inv.type}</span>
+                    <span className="sd-alert-units">only {inv.units} units</span>
                     <button
-                      className="btn-request"
+                      className="sd-alert-btn critical"
                       onClick={() => navigate('/donor-search', { state: { bloodType: inv.type } })}
                     >
                       Request Donors
                     </button>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+                ))}
+              </div>
+            )}
 
-        {/* Low Blood Types Card */}
-        {getLowBloodTypes().length > 0 && (
-          <div className="card low-card">
-            <h2>⚠️ Low Blood Types</h2>
-            <p className="low-info">Consider requesting donations</p>
-            <div className="low-list">
-              {getLowBloodTypes().map((inv) => (
-                <div key={inv.type} className="low-item">
-                  <span className="blood-type-badge low">{inv.type}</span>
-                  <div className="low-details">
-                    <span className="units-remaining">{inv.units} units available</span>
+            {lowTypes.length > 0 && (
+              <div className="sd-alert-group">
+                <p className="sd-alert-heading low">Low — consider requesting donations</p>
+                {lowTypes.map((inv) => (
+                  <div key={inv.type} className="sd-alert-row">
+                    <span className="sd-alert-dot low" />
+                    <span className="sd-alert-type">{inv.type}</span>
+                    <span className="sd-alert-units">{inv.units} units</span>
                     <button
-                      className="btn-request-secondary"
+                      className="sd-alert-btn low"
                       onClick={() => navigate('/donor-search', { state: { bloodType: inv.type } })}
                     >
                       Request Donors
                     </button>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Quick Actions Card */}
-        <div className="card quick-actions-card">
+        {/* Quick Actions */}
+        <div className="card sd-actions-card">
           <h2>Quick Actions</h2>
-          <div className="quick-actions-grid">
-            <button
-              className="quick-action-btn"
-              onClick={() => navigate('/staff-appointments')}
-            >
-              <span className="action-icon">📅</span>
-              <span className="action-label">Manage Appointments</span>
+          <div className="sd-actions-grid">
+            <button className="sd-action" onClick={() => navigate('/staff-appointments')}>
+              <span className="sd-action-icon">📅</span>
+              <span>Manage Appointments</span>
             </button>
-            <button
-              className="quick-action-btn"
-              onClick={() => navigate('/inventory-management')}
-            >
-              <span className="action-icon">📦</span>
-              <span className="action-label">Update Inventory</span>
+            <button className="sd-action" onClick={() => navigate('/inventory-management')}>
+              <span className="sd-action-icon">📦</span>
+              <span>Update Inventory</span>
             </button>
-            <button
-              className="quick-action-btn"
-              onClick={() => navigate('/donor-search')}
-            >
-              <span className="action-icon">🔍</span>
-              <span className="action-label">Search Donors</span>
+            <button className="sd-action" onClick={() => navigate('/donor-search')}>
+              <span className="sd-action-icon">🔍</span>
+              <span>Search Donors</span>
             </button>
-          </div>
-        </div>
-
-        {/* Statistics Card */}
-        <div className="card statistics-card">
-          <h2>Today's Statistics</h2>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <div className="stat-value">{todayAppointments.length}</div>
-              <div className="stat-label">Total Appointments</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">
-                {todayAppointments.filter(a => a.status === 'confirmed').length}
-              </div>
-              <div className="stat-label">Confirmed</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">
-                {todayAppointments.filter(a => a.status === 'pending').length}
-              </div>
-              <div className="stat-label">Pending</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-value">
-                {getCriticalBloodTypes().length + getLowBloodTypes().length}
-              </div>
-              <div className="stat-label">Types Needed</div>
-            </div>
           </div>
         </div>
       </div>

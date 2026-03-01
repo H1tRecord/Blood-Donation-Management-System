@@ -2,3 +2,9 @@
 - make everything working
 - use firebase
 - adjust the calendar design for the staff appointment since it is not consistent with the other calendar
+- no deletion of accounts just disable
+- undo button for appointment thing?
+- let donor cancel appointment from their dashboard
+- appoiment calnedar for user not updated to latest date??
+- animations?
+- improve design of staff dashboard
