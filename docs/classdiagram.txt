@@ -1,0 +1,219 @@
+classDiagram
+    class App {
+        -BrowserRouter router
+        -AuthProvider provider
+        +AppContent()
+    }
+
+    class AuthContext {
+        -currentUser: User
+        -isAuthenticated: boolean
+        -sessionTimeout: timeout
+        +login(email, password): void
+        +logout(): void
+        +register(userData): void
+        +startSessionTimeout(): void
+        +useAuth(): AuthContextType
+    }
+
+    class User {
+        -id: string
+        -role: enum(donor, staff, admin)
+        -email: string
+        -password: string
+        -name: string
+        -phone: string
+        -isActive: boolean
+        -registrationDate: date
+    }
+
+    class Donor {
+        -bloodType: string
+        -lastDonationDate: date
+        -donationCount: number
+        +checkEligibility(): boolean
+        +getDaysUntilEligible(): number
+    }
+
+    class Staff {
+        -position: string
+    }
+
+    class Admin {
+        +viewAnalytics(): object
+    }
+
+    class Appointment {
+        -id: string
+        -donorId: string
+        -donorName: string
+        -bloodType: string
+        -date: date
+        -time: string
+        -status: enum(pending, confirmed, checked-in, completed, cancelled)
+        -confirmationNumber: string
+        -createdDate: date
+        +createAppointment(): void
+        +updateStatus(newStatus): void
+        +cancelAppointment(): void
+    }
+
+    class BloodInventory {
+        -type: string
+        -units: number
+        -lastUpdated: date
+        -expirationDate: date
+        -batches: array
+        +updateUnits(amount): void
+        +checkExpiration(): void
+        +getInventoryStatus(): enum(low, caution, warning, critical)
+    }
+
+    class DonationHistory {
+        -id: string
+        -donorId: string
+        -donorName: string
+        -bloodType: string
+        -date: date
+        -units: number
+        -staffId: string
+        -status: enum(completed)
+        +recordDonation(): void
+    }
+
+    class DonationRequest {
+        -id: string
+        -bloodType: string
+        -requestedBy: string
+        -requestedByName: string
+        -donorId: string
+        -donorName: string
+        -requestDate: date
+        -status: enum(pending, accepted, declined)
+        -message: string
+        -responseDate: date
+        -responseMessage: string
+        +sendRequest(): void
+        +respondToRequest(response): void
+    }
+
+    class DonorDashboard {
+        -eligibilityStatus: object
+        -daysUntilEligible: number
+        -donationHistory: array
+        +displayEligibility(): void
+        +bookAppointment(): void
+        +viewHistory(): void
+    }
+
+    class StaffDashboard {
+        -appointments: array
+        -inventory: array
+        +viewAppointments(): void
+        +searchDonor(): void
+        +sendDonationRequest(): void
+        +manageInventory(): void
+    }
+
+    class AdminDashboard {
+        -totalDonations: number
+        -activeAppointments: number
+        -criticalInventory: array
+        -analytics: object
+        +viewAnalytics(): void
+        +generateReports(): void
+    }
+
+    class AppointmentBooking {
+        -availableSlots: array
+        -selectedDate: date
+        -selectedTime: string
+        +fetchAvailableSlots(): void
+        +confirmAppointment(): void
+    }
+
+    class InventoryManagement {
+        -bloodInventory: array
+        -filterCriteria: object
+        +viewInventory(): void
+        +updateBatch(): void
+        +monitorExpiration(): void
+    }
+
+    class DonorSearch {
+        -searchFilters: object
+        -donorList: array
+        +searchDonors(): void
+        +filterByBloodType(): void
+    }
+
+    class Login {
+        -email: string
+        -password: string
+        +authenticate(): void
+        +handleError(): void
+    }
+
+    class Register {
+        -formData: object
+        +registerUser(): void
+        +validateInput(): void
+    }
+
+    class Navbar {
+        -currentUser: User
+        -navItems: array
+        +logout(): void
+        +navigateTo(page): void
+    }
+
+    class DataHelpers {
+        +getInventoryStatus(units): enum
+        +getInventoryColor(status): string
+        +calculateDaysSinceLastDonation(date): number
+        +isEligibleToDonate(lastDonation): boolean
+        +getDaysUntilEligible(lastDonation): number
+        +getBloodTypeCompatibility(type): array
+    }
+
+    App --> AuthContext
+    App --> DonorDashboard
+    App --> StaffDashboard
+    App --> AdminDashboard
+    App --> Login
+    App --> Register
+    App --> Navbar
+
+    AuthContext --> User
+    User <|-- Donor
+    User <|-- Staff
+    User <|-- Admin
+
+    DonorDashboard --> Appointment
+    DonorDashboard --> DonationHistory
+    DonorDashboard --> DataHelpers
+
+    StaffDashboard --> Appointment
+    StaffDashboard --> BloodInventory
+    StaffDashboard --> DonationRequest
+    StaffDashboard --> DonorSearch
+    StaffDashboard --> DataHelpers
+
+    AdminDashboard --> Appointment
+    AdminDashboard --> BloodInventory
+    AdminDashboard --> DonationHistory
+
+    AppointmentBooking --> Appointment
+    AppointmentBooking --> DataHelpers
+
+    InventoryManagement --> BloodInventory
+    InventoryManagement --> DataHelpers
+
+    DonationHistory --> Donor
+    DonationHistory --> Staff
+
+    DonationRequest --> Donor
+    DonationRequest --> Staff
+
+    Appointment --> Donor
+    Appointment --> DonationHistory

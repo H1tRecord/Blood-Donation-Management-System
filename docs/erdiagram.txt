@@ -1,0 +1,66 @@
+erDiagram
+    USERS ||--o{ APPOINTMENTS : makes
+    USERS ||--o{ DONATION_HISTORY : "completes"
+    USERS ||--o{ DONATION_REQUESTS : requests
+    APPOINTMENTS ||--|| DONATION_HISTORY : "results in"
+    BLOOD_INVENTORY ||--|| DONATION_HISTORY : "receives blood"
+
+    USERS {
+        string id PK
+        string role FK "donor|staff|admin"
+        string email UK
+        string password
+        string name
+        string phone
+        boolean isActive
+        date registrationDate
+        string bloodType "Donor-specific"
+        date lastDonationDate "Donor-specific"
+        int donationCount "Donor-specific"
+        string position "Staff-specific"
+    }
+
+    APPOINTMENTS {
+        string id PK
+        string donorId FK
+        string donorName "denormalized"
+        string bloodType "denormalized"
+        date date
+        string time
+        string status "pending|confirmed|checked-in|completed|cancelled"
+        string confirmationNumber
+        date createdDate
+    }
+
+    BLOOD_INVENTORY {
+        string type PK "A+, A-, B+, B-, AB+, AB-, O+, O-"
+        int units "total valid units"
+        date lastUpdated
+        date expirationDate "nearest expiring batch"
+        object batches "array of batch objects"
+    }
+
+    DONATION_HISTORY {
+        string id PK
+        string donorId FK
+        string donorName "denormalized"
+        string bloodType "denormalized"
+        date date
+        int units "amount donated"
+        string staffId FK "staff who processed"
+        string status "completed"
+    }
+
+    DONATION_REQUESTS {
+        string id PK
+        string bloodType
+        string requestedBy FK "staff id"
+        string requestedByName "denormalized"
+        string donorId FK
+        string donorName "denormalized"
+        date requestDate
+        string status "pending|accepted|declined"
+        string message
+        date responseDate "optional"
+        string responseMessage "optional"
+    }

@@ -1,0 +1,111 @@
+@startuml ERD_BloodDonationSystem
+skinparam style ubuntu
+skinparam backgroundColor #FEFEFE
+
+entity "users" as users {
+  *id : string <<PK>>
+  --
+  role : enum(donor|staff|admin)
+  email : string
+  password : string
+  name : string
+  phone : string
+  isActive : boolean
+  registrationDate : Date
+  bloodType : string
+  lastDonationDate : Date
+  donationCount : integer
+  position : string
+}
+
+entity "appointments" as appointments {
+  *id : string <<PK>>
+  --
+  donorId : string <<FK>>
+  donorName : string
+  bloodType : string
+  date : Date
+  time : string
+  status : enum(pending|confirmed|checked-in|completed|cancelled)
+  confirmationNumber : string
+  createdDate : Date
+}
+
+entity "blood_inventory" as blood_inventory {
+  *type : string <<PK>>
+  --
+  units : integer
+  lastUpdated : Date
+  expirationDate : Date
+  batches : object
+}
+
+entity "donation_history" as donation_history {
+  *id : string <<PK>>
+  --
+  donorId : string <<FK>>
+  donorName : string
+  bloodType : string
+  date : Date
+  units : integer
+  staffId : string <<FK>>
+  status : enum(completed)
+}
+
+entity "donation_requests" as donation_requests {
+  *id : string <<PK>>
+  --
+  bloodType : string
+  requestedBy : string <<FK>>
+  requestedByName : string
+  donorId : string <<FK>>
+  donorName : string
+  requestDate : Date
+  status : enum(pending|accepted|declined)
+  message : string
+  responseDate : Date
+  responseMessage : string
+}
+
+users ||--o{ appointments : makes
+users ||--o{ donation_history : completes
+users ||--o{ donation_requests : requests
+appointments ||--|| donation_history : results_in
+blood_inventory ||--|| donation_history : receives_blood
+
+note right of users
+  Firestore Collection
+  Roles: donor, staff, admin
+  Donor-specific: bloodType, lastDonationDate,
+                 donationCount
+  Staff-specific: position
+end note
+
+note right of appointments
+  Firestore Collection
+  Status flow:
+  pending → confirmed → checked-in → completed
+  pending/confirmed → cancelled
+  Foreign keys denormalized for read performance
+end note
+
+note right of blood_inventory
+  Firestore Collection
+  Document ID: blood type (A+, A-, B+, etc)
+  Tracks individual batches with expiry dates
+  Units: total of valid (non-expired) batches
+end note
+
+note right of donation_history
+  Firestore Collection
+  Records one completed donation per document
+  Indexed by donorId and date
+end note
+
+note right of donation_requests
+  Firestore Collection
+  Status: pending → accepted/declined
+  Denormalized for notification efficiency
+end note
+
+@enduml

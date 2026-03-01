@@ -1,61 +1,78 @@
 sequenceDiagram
-    participant Donor as Donor
-    participant DonorUI as Donor UI
-    participant System as System
-    participant Inventory as Blood Inventory
-    participant Database as Database
+    participant User as User
+    participant UI as React UI
+    participant Auth as AuthContext
+    participant System as System Logic
+    participant DB as Firebase Firestore
     
-    Donor->>DonorUI: 1. Login
-    DonorUI->>System: Authenticate
-    System->>Database: Validate credentials
-    Database-->>System: User data
-    System-->>DonorUI: Auth token
-    
-    Donor->>DonorUI: 2. Check eligibility
-    DonorUI->>System: Get donor profile
-    System->>Database: Query donor & donations
-    Database-->>System: Donor info + last donation
-    System->>System: Calculate eligibility
-    System-->>DonorUI: Eligibility status
-    
-    alt Donor is Eligible
-        Donor->>DonorUI: 3. Book appointment
-        DonorUI->>System: Request appointment slots
-        System->>Database: Get available slots
-        Database-->>System: Available appointments
-        System-->>DonorUI: Display calendar
-        
-        Donor->>DonorUI: Select date & time
-        DonorUI->>System: Confirm appointment
-        System->>Database: Create appointment
-        Database-->>System: Appointment ID
-        System-->>DonorUI: Confirmation
-        
-        Donor->>DonorUI: 4. Donation day arrives
-        DonorUI->>System: Check in
-        System->>Database: Update appointment status
-        Database-->>System: Status updated
-        
-        Donor->>DonorUI: 5. Record health metrics
-        DonorUI->>System: Submit metrics (BP, Hb)
-        System->>Database: Store health metrics
-        Database-->>System: Metrics ID
-        
-        Donor->>DonorUI: 6. Donation completed
-        DonorUI->>System: Complete donation
-        System->>Database: Create donation record
-        System->>Database: Calculate next eligible date
-        System->>Inventory: Decrease blood count
-        Inventory->>Database: Update inventory
-        Database-->>System: Updates confirmed
-        System-->>DonorUI: Donation recorded
-    else Donor is Ineligible
-        System-->>DonorUI: Display next eligible date
-        DonorUI-->>Donor: Show countdown
+    alt Authentication Flow
+        User->>UI: 1. Login / Register
+        UI->>Auth: Submit credentials
+        Auth->>DB: Query users collection
+        DB-->>Auth: Validate credentials
+        Auth->>Auth: Session management (30 min timeout)
+        Auth->>Auth: Store to localStorage
+        Auth-->>UI: Auth token + user data
+        UI-->>User: Redirect to Dashboard
     end
     
-    Donor->>DonorUI: 7. View donation history
-    DonorUI->>System: Get donation history
-    System->>Database: Query donations
-    Database-->>System: Donation records
-    System-->>DonorUI: Display timeline
+    alt Donor Workflow
+        User->>UI: 2. Access Donor Dashboard
+        UI->>System: Check eligibility status
+        System->>DB: Query user + donation_history
+        DB-->>System: Last donation date
+        System->>System: Calculate days since donation
+        System-->>UI: Eligibility status & next eligible date
+        
+        alt If Eligible
+            User->>UI: 3. Book Appointment
+            UI->>DB: Fetch available slots
+            DB-->>UI: Display calendar
+            User->>UI: Select date & time
+            UI->>DB: Create appointment document
+            DB-->>UI: Confirmation (APT ID)
+            
+            User->>UI: 4. View donation history
+            UI->>DB: Query donation_history (donorId)
+            DB-->>UI: Timeline of donations
+        else If Ineligible
+            UI-->>User: Show countdown to next eligible date
+        end
+    end
+    
+    alt Staff Workflow
+        User->>UI: 5. Access Staff Dashboard
+        UI->>DB: Fetch all appointments
+        DB-->>UI: Appointments list (filtered by date)
+        
+        User->>UI: 6. Manage Appointments
+        UI->>DB: Update appointment status (pending → confirmed → checked-in → completed)
+        DB-->>UI: Status updated
+        
+        User->>UI: 7. Search Donor
+        UI->>DB: Query users (role=donor, filters)
+        DB-->>UI: Donor list with contact & blood type
+        
+        User->>UI: 8. Send donation request
+        UI->>DB: Create donation_requests document
+        DB-->>UI: Request sent notification
+        
+        User->>UI: 9. View Blood Inventory
+        UI->>DB: Query blood_inventory
+        DB-->>UI: All blood types + units + expiration dates
+        
+        User->>UI: 10. Complete donation
+        UI->>DB: Create donation_history record
+        UI->>DB: Increment blood_inventory for blood type
+        DB-->>UI: Donation recorded
+    end
+    
+    alt Admin Workflow
+        User->>UI: 11. Access Admin Dashboard
+        UI->>DB: Query appointments + blood_inventory + donation_history
+        DB-->>UI: Analytics data & statistics
+        
+        User->>UI: 12. View Admin Calendar
+        UI->>DB: Fetch all appointments
+        DB-->>UI: Calendar view of all donations
+    end

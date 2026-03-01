@@ -1,6 +1,11 @@
-- close weekends since it is closed that day (8am to 5pm??)
+priorities:
+- database
 - make everything working
-- use firebase
+
+
+must:
+
+optional:
 - adjust the calendar design for the staff appointment since it is not consistent with the other calendar
 - no deletion of accounts just disable
 - undo button for appointment thing?
@@ -8,3 +13,6 @@
 - appoiment calnedar for user not updated to latest date??
 - animations?
 - improve design of staff dashboard
+
+???:
+- close weekends since it is closed that day (8am to 5pm??)
