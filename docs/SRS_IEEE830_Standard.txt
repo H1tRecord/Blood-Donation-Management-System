@@ -1,544 +1,263 @@
 ================================================================================
-BLOOD DONATION MANAGEMENT SYSTEM
-SOFTWARE REQUIREMENTS SPECIFICATION
-Version 1.0
-================================================================================
+Software Requirements Specification
+for
+Blood Donation Management System
+Version 1.0 approved
 
-TABLE OF CONTENTS
+Prepared by
+Development Team - Group 5
+
+February 24, 2026
+Copyright © 1999 by Karl E. Wiegers. Permission is granted to use, modify, and distribute this document.
+
+Table of Contents
+Table of Contents  ii
+Revision History  ii
+1.  Introduction  1
+1.1  Purpose  1
+1.2  Document Conventions  1
+1.3  Intended Audience and Reading Suggestions  1
+1.4  Product Scope  1
+1.5  References  1
+2.  Overall Description  2
+2.1  Product Perspective  2
+2.2  Product Functions  2
+2.3  User Classes and Characteristics  2
+2.4  Operating Environment  2
+2.5  Design and Implementation Constraints  2
+2.6  User Documentation  2
+2.7  Assumptions and Dependencies  3
+3.  External Interface Requirements  3
+3.1  User Interfaces  3
+3.2  Hardware Interfaces  3
+3.3  Software Interfaces  3
+3.4  Communications Interfaces  3
+4.  System Features  4
+4.1  Current User Tracking and Management  4
+4.2  Appointment Management and Scheduling  4
+4.3  Blood Inventory Monitoring  4
+4.4  Eligible Donor Identification and Contact System  4
+4.5  Staff Dashboard and Administrative Functions  4
+4.6  Admin Dashboard and Account Management  4
+5.  Other Nonfunctional Requirements  4
+5.1  Performance Requirements  4
+5.2  Safety Requirements  5
+5.3  Security Requirements  5
+5.4  Software Quality Attributes  5
+5.5  Business Rules  5
+6.  Other Requirements  5
+Appendix A: Glossary  5
+Appendix B: Analysis Models  5
+Appendix C: To Be Determined List  6
+
+Revision History
+Name                Date            Reason For Changes                  Version
+Dev Team Grp 5      24-Feb-26       Initial complete SRS document       1.0
 
 1. Introduction
-   1.1 Purpose
-   1.2 Document Conventions
-   1.3 Intended Audience and Reading Suggestions
-   1.4 Product Scope
-   1.5 References
+1.1  Purpose
+This Software Requirements Specification (SRS) document provides a comprehensive technical
+description of the Blood Donation Management System (BDMS). Its primary purpose is to
+establish a clear agreement between project stakeholders, medical staff, and developers by
+defining the functional and non-functional requirements of the application. This system serves
+as a central coordination hub for managing blood donation appointments, monitoring inventory
+levels in real-time, and identifying eligible donors to maintain a stable blood supply.
+
+1.2  Document Conventions
+This document adheres to the IEEE 830-1998 standard for software requirements. To ensure
+technical precision and clarity for developers, testers, and stakeholders, the following structural
+and typographical conventions are employed:
+
+1.2.1 Terminology and Obligation
+The following keywords are used to denote the priority and mandatory nature of specific
+requirements:
+●  "Shall": Represents a mandatory, high-priority requirement essential for the system's core
+   functionality.
+●  "Should": Represents a recommended or desirable requirement that adds significant value
+   but is not critical for initial deployment.
+●  "May": Represents an optional or low-priority requirement for future consideration.
+
+1.2.2 Requirement Identifiers
+For traceability and cross-referencing throughout the development lifecycle, each requirement is
+assigned a unique identifier:
+●  [FR-00]: Functional Requirements (e.g., [FR-01], [FR-02]).
+●  [NFR-00]: Non-Functional Requirements (e.g., [NFR-01], [NFR-02]).
+
+1.2.3 Structural Conventions
+The document utilizes specific listing formats to organize information based on logical
+relationships:
+●  Numbered Lists: Used when the sequence or order of items is critical, such as in
+   step-by-step procedures, chronological events, or prioritized rankings.
+●  Bullet Points (Primary): Used for grouping related items of equal importance where the
+   specific order does not change the meaning or outcome (unordered lists).
+○  Secondary Bullet Points: Used for hierarchical decomposition providing sub-details or
+   secondary constraints belonging to a primary bullet point.
+
+1.3  Intended Audience and Reading Suggestions
+This document is designed for the following stakeholders:
+●  Project Managers: To verify that the proposed solution meets business objectives. They
+   should focus on Section 1.4 (Scope) and Section 5 (Nonfunctional Requirements).
+●  Software Developers: To understand the technical specifications for implementing the
+   React-based frontend and associated mock data layers. They should prioritize Section 3
+   (External Interfaces) and Section 4 (System Features).
+●  Quality Assurance (QA) Testers: To derive test cases and validate that the system
+   performs according to the specified accuracy and performance metrics. They should use
+   Section 5 and Section 4 to derive test cases.
+●  Medical Staff: To understand the operational workflows for appointment and inventory
+   management. They should focus on Section 2.2 and Section 4.
+
+1.4  Product Scope
+The Blood Donation Management System is a web-based application designed to streamline the
+entire lifecycle of blood donation, from donor registration to inventory tracking.
+
+1.4.1 Included Capabilities (In-Scope):
+●  User Management: Registration, authentication, and profile management for Donors, Staff,
+   and Administrators.
+●  Appointment Lifecycle: A guided two-step booking process for donors and a calendar-based
+   management interface for staff.
+●  Inventory Monitoring: Real-time tracking of blood units by type, including automated
+   expiry alerts and manual batch adjustments.
+●  Eligibility Logic: Automated calculation of the 56-day deferral period based on donation
+   history.
+
+1.4.2 Exclusions (Out-of-Scope):
+●  Laboratory Equipment: The system does not interface with physical blood analysis or
+   collection hardware.
+●  External Integration: Direct integration with external hospital EHR systems is excluded
+   from the current version.
+●  Notifications: SMS notifications are not supported; communication is limited to in-app
+   alerts and manual contact facilitation.
+
+1.5  References
+IEEE Computer Society. (1998). IEEE Std 830-1998: IEEE Recommended Practice for Software
+Requirements Specifications.
+AABB Standards for Blood Banks and Transfusion Services.
+React 19.2.0 Documentation: https://react.dev
+Vite 7.3.1 Documentation: https://vitejs.dev
 
 2. Overall Description
-   2.1 Product Perspective
-   2.2 Product Functions
-   2.3 User Classes and Characteristics
-   2.4 Operating Environment
-   2.5 Design and Implementation Constraints
-   2.6 User Documentation
-   2.7 Assumptions and Dependencies
+2.1  Product Perspective
+The Blood Donation Management System (BDMS) is an independent, web-based platform designed
+to centralize and digitize blood bank operations. It functions as a standalone single-page
+application (SPA) that coordinates the relationship between donors, medical staff, and stock
+management.
+
+2.1.1 System Architecture
+The application follows a modern decoupled architecture:
+●  Frontend Layer: Developed with React 19.x, providing a reactive and component-based
+   user interface.
+●  Data Layer: Utilizes local browser storage (localStorage) and structured mock data objects
+   for high-performance, stateless execution without backend dependencies in Phase 1.
+●  Routing Layer: Implements React Router v6 for client-side navigation and role-based
+   access protection.
+
+2.2  Product Functions
+The BDMS core functions are categorized into automated tracking and management tools:
+
+2.2.1 Core Tracking Functions:
+1.  Dynamic Eligibility Calculation: Automated monitoring of donor eligibility status using
+    a 56-day deferral algorithm applied to historical data.
+2.  Stock Health Visualizer: Real-time inventory monitoring with color-coded alerts for
+    Critical (<10 units), Low (10-19 units), and Adequate (20+ units) supply levels.
+3.  Expiry Management: Automated identification of blood units expiring within a 7-day
+    window to prevent medical waste.
+
+2.2.2 Operational Management:
+1.  Appointment Scheduling: Multi-step chronological booking process for donors and
+    calendar-based timeline for staff clinical planning.
+2.  User Access Control: Centralized administration for role-based account management
+    (activation/deactivation) and record search.
+
+2.3  User Classes and Characteristics
+The system supports three distinct user classes with specialized permissions:
+●  Registered Donors: End-users who utilize the system for registration, eligibility tracking,
+   and appointment booking. They require a high-usability, low-friction interface.
+●  Medical Staff: Clinical professionals responsible for processing donations, verifying blood
+   types, and managing daily inventory levels. They require high efficiency and data accuracy.
+●  Administrators: Technical staff responsible for overseeing all system users and managing
+   account security states.
+
+2.4  Operating Environment
+2.4.1 Client Browser Environment
+The BDMS executes within standard modern web browsers on mobile or desktop devices:
+●  Desktop: Chrome 90+, Firefox 88+, Safari 14+, or Edge 90+.
+●  Mobile: iOS Safari 14+ or Android Chrome 90+.
+●  Required Client Features: JavaScript enabled; localStorage support.
+
+2.4.2 Build and Development Environment
+●  Node.js: Version 18.x or higher for local development.
+●  Bundler: Vite 7.3.1 for optimized resource packaging and HMR (Hot Module Replacement).
+
+2.5  Design and Implementation Constraints
+1.  Stateless Persistence: The application shall maintain all session and operational data
+    locally within the browser's localStorage, limiting data sharing across different devices.
+2.  Standard Deferral: The system shall strictly enforce a 56-day whole blood deferral period in
+    accordance with AABB standards.
+3.  Modular Components: Code shall follow a modular React architecture to ensure
+    maintainability for future backend integration.
+
+2.6  User Documentation
+Users shall be supported by the following documentation:
+●  BDMS User Guide: Digital documentation detailing the appointment booking lifecycle for
+   donors.
+●  Clinical Staff Workbook: Detailed procedures for inventory adjustment, donor search,
+   and donation processing.
+●  On-Screen Guidance: Contextual tooltips and data validation labels within the UI.
+
+2.7  Assumptions and Dependencies
+2.7.1 Project Assumptions
+●  Accurate History: It is assumed that donors provide truthful information regarding their
+   previous donation dates.
+●  Standard Deferral: It is assumed that 56 days is the correct and only deferral period
+   required for the localized center operations.
+
+2.7.2 Technical Dependencies
+●  React Library: Dependency on the stable APIs of React 19 and React Router v6.
+●  Browser LocalStorage: Dependency on persistent local storage not being cleared by browser
+   privacy settings between sessions.
+●  Vite Runtime: Dependency on the Vite development server for local execution and bundling.
 
 3. External Interface Requirements
-   3.1 User Interfaces
-   3.2 Hardware Interfaces
-   3.3 Software Interfaces
-   3.4 Communications Interfaces
-
-4. System Features
-   4.1 Current User Tracking and Management
-   4.2 Appointment Management and Scheduling
-   4.3 Blood Inventory Monitoring
-   4.4 Eligible Donor Identification and Contact System
-   4.5 Staff Dashboard and Administrative Functions
-
-5. Other Nonfunctional Requirements
-   5.1 Performance Requirements
-   5.2 Safety Requirements
-   5.3 Security Requirements
-   5.4 Software Quality Attributes
-   5.5 Business Rules
-   5.6 Other Requirements
-
-Appendix A: Glossary
-Appendix B: Analysis Models
-Appendix C: To Be Determined Items
-
-================================================================================
-REVISION HISTORY
-
-Version     Date            Author              Description
-================================================================================
-1.0         Feb 24, 2026    Development Team    Initial complete SRS document
-                            - Group 5           for MVP Phase
-
-================================================================================
-1. INTRODUCTION
-================================================================================
-
-1.1 PURPOSE
-
-The purpose of this Software Requirements Specification (SRS) document is to 
-define the functional and non-functional requirements for the Blood Donation 
-Management System (BDMS). The BDMS is designed to manage donation appointments, 
-monitor current blood inventory stocks in real-time, keep track of all current 
-registered users in the system, identify eligible donors based on their donation 
-history and health criteria, and facilitate staff contact with eligible donors 
-for blood donation requests.
-
-This document provides a comprehensive description of all system features, capabilities, constraints, and interface requirements necessary to develop, test, and deploy the system.
-
-This SRS serves as:
-- A communication medium between stakeholders and the development team
-- A contract for system implementation and testing
-- A basis for project planning and resource allocation
-- A reference document for system maintenance and future enhancements
-
-1.2 DOCUMENT CONVENTIONS
-
-Throughout this document, the following conventions are observed:
-
-A) REQUIREMENT LANGUAGE
-   - "Shall" indicates a mandatory requirement that must be implemented
-   - "Should" indicates a desirable requirement, preferred but not mandatory
-   - "May" indicates an optional requirement for future consideration
-   - Requirements are stated as complete sentences
-
-B) FORMATTING CONVENTIONS
-   - Section numbers use hierarchical decimal notation (1.2.3)
-   - Subsections use lettered points (A, B, C)
-   - Key terms are provided in bold or highlighted
-   - Code examples use monospace font
-   - Lists use bullet points or numbered sequences
-
-C) TERMINOLOGY
-   - "System" refers to the Blood Donation Management System
-   - "Donors" refers to registered blood donation providers
-   - "Staff" refers to medical personnel and administrators
-   - "User" refers to any system user (donor or staff)
-   - "Donation Center" refers to a physical blood donation facility
-
-1.3 INTENDED AUDIENCE AND READING SUGGESTIONS
-
-This document is intended for the following audiences:
-
-A) PROJECT MANAGERS
-   - Read: Sections 1, 2, 5 (nonfunctional requirements, business rules)
-   - Purpose: Project planning, scheduling, resource allocation
-   - Focus: Scope, constraints, timeline implications
-
-B) SOFTWARE ARCHITECTS AND DEVELOPERS
-   - Read: Sections 2, 3, 4 (entire system specification)
-   - Purpose: System design and implementation guidance
-   - Focus: Complete feature specifications and interfaces
-
-C) QUALITY ASSURANCE ENGINEERS
-   - Read: Sections 3, 4, 5 (interfaces, features, quality requirements)
-   - Purpose: Test plan and validation criteria creation
-   - Focus: Requirements traceability and acceptance criteria
-
-D) SYSTEM ADMINISTRATORS
-   - Read: Sections 2 (operating environment), 5 (performance, security)
-   - Purpose: Deployment planning and system maintenance
-   - Focus: Hardware requirements, security protocols, performance targets
-
-E) MEDICAL STAFF AND HOSPITAL MANAGEMENT
-   - Read: Sections 2.2 (product functions), 4.1-4.3 (system features)
-   - Purpose: Understanding system workflow and capabilities
-   - Focus: Operational procedures and system benefits
-
-F) END USERS (Donors and Staff)
-   - Read: Section 3.1 (user interfaces)
-   - Purpose: Understanding how to interact with the system
-   - Focus: User interface descriptions and workflows
-
-1.4 PRODUCT SCOPE
-
-The Blood Donation Management System is a web-based application designed to manage donation appointments, monitor current blood stock levels in real-time, keep track of current registered users, identify eligible donors based on health criteria and donation history, and facilitate contact with donors for blood donation requests. The system streamlines communication and coordination between donors, medical staff, and blood bank administrators.
-
-A) INCLUDED IN SCOPE
-   - Current user registration, tracking, and authentication for all system users
-   - Donation appointment booking, scheduling, and management
-   - Real-time blood inventory monitoring and stock tracking by blood type
-   - Eligible donor identification based on 56-day deferral period
-   - Eligibility calculation using donation history and health criteria
-   - Donor contact and notification capabilities for eligible donors
-   - Staff capability to search and identify eligible donors for contact
-   - Donor search and filtering
-   - Staff appointment calendar and timeline management
-   - Session management and role-based access control
-
-B) EXCLUDED FROM SCOPE
-   - Laboratory blood testing and analysis equipment
-   - Physical blood collection equipment interfacing
-   - Health metrics recording and monitoring
-   - Hemoglobin and blood pressure tracking
-   - Donor health status management
-   - Integration with external hospital management systems (Phase 2)
-   - SMS notifications (email only for MVP)
-   - Multi-language support (English only for v1.0)
-   - Advanced reporting and analytics (basic statistics only)
-   - Third-party payment processing integration
-   - Biometric authentication systems
-   - Backend database implementation (Phase 2)
-
-1.5 REFERENCES
-
-A) REGULATORY STANDARDS AND GUIDELINES
-   - American Association of Blood Banks (AABB) Standards
-   - US Food and Drug Administration (FDA) Guidelines on Blood and Blood Products
-   - World Health Organization (WHO) Guidelines on Blood Transfusion Safety
-   - WCAG 2.1 Level AA Web Content Accessibility Guidelines
-   - Health Insurance Portability and Accountability Act (HIPAA)
-
-B) DOCUMENT REFERENCES
-   - Blood Bank Standard Operating Procedures
-   - Healthcare Information Technology Security Standards
-   - IEEE 830-1998 Recommended Practice for Software Requirements Specifications
-   - Web Content Accessibility Guidelines (WCAG 2.1)
-
-C) EXTERNAL RESOURCES
-   - React 19.2.0 Documentation: https://react.dev
-   - Vite 7.3.1 Documentation: https://vitejs.dev
-   - React Router v6 Documentation: https://reactrouter.com
-   - Mozilla Web Accessibility Documentation
-
-================================================================================
-2. OVERALL DESCRIPTION
-================================================================================
-
-2.1 PRODUCT PERSPECTIVE
-
-The Blood Donation Management System is a standalone web-based application that 
-operates independently but may be integrated with hospital management systems 
-in future phases. The system serves five primary purposes: (1) manage donation 
-appointments, (2) monitor current blood inventory stocks in real-time, (3) keep 
-track of all current registered users in the system, (4) identify eligible 
-donors based on their donation history and health criteria, and (5) facilitate 
-staff contact with eligible donors for blood donation requests. The system acts 
-as the central hub for coordination between donors and medical staff for all 
-appointment scheduling and donor engagement activities.
-
-2.1.1 SYSTEM ARCHITECTURE
-
-The system is implemented as a single-page web application (SPA) with the 
-following components:
-
-A) DONOR PORTAL
-   - Web-based interface for registered blood donors
-   - Accessible 24/7 for appointment booking and history review
-   - Self-service features for profile and appointment management
-   - Real-time eligibility status tracking
-   - Donation history timeline visualization
-
-B) STAFF PORTAL
-   - Web-based interface for medical personnel and administrators
-   - Access restricted to authorized donation center staff
-   - Features for appointment management, donor search, inventory control
-   - Administrative dashboard with system statistics
-   - Role-based access control for different staff levels
-
-C) SHARED COMPONENTS
-   - Authentication and session management layer
-   - Email notification service integration
-   - Mock data layer (current MVP)
-   - RESTful API interface (for future backend)
-
-2.1.2 DEVELOPMENT ENVIRONMENT
-
-The system is currently implemented as an MVP using:
-- React 19.2.0 for user interface
-- Vite 7.3.1 as build tool and development server
-- React Router v6 for client-side navigation
-- Mock data stored in JavaScript objects
-- localStorage for session persistence
-- CSS Grid and Flexbox for responsive design
-
-2.1.3 PRODUCTION ENVIRONMENT (PLANNED)
-
-Future production deployment will include:
-- Node.js/Express backend server
-- MongoDB or PostgreSQL database
-- JWT-based authentication
-- Email service provider integration (SendGrid/AWS SES)
-- SSL/TLS encryption for all communications
-- Cloud hosting platform (AWS/Azure/GCP)
-- Automated backup and disaster recovery
-
-2.2 PRODUCT FUNCTIONS
-
-The Blood Donation Management System provides the following primary functions:
-
-A) CURRENT USER TRACKING AND MANAGEMENT
-   - User registration and profile creation
-   - Tracking of all current registered donors in the system
-   - Tracking of current staff and administrative users
-   - Profile maintenance and contact information management
-   - User authentication and session management
-   - Role-based access control for donors, staff, and administrators
-
-B) APPOINTMENT MANAGEMENT AND SCHEDULING
-   - Online appointment booking by donors
-   - Multi-step booking process (date/time selection → confirmation)
-   - Real-time slot availability checking and prevention of overbooking
-   - Appointment scheduling and tracking by staff
-   - Appointment status workflow management (pending → confirmed → checked-in → completed)
-   - Weekly calendar view for staff planning
-   - Daily timeline view of appointments for easy processing
-   - Appointment confirmation and reminder notifications
-
-C) CURRENT BLOOD INVENTORY MONITORING
-   - Real-time tracking of current blood stock levels by type
-   - Stock level alerts for low and critical inventory status
-   - Automatic inventory updates based on donations processed
-   - Expiration date tracking for stored blood units
-   - Visual status indicators (adequate/low/critical) for quick assessment
-   - Inventory overview information for staff decision-making
-
-D) ELIGIBLE DONOR IDENTIFICATION AND TRACKING
-   - Calculation and tracking of donor eligibility status
-   - 56-day deferral period calculation for whole blood donations
-   - Current eligible donor identification and listing
-   - Eligibility countdown tracking for ineligible donors
-   - Donor search and filtering by eligibility status
-   - Blood type determination and storage
-
-E) DONOR CONTACT AND ENGAGEMENT CAPABILITIES
-   - Staff capability to identify and contact eligible donors
-   - Donor search by multiple criteria (name, ID, email, phone)
-   - Quick access to donor contact information
-   - Automated appointment confirmation emails to donors
-   - Automated appointment reminder emails (24 hours prior)
-   - Notification system for donors regarding eligibility status
-   - Staff portal for managing donor outreach communications
-
-2.3 USER CLASSES AND CHARACTERISTICS
-
-2.3.1 DONOR USERS
-
-Profile:
-- Age Range: 18-65 years old
-- Technical Proficiency: Novice to Advanced
-- Access Pattern: Intermittent (few times per year)
-- Primary Device: Desktop, Tablet, or Mobile
-- Schedule Flexibility: Variable based on personal availability
-
-Characteristics:
-- Motivated by altruistic intent to help others
-- May have limited technical expertise
-- Prefer simple, straightforward interfaces
-- Value convenience and accessibility
-- Need clear feedback and confirmation
-
-Primary Tasks:
-- Register and login to access system
-- View personal donation history and eligibility status
-- Book appointments at the donation center
-- Receive appointment confirmations and reminders
-- Update personal profile information
-
-2.3.2 MEDICAL STAFF USERS
-
-Profile:
-- Professional Background: Phlebotomists, Nurses, Medical Technicians
-- Technical Proficiency: Moderate to Advanced
-- Access Pattern: Regular, daily during business hours
-- Primary Device: Desktop or Tablet in clinical environment
-- Schedule: Predictable, during center operating hours
-
-Characteristics:
-- Highly trained in blood donation procedures
-- Focused on efficiency and workflow
-- Require comprehensive yet quick-access data
-- Value accuracy and completeness of information
-- Need role-based access to appropriate functions
-
-Primary Tasks:
-- Manage appointment schedule and calendar
-- Update donor blood type information
-- Search and verify donor information
-- Track and manage blood inventory levels
-- Review appointment and donation statistics
-- Update donor blood type and health information
-
-2.3.3 SYSTEM ADMINISTRATORS
-
-Profile:
-- Professional Background: IT professionals with healthcare knowledge
-- Technical Proficiency: Advanced
-- Access Pattern: Regular, flexible hours
-- Primary Device: Desktop Computer
-
-Characteristics:
-- Responsible for system operations and maintenance
-- Need comprehensive access and control
-- Value system stability and reliability
-- Require detailed logs and audit trails
-- Focus on security and data protection
-
-Primary Tasks:
-- User account management
-- System configuration and settings
-- Backup and recovery operations
-- Performance monitoring
-- Security management and access control
-- System updates and patches
-
-2.4 OPERATING ENVIRONMENT
-
-2.4.1 CLIENT ENVIRONMENT
-
-Hardware Requirements:
-- Processor: Modern CPU (Intel i5/AMD Ryzen 5 or equivalent)
-- Memory: Minimum 1 GB RAM
-- Storage: 100 MB available disk space for browser cache
-- Screen: Minimum 320px width (mobile) to 4K (desktop)
-- Network: Minimum 1 Mbps internet connection
-
-Software Requirements:
-- Operating System: Windows 7+, macOS 10.12+, Linux (any modern distribution)
-- Web Browser: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
-- JavaScript: Enabled (required for SPA functionality)
-- Cookies: Enabled (for session persistence)
-
-2.4.2 SERVER ENVIRONMENT (PLANNED FOR PHASE 2)
-
-Hardware Requirements:
-- Processor: Multi-core CPU (8+ cores recommended)
-- Memory: Minimum 8 GB RAM
-- Storage: 100 GB SSD for database and application
-- Network: High-speed internet connection (100 Mbps+)
-- Redundancy: Load balancer for failover
-
-Server Software:
-- Operating System: Linux (Ubuntu 20.04 LTS or equivalent)
-- Web Server: Node.js with Express.js
-- Database: PostgreSQL 12+ or MongoDB 4.4+
-- Email Service: SMTP server or cloud email service
-- SSL/TLS: Modern certificate (TLS 1.2+)
-
-2.4.3 NETWORK ENVIRONMENT
-
-Requirements:
-- HTTPS protocol for all communications
-- Firewall protection for server infrastructure
-- VPN access for administrative functions (recommended)
-- DDoS protection for production environment
-- Network monitoring and intrusion detection
-
-2.5 DESIGN AND IMPLEMENTATION CONSTRAINTS
-
-2.5.1 REGULATORY CONSTRAINTS
-
-A) HEALTHCARE COMPLIANCE
-   - System shall comply with HIPAA Privacy Rule
-   - Protected health information (PHI) must be encrypted
-   - Access controls must prevent unauthorized access
-   - Audit logs must track all PHI access
-   - Minimum 1-year audit log retention
-
-B) BLOOD BANKING STANDARDS
-   - 56-day deferral period for whole blood donations (AABB standard)
-   - Blood type verification procedures (FDA guidelines)
-   - Donor eligibility assessment protocols
-   - Health screening minimum standards
-   - Documentation and record-keeping requirements
-
-C) ACCESSIBILITY STANDARDS
-   - WCAG 2.1 Level AA minimum compliance
-   - Section 508 compliance for US federal applications (if applicable)
-   - Keyboard navigation and screen reader support
-   - Color contrast minimum ratios (4.5:1 for text)
-
-2.5.2 TECHNICAL CONSTRAINTS
-
-A) TECHNOLOGY CHOICES
-   - Frontend: React 19.2.0 (chosen for development)
-   - Build Tool: Vite 7.3.1 (high performance build)
-   - Routing: React Router v6 (client-side navigation)
-   - Styling: CSS3 with CSS Grid/Flexbox (no external UI framework as of MVP)
-   - Data Storage: localStorage for MVP (future: server-side database)
-
-B) BROWSER SUPPORT
-   - Must support modern browsers (ES6+ JavaScript)
-   - Must function on servers with 99.5% uptime
-   - Must load within 3 seconds on standard connections
-   - Must support both desktop and mobile layouts
-
-C) DATA CONSTRAINTS
-   - Mock data only for MVP phase
-   - No integration with external healthcare systems (Phase 2)
-   - Data stored locally in MVP (future: secured database)
-   - Minimum 5-year data retention planned
-
-2.5.3 OPERATIONAL CONSTRAINTS
-
-A) BUSINESS CONSTRAINTS
-   - Must be deployable within existing IT infrastructure
-   - Must follow organization's security policies
-   - Must support organization's business hours
-   - Must accommodate center staffing levels and capacity
-
-B) PERFORMANCE CONSTRAINTS
-   - Maximum 3-second page load time
-   - Support minimum 50 concurrent donors, 20 concurrent staff
-   - Database query responses within 500ms
-   - Appointment slot allocation in real-time
-
-C) RESOURCE CONSTRAINTS
-   - Limited development team size
-   - Phased development approach (MVP → Phase 2 → Phase 3)
-   - Budget limitations for infrastructure
-   - Limited integration with external systems (Phase 1)
-
-2.6 USER DOCUMENTATION
-
-The following user documentation shall be provided:
-
-A) FOR DONORS
-   - Quick Start Guide: First-time user registration and login
-   - FAQs: Common questions about eligibility, appointment booking, blood type
-   - User Manual: Complete system navigation and feature usage
-   - Video Tutorials: Key workflows (booking, checking status, etc.)
-   - Contextual Help: In-system tooltips and help text
-
-B) FOR STAFF
-   - Staff Training Manual: System workflows and procedures
-   - Appointment Management Guide: Calendar, scheduling, processing
-   - Donor Search Instructions: Search, filter, and edit donor information
-   - Inventory Management Guide: Adding/removing units, monitoring stock
-   - Troubleshooting Guide: Common issues and solutions
-
-C) FOR ADMINISTRATORS
-   - System Administration Guide: User management, configuration
-   - Deployment Guide: Installation, configuration, startup procedures
-   - Backup and Recovery Procedures: Data backup and disaster recovery
-   - Security Guidelines: Access control, authentication, encryption
-   - Performance Monitoring: Logs, metrics, alerts
-
-2.7 ASSUMPTIONS AND DEPENDENCIES
-
-2.7.1 ASSUMPTIONS
-
-A) ORGANIZATIONAL ASSUMPTIONS
-   - Blood donation center maintains standardized operating procedures
-   - Staff will receive adequate training on system usage
-   - System will be deployed on secure, regularly-maintained servers
-   - Organization will provide ongoing support and maintenance resources
-   - Internet connectivity is available at the donation center
-   - Email service is reliable for sending notifications
-
-B) USER ASSUMPTIONS
-   - Donors will provide accurate personal information during registration
-   - Donors will maintain current email addresses for notifications
-   - Staff will follow proper authentication protocols
-   - Donors will arrive for scheduled appointments as booked
-   - Users will have JavaScript enabled in their browsers
-
-C) TECHNICAL ASSUMPTIONS
-   - Email service provider will reliably deliver 99+ percent of emails
-   - Database systems will provide 99.5% availability
-   - System will operate on HTTP/HTTPS protocol
-   - Modern web browsers will properly render CSS and JavaScript
-   - Network bandwidth will be sufficient for system operation
-
-D) DATA ASSUMPTIONS
-   - Mock data accurately represents system behavior
-   - Donor information remains consistent unless manually updated
-   - Appointment slots are managed manually by staff (no overbooking)
-   - 56-day deferral period applies uniformly to all whole blood donations
-
-2.7.2 DEPENDENCIES
-
-A) EXTERNAL DEPENDENCIES
-   - Email Service Provider (required for notifications)
-   - Web Browser (must be modern and fully functional)
-   - Internet Service Provider (required connectivity)
-   - Operating System (Windows, macOS, or Linux)
-   - SSL Certificate Authority (for secure communications)
+3.1  User Interfaces
+The BDMS user interfaces are developed as high-fidelity React components with a focus on
+operational efficiency and accessibility.
+
+3.1.1 General Design Principles
+●  Consistency: All portals (Donor, Staff, Admin) shall share a unified color palette and
+   component library.
+●  Responsiveness: The UI shall utilize liquid layouts (CSS Grid/Flexbox) to support devices
+   ranging from 320px (mobile) to 4K (desktop).
+●  State Feedback: All destructive actions (e.g., deleting a unit) shall require user
+   confirmation via modal dialogs.
+
+3.1.2 Specific Interface Requirements
+1.  Donor Dashboard: Shall provide a clear "Eligibility Countdown" if the donor is within the
+    56-day deferral window.
+2.  Inventory Table: Shall use color-coded rows (Red-Critical, Yellow-Low, White-Adequate)
+    to signify stock health.
+3.  Admin Panel: Shall allow administrators to filter the user list by Name, Email, or Role.
+
+3.2  Hardware Interfaces
+The BDMS is a software-only product that requires standard human-interface devices:
+●  Pointing Device: Mouse or touch-screen for navigation and selection.
+●  Keyboard: QWERTY or virtual keyboard for data entry.
+●  Display: Standard RGB monitor or mobile display with minimum 320px width.
+
+3.3  Software Interfaces
+3.3.1 Browser Runtime
+The system interface is dependent on the following modern web technologies:
+●  Web Storage API: For persistent localStorage operations.
+●  DOM Level 3: For reactive UI updates via React's virtual DOM.
+●  ECMAScript 2022 (ES13): For modern JavaScript functionality (Optional Chaining, etc.).
+
+3.4  Communications Interfaces
+3.4.1 HTTPS Protocol
+In Phase 2/Production, all communication between the client browser and the API server shall
+be encrypted using Transport Layer Security (TLS) 1.2 or higher.
+
+3.4.2 API Standards
+Data exchange between the client and (future) backend shall follow RESTful principles using
+JSON (JavaScript Object Notation) as the primary data format.
 
 B) INTERNAL DEPENDENCIES
    - Authentication system must be operational before any other feature
@@ -570,7 +289,6 @@ A) AUTHENTICATION INTERFACE
    login Screen:
    - Email address input field with validation
    - Password input field with character masking
-   - "Remember Me" checkbox for credential persistence
    - "Login" button (prominent call-to-action)
    - "Create New Account" link to registration
    - "Forgot Password?" link (for future implementation)
@@ -583,7 +301,6 @@ A) AUTHENTICATION INTERFACE
    - Phone Number input field with format validation
    - Password input field (required, minimum 6 characters)
    - Confirm Password input field (must match)
-   - Role Selection (Donor or Staff radio buttons)
    - Information note about blood type determination by staff
    - Terms of Service checkbox with link
    - "Create Account" button
@@ -900,515 +617,158 @@ D) ERROR COMMUNICATION
    - Email Alerts: For critical system issues (future)
 
 ================================================================================
+4. System Features
 ================================================================================
-4. SYSTEM FEATURES
-================================================================================
 
-4.1 CURRENT USER TRACKING AND MANAGEMENT SYSTEM
+4.1  User Management and Authentication
+This feature set manages the lifecycle of user identities and their access to the BDMS portals.
 
-4.1.1 Feature 1: User Registration
+4.1.1 Requirement: User Registration
+[FR-01] The system shall provide a registration interface for new donors and staff members.
+[FR-02] The registration form shall mandate the following fields: Full Name, Email, Phone,
+      and Password.
+[FR-03] The system shall enforce unique email constraints to prevent duplicate account
+      creation.
+[FR-04] The system shall explicitly NOT request blood type during registration, displaying
+      a mandatory notice that "Blood type is determined by medical staff during the first
+      donation."
+[FR-05] Upon successful registration, the system shall generate a unique persistent ID and
+      persist the record to the localStorage data layer.
 
-Description:
-The system shall allow potential blood donors to create new user accounts through 
-a registration process. The registration collects essential information and 
-stores it securely in the system.
+4.1.2 Requirement: Secure Authentication
+[FR-06] The system shall provide a centralized login interface requiring Email and Password
+      credentials.
+[FR-07] The system shall validate credentials against the stored user objects in
+      localStorage and redirect users to their role-specific dashboard (Donor, Staff, or
+      Admin) upon success.
+[FR-08] The system shall maintain session state using context providers, clearing all
+      session data upon a manual "Logout" action.
+[FR-09] The system shall display clear error notifications for "Invalid Email/Password" or
+      "Incomplete Fields."
 
-Functional Requirements:
-- The system shall display a registration form with fields for:
-  * Full Name (required, text, max 100 characters)
-  * Email Address (required, email format validation)
-  * Phone Number (required, phone format validation)
-  * Password (required, minimum 6 characters, max 32)
-  * Confirm Password (required, must match password)
-  * Role Selection (required, Donor or Staff)
+4.1.3 Requirement: Role-Based Access Control (RBAC)
+[FR-10] The system shall restrict access to the /admin/* routes to users with the 'admin'
+      role.
+[FR-11] The system shall restrict access to the /staff/* routes to users with the 'staff'
+      role.
+[FR-12] Unauthorized access attempts to protected routes shall automatically redirect the
+      user to the Login page.
 
-- The system shall validate all input fields before account creation
-- The system shall prevent duplicate email addresses in the system
-- The system shall NOT request blood type during registration
-- The system shall display an information note: "Blood type will be determined 
-  by medical staff during your first donation appointment"
-- Upon successful registration, the system shall:
-  * Generate a unique Donor ID
-  * Store account information securely
-  * Set account status to "Active"
-  * Send confirmation email (future implementation)
-  * Redirect user to login screen
+4.2  Donor Dashboard and Clinical Processing
+This feature set provides donors with their clinical status and history.
 
-- The system shall display appropriate error messages for:
-  * Invalid email format
-  * Passwords with insufficient length
-  * Passwords that don't match
-  * Duplicate email address
-  * Missing required fields
+4.2.1 Requirement: Dynamic Eligibility Tracking
+[FR-13] The system shall calculate a donor's eligibility status based on a strict 56-day
+      deferral period from their most recent 'Completed' donation.
+[FR-14] Eligible Donors: The system shall display a green "Eligible" status and enable the
+      "Book Appointment" functionality.
+[FR-15] Ineligible Donors: The system shall display a red "Ineligible" status and a
+      countdown timer indicating the exact days remaining until the next eligible date.
+[FR-16] The system shall automatically block appointment booking attempts for donors
+      flagged as "Ineligible."
 
-Priority: HIGH
-Effort: Small
-Acceptance Criteria:
-- New user can register with valid information
-- System prevents duplicate emails
-- Blood type not requested
-- Confirmation email sent (Phase 2)
-- Unique Donor ID generated
+4.2.2 Requirement: Donation History Timeline
+[FR-17] The system shall display a chronological list of all past donation events for the
+      authenticated donor.
+[FR-18] Each history entry shall include the Date, Center Location, and Status (Completed/
+      Cancelled) of the donation.
 
-4.1.2 Feature 2: User Authentication and Login
+4.3  Appointment Management Workflow
+This feature set coordinates the scheduling of donation slots.
 
-Description:
-The system shall provide secure user authentication allowing registered donors 
-and staff to access their respective portals through email and password.
+4.3.1 Requirement: Guided Appointment Booking
+[FR-19] The system shall provide a multi-step booking wizard for eligible donors.
+[FR-20] Step 1 (Selection): The user shall select a preferred Date and available Time Slot
+      from the clinical schedule.
+[FR-21] Step 2 (Confirmation): The system shall present a summary of the selection for
+      final user approval.
+[FR-22] The system shall update the global appointment collection in localStorage
+      immediately upon successful booking.
 
-Functional Requirements:
-- The system shall display a login form with fields for:
-  * Email address (required)
-  * Password (required)
-  * Remember Me checkbox (optional)
+4.3.2 Requirement: Staff Clinical Calendar
+[FR-23] The system shall provide a calendar-based interface for medical staff to view
+      daily appointment density.
+[FR-24] Staff shall be able to update appointment statuses in real-time (e.g., marking
+      a donor as "Checked-In" or "Donation Completed").
+[FR-25] Marking an appointment as "Completed" shall automatically trigger an update to
+      the donor's medical history and the inventory stock levels.
 
-- Upon login attempt, the system shall:
-  * Validate email format
-  * Verify email exists in system
-  * Verify password matches stored password (hashed comparison)
-  * If credentials valid: Create user session and redirect to appropriate dashboard
-  * If credentials invalid: Display error message "Invalid email or password"
-  * Prevent brute force attacks (future: rate limiting)
+4.4  Inventory and Stock Health
+This feature set manages the physical blood supplies.
 
-- The system shall maintain session state with:
-  * User ID and email
-  * User role (Donor or Staff)
-  * Session creation timestamp
-  * Last activity timestamp
+4.4.1 Requirement: Real-Time Stock Visualization
+[FR-26] The system shall maintain a categorized inventory count for all eight primary
+      blood types (A+, A-, B+, B-, AB+, AB-, O+, O-).
+[FR-27] The system shall apply visual health indicators based on the following logic:
+      - Critical: <10 units (Red)
+      - Low: 10-19 units (Yellow)
+      - Adequate: 20+ units (Green/White)
 
-- The system shall implement automatic logout:
-  * After 30 minutes of inactivity
-  * Upon user clicking "Logout"
-  * Display warning before automatic logout (future feature)
+4.4.2 Requirement: Batch Management and Expiry
+[FR-28] Staff shall have the capability to manually adjust stock levels through "Update
+      Inventory" modals.
+[FR-29] The system shall track expiry dates for individual batches, flagging any units
+      expiring within the next 7 calendar days.
 
-Priority: HIGH
-Effort: Small
-Acceptance Criteria:
-- Valid credentials result in successful login
-- Invalid credentials show error message
-- User redirected to appropriate dashboard
-- Session persists across page refreshes
-- Automatic logout after 30 minutes inactivity
+4.5  Administrative Oversight
+This feature set provides global system control.
 
-4.1.3 Feature 3: Donor Profile Management
+4.5.1 Requirement: User Account Administration
+[FR-30] Administrators shall have access to a master list of all system users.
+[FR-31] The system shall provide functionality to "Activate" or "Deactivate" any user
+      account, effectively blocking or granting system access.
+[FR-32] Administrators shall be able to edit core user profile details, including Role
+      and Contact Information.
 
-Description:
-The system shall allow donors to view and edit their profile information while 
-maintaining security and data integrity.
+5. Nonfunctional Requirements
+5.1  Performance Requirements
+[NFR-01] Response Time: The system shall render UI transitions (routing) in less than
+       200ms under standard browser conditions.
+[NFR-02] Data Processing: Eligibility calculations and inventory health filtering shall
+       execute in less than 50ms upon data retrieval from localStorage.
+[NFR-03] Concurrency: The client-side application shall support a minimum of 50
+       simultaneous component state updates without perceptible frame drops (maintain
+       60 FPS).
 
-Functional Requirements:
-- The system shall display a profile section on the donor dashboard showing:
-  * Full Name
-  * Email Address
-  * Phone Number
-  * Blood Type (if determined by staff)
-  * Total Donations Count
-  * Last Donation Date (if available)
+5.2  Safety and Security Requirements
+[NFR-04] Access Control: The system shall enforce role-based redirection, ensuring that
+       unauthenticated users cannot view sensitive clinical or administrative data.
+[NFR-05] Data Integrity: All destructive operations (e.g., deleting a blood unit or
+       deactivating a user) shall require explicit modal confirmation.
+[NFR-06] Session Persistence: User session data (role, ID) shall be stored in encrypted
+       or obscured formats within sessionStorage to prevent basic XSS hijacking in
+       Phase 2.
 
-- The system shall allow donors to edit:
-  * Full Name
-  * Phone Number
-  * Password (with current password verification)
+5.3  Software Quality Attributes
+[NFR-07] Usability: The Donor Portal shall maintain a System Usability Scale (SUS) score
+       equivalent to "Excellent," requiring no more than 3 clicks to complete an
+       appointment booking.
+[NFR-08] Availability: As a client-side SPA, the system shall remain functional even
+       during intermittent network latency, provided the initial bundle is cached.
+[NFR-09] Maintainability: The codebase shall adhere to ESLint "recommended" rules and
+       maintain a modular structure with separate concerns for 'components', 'hooks',
+       and 'context'.
 
-- The system shall NOT allow donors to edit:
-  * Donor ID
-  * Email Address (future: allow with verification)
-  * Blood Type
-  * Donation History
+6. Other Requirements
+6.1  Appendix A: Terminology and Glossary
+●  Deferral: A period during which a donor is ineligible to give blood (56 days).
+●  SPA: Single Page Application (React architecture).
+●  LocalStorage: Web API used for data persistence in the browser.
+●  Batch: A group of blood units sharing a common blood type and expiry date.
 
-- Edit Profile page shall include:
-  * Form with current values pre-filled
-  * Clear labels for each field
-  * Save button and Cancel button
-  * Validation error messages
-  * Success confirmation message
-
-Priority: MEDIUM
-Effort: Small
-Acceptance Criteria:
-- Donor can view complete profile
-- Donor can edit name and phone
-- Changes saved successfully
-- Non-editable fields protected
-- Success message displayed
-
-4.1.4 Feature 4: Eligibility Status Tracking
-
-Description:
-The system shall calculate and display each donor's eligibility for blood 
-donation based on the 56-day whole blood deferral period and make this 
-information prominently available on the donor dashboard.
-
-Functional Requirements:
-- The system shall calculate eligibility using formula:
-  * Next Eligible Date = Last Donation Date + 56 days
-  * Current Date >= Next Eligible Date = ELIGIBLE
-  * Current Date < Next Eligible Date = INELIGIBLE
-
-- For eligible donors, the system shall display:
-  * Green check mark icon
-  * "You're Eligible to Donate!" message
-  * Last donation date
-  * "Book Appointment" button (prominent, linked to booking process)
-
-- For ineligible donors, the system shall display:
-  * Red countdown timer
-  * Number of days remaining until eligibility
-  * Last donation date
-  * Calculated next eligible date
-  * Message explaining 56-day deferral period
-
-- The system shall recalculate eligibility:
-  * Upon user login
-  * After each donation completion
-  * In real-time on dashboard (no manual refresh needed)
-
-- Eligibility status shall be displayed on:
-  * Donor Dashboard (main widget)
-  * Appointment Booking interface (before allowing booking)
-  * Health Record Summary section
+6.2  Appendix B: To-Be-Determined (TBD) List
+1.  Integration specifications for external SMTP/Email services (Phase 2).
+2.  SQL Schema mapping for transition from localStorage to PostgreSQL (Phase 2).
+  * Statistics for total units, critical, and low stock types
+  * Low stock alerts displayed on inventory page
 
 Priority: HIGH
-Effort: Small
+Effort: Medium
 Acceptance Criteria:
-- Eligibility correctly calculated
-- Status updates after donation
-- Countdown displays when ineligible
-- Book Appointment button only for eligible
-- Status reflected in all relevant screens
-
-4.1.5 Feature 5: Donation History Timeline
-
-Description:
-The system shall maintain and display a comprehensive history of all blood 
-donations provided by each donor in an easy-to-read timeline format.
-
-Functional Requirements:
-- The system shall store for each donation:
-  * Unique Donation ID
-  * Donation Date and Time
-  * Donation Center Name and Address
-  * Donation Type (whole blood, platelets, etc.)
-  * Volume Donated (in milliliters)
-  * Status (Pending/Completed/Cancelled)
-
-- The system shall display donation history as a visual timeline:
-  * Chronological order (most recent first)
-  * Timeline line with connected dots for each donation
-  * For each donation entry:
-    - Full date (formatted: Month Date, Year)
-    - Location icon with center name
-    - Donation type and volume
-    - Status badge (color-coded)
-
-- The system shall provide filtering/sorting options:
-  * Sort by date (newest/oldest first)
-  * Sort by location
-  * Date range filter (future)
-  * Donation type filter (future)
-
-- Total donation count badge displayed above timeline
-
-Priority: HIGH
-Effort: Small
-Acceptance Criteria:
-- All previous donations displayed
-- Chronological order maintained
-- Visual timeline formatting applied
-- Filtering works correctly
-- Status badges show proper colors
-
-4.2 APPOINTMENT MANAGEMENT SYSTEM
-
-4.2.1 Feature 6: Donation Center Information
-
-Description:
-The system shall display and maintain information about the single blood 
-donation center, making it easily accessible to donors and staff.
-
-Functional Requirements:
-- The system shall store the following center information:
-  * Center Name
-  * Street Address (street, city, state, zip)
-  * Phone Contact Number
-  * Operating Hours (weekday and weekend hours)
-  * Total appointment capacity
-
-- The system shall display center information in:
-  * Donor appointment booking interface (before date/time selection)
-  * Staff dashboard (reference information)
-  * Appointment confirmations and reminders
-  * Help/information sections
-
-- The system shall provide:
-  * Clear display of operating hours
-  * Formatted address for GPS/directions
-  * Direct phone link for inquiries
-  * Center status (operating/closed)
-
-Priority: MEDIUM
-Effort: Small
-Acceptance Criteria:
-- Center information displays correctly
-- Operating hours clearly shown
-- Phone number and address formatted properly
-- Information accessible from booking interface
-- Center details persist across sessions
-
-4.2.2 Feature 7: Multi-Step Appointment Booking
-
-Description:
-The system shall provide a guided, multi-step appointment booking process for 
-eligible donors to schedule blood donation appointments. The process ensures 
-data accuracy and prevents overbooking.
-
-Functional Requirements:
-- The system shall require two sequential steps:
-
-  STEP 1 - Date and Time Selection:
-  - Display donation center information (name, address, hours)
-  - Display interactive calendar for next 7 days
-  - Date buttons show: day, date, month
-  - Upon date selection, display available time slots
-  - Time slot buttons show appointment time
-  - Real-time availability indication for each slot
-  - Maximum appointments per slot enforced (default 1)
-  - "Next" button to proceed to Step 2
-  - "Cancel" button to exit booking
-
-  STEP 2 - Confirmation:
-  - Display summary of all selections
-  - Show: center name, address, appointment date (full format), time
-  - Show donor name and blood type (if available)
-  - "Go Back" button to modify selections
-  - "Confirm Booking" button to finalize
-  - "Cancel" button to abandon booking
-
-- Upon confirmation, the system shall:
-  * Generate appointment confirmation number
-  * Create appointment record in system
-  * Update appointment status to "Pending"
-  * Send confirmation email (Phase 2)
-  * Display success screen with appointment details
-  * Add appointment to donor's profile
-
-- Eligibility verification:
-  * Prevent booking if donor in deferral period
-  * Display eligibility status on booking interface
-  * Prevent appointment selection from ineligible status
-
-Priority: CRITICAL
-Effort: Large
-Acceptance Criteria:
-- Two-step booking flow works
-- Real-time slot availability
-- Eligibility verified before booking
-- Confirmation email sent (Phase 2)
-- Appointment stored and accessible
-- User cannot double-book slots
-
-4.2.3 Feature 8: Staff Appointment Calendar Management
-
-Description:
-The system shall provide medical staff with a comprehensive weekly calendar and 
-daily timeline view for managing and processing blood donation appointments.
-
-Functional Requirements:
-- WEEKLY CALENDAR VIEW:
-  * Display 7-day grid (Monday through Sunday)
-  * Each day cell shows:
-    - Day abbreviation (Mon, Tue, etc.)
-    - Numerical date (1-31)
-    - Total appointment count for day
-    - Visual status indicators (colored dots per status)
-  * Current day highlighted with special border/background
-  * Click on day to view detailed appointments
-  * Previous/Next buttons to navigate weeks
-  * Jump date picker (optional: click header to navigate)
-
-- DAILY APPOINTMENT LIST:
-  * Upon selecting a date, show all appointments
-  * Appointments sorted chronologically by time
-  * For each appointment, display card/row showing:
-    - Appointment time (24-hour format)
-    - Donor name
-    - Donor ID
-    - Blood type (or "TBD" if not determined)
-    - Current status with color-coded badge
-    - Status dropdown (click to change status)
-    - "Process Donation" button (only if status is "Checked-In")
-    - Options menu (edit, cancel, notes)
-
-- STATUS MANAGEMENT:
-  * Display status options: Pending, Confirmed, Checked-In, Completed, Cancelled
-  * Enforce valid transitions:
-    - Pending → Confirmed
-    - Confirmed → Checked-In
-    - Checked-In → Completed
-    - Any status → Cancelled
-  * Update in real-time upon status change
-  * Log status change with timestamp and staff ID
-
-- APPOINTMENT DETAILS:
-  * Click on appointment to view full details
-  * Display donor information, appointment time, center details
-  * Display any notes previously entered for appointment
-  * Option to add notes to appointment
-
-Priority: CRITICAL
-Effort: Large
-Acceptance Criteria:
-- Weekly calendar displays correctly
-- All appointments visible on selected date
-- Status changes work and persist
-- Cannot violate status transition rules
-- UI clearly shows current day
-- Real-time updates of status changes
-
-4.2.4 Feature 9: Appointment Status Management
-
-Description:
-The system shall provide staff with the ability to manage and track appointment
-status changes throughout the donation appointment lifecycle.
-
-Functional Requirements:
-- APPOINTMENT STATUS UPDATES:
-  * Staff transitions appointment status through valid workflow:
-    - Pending → Confirmed (staff confirmation)
-    - Confirmed → Checked-In (donor arrival)
-    - Checked-In → Completed (donation completed)
-    - Any status → Cancelled (if needed)
-  
-  * Status changes are recorded with:
-    - New status value
-    - Timestamp of change
-    - Staff member who made the change
-
-- STATUS VALIDATION:
-  * System enforces valid status transitions
-  * Invalid transitions are prevented with error message
-  * User receives confirmation of successful status change
-  * Status updates reflect immediately in calendar and lists
-
-- APPOINTMENT CONFIRMATION:
-  * Upon marking appointment as "Completed":
-    - Appointment record is finalized
-    - Donor eligibility date is updated (56-day period starts)
-    - Inventory adjustments are processed
-    - Success message displayed
-
-Priority: HIGH
-Effort: Small
-Acceptance Criteria:
-- Status transitions follow valid workflow
-- Invalid transitions are prevented
-- Status changes persist and display correctly
-- Timestamps recorded accurately
-- Confirmations display to staff
-
-4.3 BLOOD INVENTORY MONITORING
-
-4.3.1 Feature 10: Blood Type Inventory Tracking
-
-Description:
-The system shall maintain and display current inventory levels for all blood 
-types with visual status indicators showing stock health.
-
-Functional Requirements:
-- BLOOD TYPES MANAGED:
-  * The system shall track: A+, A-, B+, B-, AB+, AB-, O+, O-
-  * Eight separate inventory records (one per blood type)
-
-- INVENTORY DATA STORAGE:
-  * For each blood type, system stores:
-    - Current unit count
-    - Status (Adequate/Low/Critical)
-    - Units expiring within 7 days
-    - Last updated timestamp
-
-- STOCK LEVEL CLASSIFICATION:
-  * Adequate: 20 or more units (Green status indicator)
-  * Low: 10 to 19 units (Yellow status indicator)
-  * Critical: Less than 10 units (Red status indicator)
-
-- INVENTORY DISPLAY:
-  * Display in grid format (8 cards, one per blood type)
-  * Each card displays:
-    - Blood type label (large, prominent)
-    - Current unit count (very large font)
-    - Progress bar (visual representation of stock)
-    - Status indicator (colored dot: green/yellow/red)
-    - Units expiring within 7 days (if applicable)
-    - Color-coded background matching status
-  * Legend displayed showing status definitions:
-    - Green = Adequate supply
-    - Yellow = Low stock
-    - Red = Critical shortage
-
-- OVERVIEW STATISTICS:
-  * Total units in inventory (all types combined)
-  * Number of critical stock types (requiring attention)
-  * Number of low stock types
-  * Number of adequate stock types
-  * Units expiring within 7 days (total)
-
-Priority: HIGH
-Effort: Small
-Acceptance Criteria:
-- All 8 blood types displayed
-- Unit counts accurate
-- Status colors correct
-- Overview statistics accurate
-- Expiring units identified
-- Grid layout responsive
-
-4.3.2 Feature 11: Inventory Adjustment and Management
-
-Description:
-The system shall allow staff to add units to blood inventory and automatically 
-decrease inventory upon each completed donation.
-
-Functional Requirements:
-- ADDING INVENTORY UNITS:
-  * Staff clicks on blood type card to add units
-  * Modal opens for "Add Units"
-  * Modal displays:
-    - Blood type confirmation
-    - Current unit count
-    - Input field for quantity to add
-    - Increment (+1) and Decrement (-1) buttons
-    - Optional expiration date field
-  * Staff enters quantity and clicks "Add Units"
-  * System validates:
-    - Quantity is positive number
-    - Quantity is reasonable (< 1000)
-  * Upon validation, system:
-    - Updates inventory total
-    - Saves new quantity
-    - Updates status indicator
-    - Displays confirmation message
-    - Shows new total unit count
-
-- AUTOMATIC INVENTORY REDUCTION:
-  * Upon "Complete Donation" in donation processing:
-    - System automatically decrements inventory
-    - Amount decremented = volume collected (in ml)
-    - System tracks units used per donation
-    - Ensures accuracy of inventory count
-
-- INVENTORY HISTORY:
-  * System maintains log of additions/removals (future)
-  * Can track inventory movements for accountability
-
-Priority: HIGH
-Effort: Small
-Acceptance Criteria:
-- Staff can add units successfully
-- Inventory updates immediately
-- Status changes when appropriate
-- Donations auto-decrement inventory
-- Confirmation displays correctly
-- Modal validation works
+- Units can be added/removed with valid input
+- Status colors update based on resulting totals
+- Expiry-based alerts and automated filtering functional
+- Statistics reflect current inventory state correctly
 
 4.3.3 Feature 12: Low Stock Alerts and Monitoring
 
@@ -1619,8 +979,40 @@ Acceptance Criteria:
 - Quick action buttons work
 - Real-time updates functional
 
-================================================================================
-5. OTHER NONFUNCTIONAL REQUIREMENTS
+4.6 ADMIN DASHBOARD AND ACCOUNT MANAGEMENT
+
+4.6.1 Feature 16: User Account Control
+
+Description:
+The system shall provide administrators with tools to manage all user accounts 
+within the platform (Donors, Staff, and Admins).
+
+Functional Requirements:
+- ACCOUNT MANAGEMENT:
+  * List all registered system users in a table view
+  * Display: User ID, Name, Email, Phone, Role, Registration Date, Status
+  * Search accounts by name, email, or ID
+  * Filter accounts by role (Donor/Staff/Admin) and activity status
+  * Sort accounts by name, email, role, or registration date
+
+- STATUS TOGGLING:
+  * Enable/Disable (activate/deactivate) any user account
+  * Inactive users are prevented from logging into the system
+  * Immediate status updates in account table
+
+- ACCOUNT EDITING:
+  * Modal interface for editing user details (name, email, phone, role)
+  * Form validation for email format and required fields
+  * Confirmation message upon successful edit
+
+Priority: HIGH
+Effort: Medium
+Acceptance Criteria:
+- All users visible in searchable account list
+- Role and status filtering work correctly
+- Sorting functions for multiple columns
+- Deactivated accounts cannot login
+- Edits persist and display correctly in user list
 ================================================================================
 
 5.1 PERFORMANCE REQUIREMENTS
@@ -1743,31 +1135,27 @@ C) DATA INTEGRITY
 
 A) USER AUTHENTICATION
    - Email-based login with password authentication required
-   - Minimum password length: 6 characters (recommend 8+)
+   - Minimum password length: 6 characters
    - Maximum password length: 32 characters
-   - Passwords never stored in plain text
-   - Use secure hashing algorithm (bcrypt or similar)
-   - Secure password reset mechanism (email-based, future)
+   - Passwords stored in plain text (current MVP limitation)
+   - Secure password reset mechanism (future)
    - Prevent weak passwords (dictionary words, common patterns)
 
 B) AUTHORIZATION AND ACCESS CONTROL
    - Role-Based Access Control (RBAC) implemented
    - Roles: Donor, Staff, Administrator
-   - Donors can only access their own data
-   - Staff access limited to assigned donation center(s)
-   - Administrators have full system access
-   - Permission matrix maintained for role definitions
-   - Unauthorized access attempts logged
-   - Admin-only functions protected from regular users
+   - Donors can only access their own dashboard and data
+   - Staff access limited to appointment management and donor search
+   - Administrators have full system access including account management
+   - Unauthorized access attempts redirected to home page
+   - Protected routes based on role and authentication status
 
 C) SESSION MANAGEMENT
    - Secure session initialization upon successful login
-   - Session tokens with expiration time
+   - Session data stored in localStorage
    - Automatic logout after 30 minutes of inactivity
-   - Session data stored server-side (future backend)
-   - No sensitive data stored in browser storage
-   - Session validation on each request (future)
-   - Logout clears all session data
+   - Logout clears all local session data
+   - Warning message displayed when session expires
 
 D) MULTI-DEVICE PREVENTION
    - Prevent concurrent logins from multiple devices (future)

@@ -1,9 +1,13 @@
 priorities:
 - database
 - make everything working
-
+- admin is the only person who can make staff accounts
 
 must:
+- update phone number (decide whether or not to include it idk remove it)
+- consult whether or not admin can edit password or see password
+- consider if user can edit their password in the dashboard
+- improve design for donor dashboard
 
 optional:
 - adjust the calendar design for the staff appointment since it is not consistent with the other calendar
