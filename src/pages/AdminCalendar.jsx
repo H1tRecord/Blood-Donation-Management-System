@@ -426,7 +426,6 @@ const AdminCalendar = () => {
                 ))}
               </div>
             )}
-          </div>
 
           {/* Legend */}
           <div className="mc-legend">
@@ -434,6 +433,7 @@ const AdminCalendar = () => {
             <span className="mc-legend-item"><span className="mc-dot confirmed" /> Confirmed</span>
             <span className="mc-legend-item"><span className="mc-dot completed" /> Completed</span>
             <span className="mc-legend-item"><span className="mc-blocked-indicator" /> Blocked</span>
+          </div>
           </div>
         </div>
 

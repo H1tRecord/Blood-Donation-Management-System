@@ -7,6 +7,75 @@ import {
 } from '../data';
 import './InventoryManagement.css';
 
+// ─── Expiry helpers ───────────────────────────────────────────────────────────
+
+/** Returns the number of days from today until `expirationDate`.
+ *  Negative = already expired, 0 = expires today, positive = days remaining */
+const getDaysUntilExpiry = (expirationDate) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiry = new Date(expirationDate + 'T00:00:00');
+  expiry.setHours(0, 0, 0, 0);
+  return Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+};
+
+/** Scans all batches, purges expired ones, recalculates totals, and returns
+ *  an `alerts` list for batches expiring within 7 days. */
+const processExpiryData = (inventoryData) => {
+  const expired = [];
+  const alerts  = [];
+
+  const updatedInventory = inventoryData.map((item) => {
+    const cloned = {
+      ...item,
+      batches: (item.batches || []).map((b) => ({ ...b })),
+    };
+
+    const validBatches = [];
+    cloned.batches.forEach((batch) => {
+      const days = getDaysUntilExpiry(batch.expirationDate);
+      if (days <= 0) {
+        expired.push({ type: cloned.type, units: batch.units, expirationDate: batch.expirationDate, days });
+      } else {
+        validBatches.push(batch);
+        if (days <= 7) {
+          alerts.push({
+            type: cloned.type,
+            units: batch.units,
+            expirationDate: batch.expirationDate,
+            daysUntilExpiry: days,
+          });
+        }
+      }
+    });
+
+    cloned.batches = validBatches;
+    cloned.units   = validBatches.reduce((sum, b) => sum + b.units, 0);
+
+    // Nearest non-expired batch becomes the headline expiration date
+    if (validBatches.length > 0) {
+      const sorted = [...validBatches].sort(
+        (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
+      );
+      cloned.expirationDate = sorted[0].expirationDate;
+    }
+
+    return cloned;
+  });
+
+  alerts.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+  return { updatedInventory, expired, alerts };
+};
+
+/** Urgency level based on days remaining */
+const getExpiryLevel = (days) => {
+  if (days <= 1) return 'critical';
+  if (days <= 3) return 'warning';
+  return 'caution';
+};
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
 const InventoryManagement = () => {
   const { currentUser, resetSessionTimeout } = useAuth();
   const [inventory, setInventory] = useState([]);
@@ -18,6 +87,8 @@ const InventoryManagement = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [sortField, setSortField] = useState('type');
   const [sortDirection, setSortDirection] = useState('asc');
+  const [expiryAlerts, setExpiryAlerts] = useState([]);
+  const [autoExpiredUnits, setAutoExpiredUnits] = useState([]);
 
   useEffect(() => {
     resetSessionTimeout();
@@ -25,7 +96,24 @@ const InventoryManagement = () => {
   }, []);
 
   const loadInventory = () => {
+    const { updatedInventory, expired, alerts } = processExpiryData(bloodInventory);
+
+    // Persist changes back into the shared data source (mirrors what would be a DB write)
+    updatedInventory.forEach((updItem) => {
+      const original = bloodInventory.find((b) => b.type === updItem.type);
+      if (original) {
+        original.units         = updItem.units;
+        original.expirationDate = updItem.expirationDate;
+        original.batches       = updItem.batches;
+        if (expired.some((e) => e.type === updItem.type)) {
+          original.lastUpdated = new Date().toISOString().split('T')[0];
+        }
+      }
+    });
+
     setInventory([...bloodInventory]);
+    setExpiryAlerts(alerts);
+    setAutoExpiredUnits(expired);
   };
 
   const handleSort = (field) => {
@@ -64,14 +152,14 @@ const InventoryManagement = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!selectedType || quantity < 1) {
       alert('Please select a blood type and enter a valid quantity');
       return;
     }
 
     const inventoryItem = bloodInventory.find(item => item.type === selectedType);
-    
+
     if (!inventoryItem) {
       alert('Blood type not found');
       return;
@@ -82,21 +170,43 @@ const InventoryManagement = () => {
         alert('Please enter an expiration date for new units');
         return;
       }
+      // Push a new batch so expiry can be tracked per-donation
+      inventoryItem.batches = inventoryItem.batches || [];
+      inventoryItem.batches.push({ units: quantity, expirationDate });
       inventoryItem.units += quantity;
       inventoryItem.lastUpdated = new Date().toISOString().split('T')[0];
-      inventoryItem.expirationDate = expirationDate;
+      // Update headline expirationDate to nearest batch
+      const sorted = [...inventoryItem.batches].sort(
+        (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
+      );
+      inventoryItem.expirationDate = sorted[0].expirationDate;
       setSuccessMessage(`Successfully added ${quantity} unit(s) of ${selectedType}`);
     } else {
       if (inventoryItem.units < quantity) {
         alert(`Cannot remove ${quantity} units. Only ${inventoryItem.units} units available.`);
         return;
       }
+      // Deduct from oldest (nearest-expiry) batches first — FIFO
+      let remaining = quantity;
+      const batches = [...(inventoryItem.batches || [])].sort(
+        (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
+      );
+      for (const batch of batches) {
+        if (remaining <= 0) break;
+        const deduct = Math.min(batch.units, remaining);
+        batch.units -= deduct;
+        remaining  -= deduct;
+      }
+      // Remove fully-depleted batches and write back
+      inventoryItem.batches = batches.filter(b => b.units > 0);
       inventoryItem.units -= quantity;
       inventoryItem.lastUpdated = new Date().toISOString().split('T')[0];
+      if (inventoryItem.batches.length > 0) {
+        inventoryItem.expirationDate = inventoryItem.batches[0].expirationDate;
+      }
       setSuccessMessage(`Successfully removed ${quantity} unit(s) of ${selectedType}`);
     }
 
-    // Log the inventory change (in real app, this would be saved to database)
     console.log({
       action,
       bloodType: selectedType,
@@ -104,17 +214,17 @@ const InventoryManagement = () => {
       staffId: currentUser.id,
       staffName: currentUser.name,
       timestamp: new Date().toISOString(),
-      expirationDate: action === 'add' ? expirationDate : null
+      expirationDate: action === 'add' ? expirationDate : null,
     });
 
     loadInventory();
     setShowSuccess(true);
-    
+
     // Reset form
     setSelectedType('');
     setQuantity(1);
     setExpirationDate('');
-    
+
     setTimeout(() => {
       setShowSuccess(false);
     }, 3000);
@@ -130,6 +240,47 @@ const InventoryManagement = () => {
     const maxDate = new Date();
     maxDate.setDate(maxDate.getDate() + 42); // Blood typically lasts 42 days
     return maxDate.toISOString().split('T')[0];
+  };
+
+  /**
+   * Renders the full expiration cell content:
+   * - nearest expiry date (or "—")
+   * - one line per batch expiring ≤ 7 days: colored dot + "X units · N days"
+   * - if any units were auto-removed for this type: a removed notice
+   */
+  const renderExpiryCell = (item) => {
+    const removedForType = autoExpiredUnits.filter((e) => e.type === item.type);
+    const expiringBatches = (item.batches || [])
+      .map((b) => ({ ...b, daysUntilExpiry: getDaysUntilExpiry(b.expirationDate) }))
+      .filter((b) => b.daysUntilExpiry <= 7)
+      .sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+
+    const dateLabel = item.batches && item.batches.length > 0
+      ? new Date(item.expirationDate + 'T00:00:00').toLocaleDateString()
+      : '—';
+
+    return (
+      <div className="expiry-cell">
+        <span className="expiry-date">{dateLabel}</span>
+        {expiringBatches.map((b, idx) => {
+          const level = getExpiryLevel(b.daysUntilExpiry);
+          const dayLabel =
+            b.daysUntilExpiry === 1 ? '1 day' : `${b.daysUntilExpiry} days`;
+          return (
+            <span key={idx} className={`expiry-line ${level}`}>
+              <span className={`expiry-dot ${level}`}></span>
+              {b.units} unit{b.units !== 1 ? 's' : ''} · {dayLabel}
+            </span>
+          );
+        })}
+        {removedForType.map((e, idx) => (
+          <span key={`rm-${idx}`} className="expiry-line removed">
+            <span className="expiry-dot expired"></span>
+            {e.units} unit{e.units !== 1 ? 's' : ''} removed
+          </span>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -169,7 +320,7 @@ const InventoryManagement = () => {
             </div>
             {sortedInventory.map((item) => {
               const status = getInventoryStatus(item.units);
-              const color = getInventoryColor(item.units);
+              const color  = getInventoryColor(item.units);
               return (
                 <div key={item.type} className={`table-row ${color}`}>
                   <div className="col-type">
@@ -184,7 +335,7 @@ const InventoryManagement = () => {
                     </span>
                   </div>
                   <div className="col-expiration">
-                    {new Date(item.expirationDate).toLocaleDateString()}
+                    {renderExpiryCell(item)}
                   </div>
                   <div className="col-updated">
                     {new Date(item.lastUpdated).toLocaleDateString()}
@@ -284,10 +435,13 @@ const InventoryManagement = () => {
             <h3>Inventory Management Guidelines</h3>
             <ul>
               <li>
-                <strong>Adding Units:</strong> Record new donations or received units with expiration dates
+                <strong>Adding Units:</strong> Each addition is tracked as a separate batch with its own expiry date
               </li>
               <li>
-                <strong>Removing Units:</strong> Record units used for transfusions or expired units
+                <strong>Removing Units:</strong> Units are deducted from the oldest (nearest-expiry) batch first
+              </li>
+              <li>
+                <strong>Auto-Expiry:</strong> Expired batches are automatically removed from inventory on each page load
               </li>
               <li>
                 <strong>Status Levels:</strong>
@@ -329,6 +483,18 @@ const InventoryManagement = () => {
                 {inventory.filter(item => item.units < 10).length}
               </div>
               <div className="stat-label">Critical Types</div>
+            </div>
+            <div className="stat-box expiring-soon">
+              <div className="stat-value">
+                {expiryAlerts.length}
+              </div>
+              <div className="stat-label">Expiry Alerts</div>
+            </div>
+            <div className="stat-box expired-removed">
+              <div className="stat-value">
+                {autoExpiredUnits.reduce((sum, e) => sum + e.units, 0)}
+              </div>
+              <div className="stat-label">Units Expired Today</div>
             </div>
           </div>
         </div>

@@ -1,0 +1,4 @@
+- close weekends since it is closed that day (8am to 5pm??)
+- make everything working
+- use firebase
+- adjust the calendar design for the staff appointment since it is not consistent with the other calendar

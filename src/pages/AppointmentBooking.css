@@ -147,7 +147,7 @@
   background: transparent;
   border-radius: 8px;
   padding: 6px 4px 4px;
-  min-height: 58px;
+  min-height: 60px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -192,12 +192,21 @@
   color: var(--gray-700);
 }
 
-.ab-avail-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--success-500, #22c55e);
-  display: inline-block;
+.ab-avail-count {
+  font-size: 0.58rem;
+  font-weight: 700;
+  background: var(--success-50, #f0fdf4);
+  color: var(--success-700, #15803d);
+  border-radius: 8px;
+  padding: 0px 5px;
+  line-height: 1.5;
+}
+.ab-cell.selected .ab-avail-count {
+  background: rgba(255,255,255,0.25);
+  color: white;
+}
+.ab-avail-count.legend {
+  font-size: 0.6rem;
 }
 
 .ab-full-label {
@@ -279,6 +288,10 @@
 }
 
 .ab-time-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   padding: 10px 8px;
   background: var(--gray-50);
   border: 1.5px solid var(--gray-200);
@@ -291,16 +304,34 @@
   transition: all 0.12s;
 }
 
+.ab-time-label {
+  font-weight: 600;
+}
+
+.ab-time-slots {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--success-600);
+}
+
 .ab-time-btn:hover {
   background: var(--primary-50);
   border-color: var(--primary-300);
   color: var(--primary-700);
 }
 
+.ab-time-btn:hover .ab-time-slots {
+  color: var(--primary-500);
+}
+
 .ab-time-btn.selected {
   background: var(--primary-600);
   border-color: var(--primary-600);
   color: #fff;
+}
+
+.ab-time-btn.selected .ab-time-slots {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .ab-no-slots {

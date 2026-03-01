@@ -261,3 +261,52 @@
     gap: 0.35rem;
   }
 }
+
+/* ===== Extra Stat Boxes ===== */
+.inventory-stats-card .stat-box.expiring-soon {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.inventory-stats-card .stat-box.expired-removed {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+/* ===== Expiry Cell (inside table) ===== */
+.expiry-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.expiry-date {
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+.expiry-line {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.expiry-line.critical { color: #dc2626; }
+.expiry-line.warning  { color: #ea580c; }
+.expiry-line.caution  { color: #ca8a04; }
+.expiry-line.removed  { color: #16a34a; }
+
+.expiry-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.expiry-dot.critical  { background: #ef4444; }
+.expiry-dot.warning   { background: #f97316; }
+.expiry-dot.caution   { background: #eab308; }
+.expiry-dot.expired   { background: #22c55e; }

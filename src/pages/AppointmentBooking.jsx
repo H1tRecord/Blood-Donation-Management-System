@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   appointments,
   timeSlots,
+  APP_CONFIG,
   isEligibleToDonate,
   getDaysUntilEligible
 } from '../data';
@@ -82,8 +83,10 @@ const AppointmentBooking = () => {
       const isPast = cellDate <= today;
       const isToday = dateStr === '2026-02-28';
       const dayAppts = appointments.filter(a => a.date === dateStr && a.status !== 'cancelled');
-      const hasAvailability = dayAppts.length < timeSlots.length;
+      const totalCapacity = timeSlots.length * APP_CONFIG.DEFAULT_SLOT_CAPACITY;
+      const hasAvailability = dayAppts.length < totalCapacity;
 
+      const availableCount = totalCapacity - dayAppts.length;
       days.push({
         day: d,
         dateStr,
@@ -93,6 +96,7 @@ const AppointmentBooking = () => {
         isToday,
         isDisabled: isSunday || isPast,
         hasAvailability,
+        availableCount,
         apptCount: dayAppts.length,
       });
     }
@@ -135,9 +139,13 @@ const AppointmentBooking = () => {
 
   const loadAvailableSlots = (date) => {
     const dateAppointments = appointments.filter(apt => apt.date === date && apt.status !== 'cancelled');
-    const available = timeSlots.filter(slot => {
-      return !dateAppointments.some(apt => apt.time === slot);
-    });
+    const cap = APP_CONFIG.DEFAULT_SLOT_CAPACITY;
+    const available = timeSlots
+      .map(slot => {
+        const booked = dateAppointments.filter(apt => apt.time === slot).length;
+        return { time: slot, booked, available: cap - booked };
+      })
+      .filter(s => s.available > 0);
     setAvailableSlots(available);
   };
 
@@ -149,12 +157,13 @@ const AppointmentBooking = () => {
       return;
     }
 
-    const isSlotTaken = appointments.some(
-      apt => apt.date === selectedDate && apt.time === selectedTime
-    );
+    const cap = APP_CONFIG.DEFAULT_SLOT_CAPACITY;
+    const bookedCount = appointments.filter(
+      apt => apt.date === selectedDate && apt.time === selectedTime && apt.status !== 'cancelled'
+    ).length;
     
-    if (isSlotTaken) {
-      alert('This slot has just been booked. Please select another time.');
+    if (bookedCount >= cap) {
+      alert('This slot has just been filled. Please select another time.');
       loadAvailableSlots(selectedDate);
       return;
     }
@@ -314,7 +323,7 @@ const AppointmentBooking = () => {
                 >
                   <span className="ab-cell-day">{cell.day}</span>
                   {!cell.isOtherMonth && !cell.isDisabled && cell.hasAvailability && (
-                    <span className="ab-avail-dot" />
+                    <span className="ab-avail-count">{cell.availableCount}</span>
                   )}
                   {!cell.isOtherMonth && !cell.isDisabled && !cell.hasAvailability && (
                     <span className="ab-full-label">Full</span>
@@ -324,7 +333,7 @@ const AppointmentBooking = () => {
             </div>
 
             <div className="ab-legend">
-              <span className="ab-legend-item"><span className="ab-avail-dot" /> Available</span>
+              <span className="ab-legend-item"><span className="ab-avail-count legend">3</span> Slots open</span>
               <span className="ab-legend-item"><span className="ab-full-indicator">Full</span> No slots</span>
             </div>
           </div>
@@ -348,12 +357,13 @@ const AppointmentBooking = () => {
                     <div className="ab-time-grid">
                       {availableSlots.map((slot) => (
                         <button
-                          key={slot}
+                          key={slot.time}
                           type="button"
-                          className={`ab-time-btn ${selectedTime === slot ? 'selected' : ''}`}
-                          onClick={() => setSelectedTime(slot)}
+                          className={`ab-time-btn ${selectedTime === slot.time ? 'selected' : ''}`}
+                          onClick={() => setSelectedTime(slot.time)}
                         >
-                          {slot}
+                          <span className="ab-time-label">{slot.time}</span>
+                          <span className="ab-time-slots">{slot.available}/{APP_CONFIG.DEFAULT_SLOT_CAPACITY} open</span>
                         </button>
                       ))}
                     </div>
