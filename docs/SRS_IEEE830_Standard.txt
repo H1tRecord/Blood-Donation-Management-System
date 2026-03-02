@@ -54,6 +54,7 @@ Revision History
 Name                Date            Reason For Changes                  Version
 Dev Team Grp 5      24-Feb-26       Initial complete SRS document       1.0
 GitHub Copilot      02-Mar-26       Migrated to Firebase (Auth/RTDB)    1.1
+GitHub Copilot      02-Mar-26       Data Model & Workflow Refinements   1.2
 
 1. Introduction
 1.1  Purpose
@@ -303,10 +304,9 @@ A) AUTHENTICATION INTERFACE
    Registration Screen:
    - Full Name input field (required, maximum 100 characters)
    - Email Address input field with format validation
-   - Phone Number input field with format validation
    - Password input field (required, minimum 6 characters)
    - Confirm Password input field (must match)
-   - Information note about blood type determination by staff
+   - Information note: "Blood type is determined by staff at first donation"
    - Terms of Service checkbox with link
    - "Create Account" button
    - Form validation with clear error messages
@@ -322,7 +322,6 @@ B) DONOR DASHBOARD (PRIMARY INTERFACE)
       - Profile avatar with donor initials
       - Blood type badge (if available)
       - Email address display
-      - Phone number display
       - Total donations count
       - Edit Profile link
 
@@ -433,39 +432,44 @@ B) APPOINTMENT MANAGEMENT INTERFACE
      * Donor avatar with initials
      * Full name
      * Donor ID
+     * AppoiName
+     * Donor ID
      * Appointment time and date
    
+   - Clinical Inputs:
+     * Collection Date (defaults to today)
+     * Units Collected (numeric input)
+     * Blood Type Selector (only if donor blood type is unknown)
+     * Read-only Blood Type Badge (if donor known)
+
    - Action Buttons:
      * "Cancel" button to close without saving
-     * "Complete Donation" button to save and finish
-     * Confirmation message upon successful completion
+     * "Complete Appointment" button to finalize
+     * Confirmation message triggers atomic database updates
 
 3.1.3 DONOR SEARCH INTERFACE
 
    Search and Filter Section:
    - Text input field for donor search
-   - Support for: Name, Donor ID, Email, Phone Number
+   - Support for: Name, Donor ID (UID), Email
    - Blood Type Filter Dropdown (all types + "All Types")
    - Donor Status Filter (Active/Eligible/Deferred)
    - Search Results Counter
    - Clear Filters button
 
    Donor Records Table:
-   - Columns: ID | Name | Blood Type | Email | Phone | Last Donation | Total | Status | Actions
+   - Columns: UID (truncated) | Name | Blood Type | Email | Last Donation | Total | Status | Actions
+   - Pagination controls (Items per page, Next/Prev)
    - Sortable columns by clicking header
    - Row highlighting on hover
    - "View" button for each donor record
-   - Responsive table scrolling on small screens
 
    Donor Detail Modal:
    - Donor avatar with blood type badge
    - Profile Information:
      * Full Name
-     * Donor ID
-     * Email Address
-     * Phone Number
-   
-   - Donation Information:
+     * Donor UID
+     * Email Addressmation:
      * Blood Type (if recorded)
      * Last Donation Date
      * Total Donations Count
@@ -690,8 +694,12 @@ This feature set coordinates the scheduling of donation slots.
 [FR-22] The system shall update the global appointment collection in Firebase RTDB
       immediately upon successful booking.
 
-4.3.2 Requirement: Staff Clinical Calendar
-[FR-23] The system shall provide a calendar-based interface for medical staff to view
+4.3.2 Requirement: Staff Clinical Calendar:
+      - Update to Appointment status (Completed)
+      - Creation of a Donation History record linked to the Appointment
+      - Increment of Donor's total donation count
+      - Update of Donor's blood type (if previously unknown)
+      - Addition of new Inventory Batch with expiry trackingedical staff to view
       daily appointment density.
 [FR-24] Staff shall be able to update appointment statuses in real-time (e.g., marking
       a donor as "Checked-In" or "Donation Completed").
@@ -992,18 +1000,19 @@ Acceptance Criteria:
 Description:
 The system shall provide administrators with tools to manage all user accounts 
 within the platform (Donors, Staff, and Admins).
-
-Functional Requirements:
-- ACCOUNT MANAGEMENT:
-  * List all registered system users in a table view
-  * Display: User ID, Name, Email, Phone, Role, Registration Date, Status
-  * Search accounts by name, email, or ID
+UID, Name, Email, Role, Registration Date, Status
+  * Search accounts by name, email, or UID
   * Filter accounts by role (Donor/Staff/Admin) and activity status
   * Sort accounts by name, email, role, or registration date
+  * Pagination support (Items per page: 5, 10, 20)
 
 - STATUS TOGGLING:
   * Enable/Disable (activate/deactivate) any user account
   * Inactive users are prevented from logging into the system
+  * Immediate status updates in account table
+
+- ACCOUNT EDITING:
+  * Modal interface for editing user details (name, email
   * Immediate status updates in account table
 
 - ACCOUNT EDITING:
