@@ -7,7 +7,7 @@ import {
   isEligibleToDonate,
   getDaysUntilEligible
 } from '../data';
-import { getAppointments, createAppointment } from '../data/db';
+import { getAppointments, createAppointment, updateDonationRequest } from '../data/db';
 import './AppointmentBooking.css';
 
 const AppointmentBooking = () => {
@@ -24,8 +24,10 @@ const AppointmentBooking = () => {
   const [isFirstTime, setIsFirstTime] = useState(false);
   const [allAppointments, setAllAppointments] = useState([]);
 
-  // Calendar state
-  const [calendarMonth, setCalendarMonth] = useState(new Date(2026, 1, 1)); // Feb 2026
+  // Calendar state — initialised to today
+  const todayStr = APP_CONFIG.TODAY;
+  const todayDate = new Date(todayStr + 'T12:00:00');
+  const [calendarMonth, setCalendarMonth] = useState(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1));
 
   useEffect(() => {
     resetSessionTimeout();
@@ -75,13 +77,12 @@ const AppointmentBooking = () => {
       days.push({ day: prevMonthLast.getDate() - i, dateStr: null, isOtherMonth: true });
     }
 
-    const today = new Date('2026-02-28');
+    const today = new Date(todayStr + 'T12:00:00');
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const cellDate = new Date(dateStr + 'T12:00:00');
-      const isSunday = cellDate.getDay() === 0;
       const isPast = cellDate <= today;
-      const isToday = dateStr === '2026-02-28';
+      const isToday = dateStr === todayStr;
       const dayAppts = allAppointments.filter(a => a.date === dateStr && a.status !== 'cancelled');
       const totalCapacity = timeSlots.length * APP_CONFIG.DEFAULT_SLOT_CAPACITY;
       const hasAvailability = dayAppts.length < totalCapacity;
@@ -91,10 +92,9 @@ const AppointmentBooking = () => {
         day: d,
         dateStr,
         isOtherMonth: false,
-        isSunday,
         isPast,
         isToday,
-        isDisabled: isSunday || isPast,
+        isDisabled: isPast,
         hasAvailability,
         availableCount,
         apptCount: dayAppts.length,
@@ -115,6 +115,12 @@ const AppointmentBooking = () => {
 
   const handleNextMonth = () => {
     setCalendarMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const handleToday = () => {
+    setCalendarMonth(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1));
+    setSelectedDate(todayStr);
+    setSelectedTime('');
   };
 
   const calendarMonthLabel = calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -184,6 +190,15 @@ const AppointmentBooking = () => {
     };
 
     await createAppointment(newAppointment);
+
+    // If donor came here via a donation request, mark it accepted now
+    const pendingRequestId = location.state?.requestId;
+    if (pendingRequestId) {
+      await updateDonationRequest(pendingRequestId, {
+        status: 'accepted',
+        responseDate: new Date().toISOString().split('T')[0],
+      });
+    }
 
     setConfirmationNumber(confNum);
     setShowConfirmation(true);
@@ -288,6 +303,7 @@ const AppointmentBooking = () => {
 
   return (
     <div className="appointment-booking">
+      {/* Header */}
       <div className="ab-header">
         <div>
           <h1>Book Donation Appointment</h1>
@@ -309,6 +325,9 @@ const AppointmentBooking = () => {
                 <h2 className="ab-month-label">{calendarMonthLabel}</h2>
                 <button className="ab-nav-btn" onClick={handleNextMonth}>&gt;</button>
               </div>
+              <div className="ab-cal-actions">
+                <button className="ab-btn ab-btn-ghost" onClick={handleToday}>Today</button>
+              </div>
             </div>
 
             <div className="ab-grid">
@@ -324,18 +343,18 @@ const AppointmentBooking = () => {
                 >
                   <span className="ab-cell-day">{cell.day}</span>
                   {!cell.isOtherMonth && !cell.isDisabled && cell.hasAvailability && (
-                    <span className="ab-avail-count">{cell.availableCount}</span>
+                    <span className="ab-avail-dot" title={`${cell.availableCount} slots open`} />
                   )}
                   {!cell.isOtherMonth && !cell.isDisabled && !cell.hasAvailability && (
-                    <span className="ab-full-label">Full</span>
+                    <span className="ab-full-dot" title="Full" />
                   )}
                 </button>
               ))}
             </div>
 
             <div className="ab-legend">
-              <span className="ab-legend-item"><span className="ab-avail-count legend">3</span> Slots open</span>
-              <span className="ab-legend-item"><span className="ab-full-indicator">Full</span> No slots</span>
+              <span className="ab-legend-item"><span className="ab-avail-dot legend" /> Slots open</span>
+              <span className="ab-legend-item"><span className="ab-full-dot legend" /> Full</span>
             </div>
           </div>
         </div>
@@ -346,27 +365,40 @@ const AppointmentBooking = () => {
             {selectedDate ? (
               <form onSubmit={handleBookAppointment}>
                 <div className="ab-detail-header">
-                  <h2 className="ab-detail-date">{selectedDateLabel}</h2>
-                  <p className="ab-detail-count">
-                    {availableSlots.length} slot{availableSlots.length !== 1 ? 's' : ''} available
-                  </p>
+                  <div>
+                    <h2 className="ab-detail-date">{selectedDateLabel}</h2>
+                    <p className="ab-detail-count">
+                      {availableSlots.length} slot{availableSlots.length !== 1 ? 's' : ''} available
+                    </p>
+                  </div>
                 </div>
 
                 {availableSlots.length > 0 ? (
-                  <div className="ab-time-section">
+                  <div className="ab-slots">
                     <h3>Select Time</h3>
-                    <div className="ab-time-grid">
-                      {availableSlots.map((slot) => (
-                        <button
-                          key={slot.time}
-                          type="button"
-                          className={`ab-time-btn ${selectedTime === slot.time ? 'selected' : ''}`}
-                          onClick={() => setSelectedTime(slot.time)}
-                        >
-                          <span className="ab-time-label">{slot.time}</span>
-                          <span className="ab-time-slots">{slot.available}/{APP_CONFIG.DEFAULT_SLOT_CAPACITY} open</span>
-                        </button>
-                      ))}
+                    <div className="ab-slots-list">
+                      {timeSlots.map((slot) => {
+                        const s = availableSlots.find(a => a.time === slot);
+                        const isUnavailable = !s;
+                        const count = s ? s.booked : APP_CONFIG.DEFAULT_SLOT_CAPACITY;
+                        const cap = APP_CONFIG.DEFAULT_SLOT_CAPACITY;
+                        return (
+                          <button
+                            key={slot}
+                            type="button"
+                            className={`ab-slot-row ${isUnavailable ? 'full' : ''} ${selectedTime === slot ? 'selected' : ''}`}
+                            onClick={() => !isUnavailable && setSelectedTime(slot)}
+                            disabled={isUnavailable}
+                          >
+                            <span className="ab-slot-time">{slot}</span>
+                            <span className="ab-slot-fill">
+                              <span className="ab-slot-bar" style={{ width: `${Math.min((count / cap) * 100, 100)}%` }} />
+                            </span>
+                            <span className="ab-slot-count">{cap - count}/{cap}</span>
+                            <span className="ab-slot-label">{isUnavailable ? 'Full' : 'open'}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 ) : (
@@ -415,12 +447,11 @@ const AppointmentBooking = () => {
           <div className="ab-info-card">
             <h3>Before You Donate</h3>
             <div className="ab-info-list">
-              <div className="ab-info-item"><span className="ab-check">Check</span><p>Be at least 18 years old</p></div>
-              <div className="ab-info-item"><span className="ab-check">Check</span><p>Weigh at least 110 pounds</p></div>
-              <div className="ab-info-item"><span className="ab-check">Check</span><p>Be in good general health</p></div>
-              <div className="ab-info-item"><span className="ab-check">Check</span><p>Bring a valid photo ID</p></div>
-              <div className="ab-info-item"><span className="ab-check">Check</span><p>Eat a healthy meal beforehand</p></div>
-              <div className="ab-info-item"><span className="ab-check">Check</span><p>Drink plenty of water</p></div>
+              <div className="ab-info-item"><span className="ab-check">✓</span><p>Be at least 18 years old and weigh at least 110 lbs</p></div>
+              <div className="ab-info-item"><span className="ab-check">✓</span><p>Be in good general health</p></div>
+              <div className="ab-info-item"><span className="ab-check">✓</span><p>Bring a valid photo ID</p></div>
+              <div className="ab-info-item"><span className="ab-check">✓</span><p>Eat a healthy meal and drink plenty of water beforehand</p></div>
+              <div className="ab-info-item"><span className="ab-check">✓</span><p>Arrive 10 minutes early — process takes ~45–60 minutes</p></div>
             </div>
           </div>
         </div>

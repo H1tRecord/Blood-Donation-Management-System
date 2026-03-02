@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   Appointment Booking (calendar-style)
+   Appointment Booking — mirrors Master Calendar UI
    ═══════════════════════════════════════════════ */
 
 .appointment-booking {
@@ -10,6 +10,9 @@
 /* ── Header ─────────────────────────────────── */
 
 .ab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 24px;
 }
 
@@ -53,7 +56,7 @@
 
 .ab-btn-ghost {
   background: transparent;
-  color: var(--gray-600);
+  color: var(--primary-600);
   border: 1px solid var(--gray-200);
 }
 
@@ -86,9 +89,17 @@
 
 .ab-cal-controls {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ab-cal-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .ab-cal-nav {
@@ -192,28 +203,21 @@
   color: var(--gray-700);
 }
 
-.ab-avail-count {
-  font-size: 0.58rem;
-  font-weight: 700;
-  background: var(--success-50, #f0fdf4);
-  color: var(--success-700, #15803d);
-  border-radius: 8px;
-  padding: 0px 5px;
-  line-height: 1.5;
-}
-.ab-cell.selected .ab-avail-count {
-  background: rgba(255,255,255,0.25);
-  color: white;
-}
-.ab-avail-count.legend {
-  font-size: 0.6rem;
+/* availability dots — mirrors mc-dot style */
+.ab-avail-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success-500, #22c55e);
+  display: inline-block;
 }
 
-.ab-full-label {
-  font-size: 0.55rem;
-  font-weight: 700;
-  color: var(--danger-500, #ef4444);
-  text-transform: uppercase;
+.ab-full-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--danger-400, #f87171);
+  display: inline-block;
 }
 
 /* ── Legend ──────────────────────────────────── */
@@ -233,13 +237,6 @@
   gap: 5px;
 }
 
-.ab-full-indicator {
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--danger-500, #ef4444);
-  text-transform: uppercase;
-}
-
 /* ── Detail Panel ───────────────────────────── */
 
 .ab-detail-card {
@@ -251,9 +248,14 @@
 }
 
 .ab-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 18px;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--gray-100);
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .ab-detail-date {
@@ -268,70 +270,113 @@
   margin-top: 2px;
 }
 
-/* ── Time Selection ─────────────────────────── */
+/* ── Slot rows (mirrors mc-slots) ───────────── */
 
-.ab-time-section {
+.ab-slots {
   margin-bottom: 16px;
 }
 
-.ab-time-section h3 {
+.ab-slots h3 {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--gray-600);
   margin-bottom: 10px;
 }
 
-.ab-time-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.ab-slots-list {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
-.ab-time-btn {
+.ab-slot-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 10px 8px;
+  gap: 10px;
+  padding: 8px 12px;
   background: var(--gray-50);
-  border: 1.5px solid var(--gray-200);
+  border: 1.5px solid transparent;
   border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--gray-700);
+  font-size: 0.8rem;
   cursor: pointer;
-  text-align: center;
+  text-align: left;
   transition: all 0.12s;
+  width: 100%;
 }
 
-.ab-time-label {
-  font-weight: 600;
-}
-
-.ab-time-slots {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--success-600);
-}
-
-.ab-time-btn:hover {
+.ab-slot-row:hover:not(.full):not(.selected) {
   background: var(--primary-50);
-  border-color: var(--primary-300);
+  border-color: var(--primary-200);
+}
+
+.ab-slot-row.selected {
+  background: var(--primary-50);
+  border-color: var(--primary-400);
+  box-shadow: inset 0 0 0 1px var(--primary-300);
+}
+
+.ab-slot-row.full {
+  background: var(--danger-50, #fef2f2);
+  cursor: default;
+  opacity: 0.7;
+}
+
+.ab-slot-time {
+  font-weight: 600;
+  color: var(--gray-600);
+  min-width: 75px;
+}
+
+.ab-slot-row.selected .ab-slot-time {
   color: var(--primary-700);
 }
 
-.ab-time-btn:hover .ab-time-slots {
-  color: var(--primary-500);
+.ab-slot-fill {
+  flex: 1;
+  height: 6px;
+  background: var(--gray-200);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-.ab-time-btn.selected {
-  background: var(--primary-600);
-  border-color: var(--primary-600);
-  color: #fff;
+.ab-slot-bar {
+  display: block;
+  height: 100%;
+  background: var(--primary-500);
+  border-radius: 3px;
+  transition: width 0.3s;
 }
 
-.ab-time-btn.selected .ab-time-slots {
-  color: rgba(255, 255, 255, 0.8);
+.ab-slot-row.full .ab-slot-bar {
+  background: var(--danger-500, #ef4444);
+}
+
+.ab-slot-count {
+  font-weight: 600;
+  color: var(--gray-400);
+  min-width: 32px;
+  text-align: center;
+  font-size: 0.78rem;
+}
+
+.ab-slot-row.full .ab-slot-count {
+  color: var(--danger-400, #f87171);
+}
+
+.ab-slot-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--success-600, #16a34a);
+  min-width: 28px;
+  text-align: right;
+}
+
+.ab-slot-row.full .ab-slot-label {
+  color: var(--danger-500, #ef4444);
+}
+
+.ab-slot-row.selected .ab-slot-label {
+  color: var(--primary-600);
 }
 
 .ab-no-slots {
@@ -440,10 +485,10 @@
 .ab-info-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
+  gap: 10px;
+  padding: 8px 12px;
   background: var(--gray-50);
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .ab-info-item p {
@@ -453,14 +498,9 @@
 }
 
 .ab-check {
-  font-size: 0.65rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
   color: var(--success-600, #16a34a);
-  background: var(--success-50, #f0fdf4);
-  padding: 2px 6px;
-  border-radius: 4px;
   flex-shrink: 0;
 }
 
@@ -648,9 +688,6 @@
 @media (max-width: 700px) {
   .ab-header h1 {
     font-size: 1.35rem;
-  }
-  .ab-time-grid {
-    grid-template-columns: 1fr;
   }
   .confirmation-card,
   .ineligible-notice {

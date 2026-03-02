@@ -384,3 +384,83 @@
     gap: 0.5rem;
   }
 }
+
+/* ── Pagination ─────────────────────────────────────── */
+.ds-pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--gray-100);
+}
+
+.ds-page-btn {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--gray-700);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ds-page-btn:hover:not(:disabled) {
+  background: var(--gray-50);
+  border-color: var(--primary-300);
+  color: var(--primary-700);
+}
+
+.ds-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ds-page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ds-page-num {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--gray-700);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ds-page-num:hover {
+  background: var(--gray-50);
+  border-color: var(--primary-300);
+  color: var(--primary-700);
+}
+
+.ds-page-num.active {
+  background: var(--primary-600);
+  border-color: var(--primary-600);
+  color: #fff;
+  cursor: default;
+}
+
+.ds-page-ellipsis {
+  padding: 0 0.25rem;
+  color: var(--gray-400);
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+.ds-page-info {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: var(--gray-500);
+  white-space: nowrap;
+}

@@ -27,9 +27,9 @@ const DonorDashboard = () => {
   const [inventory, setInventory] = useState([]);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editEmail, setEditEmail] = useState('');
-  const [editPhone, setEditPhone] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
   const [profileError, setProfileError] = useState('');
+  const [respondingId, setRespondingId] = useState(null);
 
   useEffect(() => {
     resetSessionTimeout();
@@ -80,7 +80,6 @@ const DonorDashboard = () => {
 
   const handleStartEdit = () => {
     setEditEmail(currentUser?.email || '');
-    setEditPhone(currentUser?.phone || '');
     setProfileSuccess('');
     setProfileError('');
     setIsEditingProfile(true);
@@ -95,18 +94,12 @@ const DonorDashboard = () => {
     setProfileError('');
     setProfileSuccess('');
 
-    if (!editEmail || !editPhone) {
-      setProfileError('Email and phone are required');
+    if (!editEmail) {
+      setProfileError('Email is required');
       return;
     }
 
-    const phoneRegex = /^\d{3}-\d{4}$/;
-    if (!phoneRegex.test(editPhone)) {
-      setProfileError('Phone must be in format: 555-0123');
-      return;
-    }
-
-    const result = await updateProfile({ email: editEmail, phone: editPhone });
+    const result = await updateProfile({ email: editEmail });
     if (result.success) {
       setIsEditingProfile(false);
       setProfileSuccess('Profile updated successfully');
@@ -115,16 +108,17 @@ const DonorDashboard = () => {
   };
 
   const handleRespondToRequest = async (requestId, response) => {
+    if (response === 'accepted') {
+      // Don't mark accepted yet — wait until the donor actually books an appointment
+      navigate('/appointment-booking', { state: { requestId } });
+      return;
+    }
+    setRespondingId(requestId);
     await updateDonationRequest(requestId, {
-      status: response,
+      status: 'declined',
       responseDate: new Date().toISOString().split('T')[0],
     });
-    if (response === 'accepted') {
-      alert('Thank you for accepting! Please book an appointment to donate.');
-      navigate('/appointment-booking');
-    } else {
-      alert('Request declined. Thank you for your response.');
-    }
+    setRespondingId(null);
     loadDonorData();
   };
 
@@ -233,15 +227,6 @@ const DonorDashboard = () => {
                   placeholder="your@email.com"
                 />
               </div>
-              <div className="edit-field">
-                <label>Phone</label>
-                <input
-                  type="tel"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  placeholder="555-0123"
-                />
-              </div>
               <div className="info-row static">
                 <span className="label">Member Since:</span>
                 <span className="value">
@@ -269,10 +254,6 @@ const DonorDashboard = () => {
               <div className="info-row">
                 <span className="label">Email:</span>
                 <span className="value">{currentUser?.email}</span>
-              </div>
-              <div className="info-row">
-                <span className="label">Phone:</span>
-                <span className="value">{currentUser?.phone}</span>
               </div>
               <div className="info-row">
                 <span className="label">Member Since:</span>
@@ -326,40 +307,49 @@ const DonorDashboard = () => {
         </div>
 
         {/* Donation Requests Card */}
-        {userRequests.length > 0 && (
-          <div className="card requests-card">
+        <div className={`card requests-card${userRequests.length > 0 ? ' requests-card--active' : ''}`}>
+          <div className="requests-card-header">
             <h2>Donation Requests</h2>
-            <p className="requests-info">Staff has requested your help!</p>
-            {userRequests.map((request) => (
-              <div key={request.id} className="request-item">
-                <div className="request-header">
-                  <span className="blood-type-badge">{request.bloodType}</span>
-                  <span className="request-date">
-                    {new Date(request.requestDate).toLocaleDateString()}
-                  </span>
-                </div>
-                <p className="request-message">{request.message}</p>
-                <p className="request-staff">
-                  From: {request.requestedByName}
-                </p>
-                <div className="request-actions">
-                  <button
-                    className="btn-accept"
-                    onClick={() => handleRespondToRequest(request.id, 'accepted')}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    className="btn-decline"
-                    onClick={() => handleRespondToRequest(request.id, 'declined')}
-                  >
-                    Decline
-                  </button>
-                </div>
-              </div>
-            ))}
+            {userRequests.length > 0 && (
+              <span className="requests-badge">{userRequests.length}</span>
+            )}
           </div>
-        )}
+          {userRequests.length > 0 ? (
+            <>
+              <p className="requests-info">Staff has requested your help. Please respond below.</p>
+              {userRequests.map((request) => (
+                <div key={request.id} className="request-item">
+                  <div className="request-header">
+                    <span className="blood-type-badge">{request.bloodType}</span>
+                    <span className="request-date">
+                      {new Date(request.requestDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="request-message">{request.message}</p>
+                  <p className="request-staff">From: {request.requestedByName}</p>
+                  <div className="request-actions">
+                    <button
+                      className="btn-accept"
+                      disabled={respondingId === request.id}
+                      onClick={() => handleRespondToRequest(request.id, 'accepted')}
+                    >
+                      {respondingId === request.id ? 'Processing…' : 'Accept & Book Appointment'}
+                    </button>
+                    <button
+                      className="btn-decline"
+                      disabled={respondingId === request.id}
+                      onClick={() => handleRespondToRequest(request.id, 'declined')}
+                    >
+                      Decline
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <p className="requests-empty">No pending donation requests.</p>
+          )}
+        </div>
 
         {/* Blood Types Needed Card */}
         <div className="card needed-card">

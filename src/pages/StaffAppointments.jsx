@@ -1,19 +1,33 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { BLOOD_TYPES } from '../data';
-import { getAppointments, updateAppointment } from '../data/db';
+import { BLOOD_TYPES, APP_CONFIG } from '../data';
+import {
+  getAppointments,
+  updateAppointment,
+  createDonationRecord,
+  addInventoryBatch,
+  getUserById,
+  updateUserInDB,
+} from '../data/db';
 import './StaffAppointments.css';
 
 const StaffAppointments = () => {
   const { currentUser, resetSessionTimeout, updateUserBloodType } = useAuth();
+  const todayStr = APP_CONFIG.TODAY;
+  const todayDate = new Date(todayStr + 'T12:00:00');
   const [allAppointments, setAllAppointments] = useState([]);
-  const [selectedDate, setSelectedDate] = useState('2026-02-28');
-  const [calendarMonth, setCalendarMonth] = useState(new Date(2026, 1, 1));
+  const [selectedDate, setSelectedDate] = useState(todayStr);
+  const [calendarMonth, setCalendarMonth] = useState(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1));
   const [dateAppointments, setDateAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showBloodTypeModal, setShowBloodTypeModal] = useState(false);
-  const [selectedBloodType, setSelectedBloodType] = useState('');
+  // Completion modal
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [completionBloodType, setCompletionBloodType] = useState('');
+  const [completionUnits, setCompletionUnits] = useState(1);
+  const [completionDate, setCompletionDate] = useState('');
+  const [completionLoading, setCompletionLoading] = useState(false);
+  const [completionError, setCompletionError] = useState('');
 
   useEffect(() => {
     resetSessionTimeout();
@@ -53,7 +67,7 @@ const StaffAppointments = () => {
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const dayAppts = allAppointments.filter(a => a.date === dateStr);
-      const isToday = dateStr === '2026-02-28';
+      const isToday = dateStr === todayStr;
       days.push({
         day: d,
         dateStr,
@@ -83,8 +97,8 @@ const StaffAppointments = () => {
   };
 
   const handleToday = () => {
-    setCalendarMonth(new Date(2026, 1, 1));
-    setSelectedDate('2026-02-28');
+    setCalendarMonth(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1));
+    setSelectedDate(todayStr);
   };
 
   const calendarMonthLabel = calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -111,17 +125,34 @@ const StaffAppointments = () => {
     setDateAppointments(filtered);
   };
 
+  const openCompleteModal = (appointment) => {
+    setSelectedAppointment(appointment);
+    setCompletionBloodType(appointment.bloodType || '');
+    setCompletionUnits(1);
+    // Default collection date to the appointment date
+    setCompletionDate(appointment.date);
+    setCompletionError('');
+    setShowCompleteModal(true);
+  };
+
+  const closeCompleteModal = () => {
+    setShowCompleteModal(false);
+    setSelectedAppointment(null);
+    setCompletionBloodType('');
+    setCompletionUnits(1);
+    setCompletionDate('');
+    setCompletionError('');
+  };
+
   const handleStatusChange = async (appointmentId, newStatus) => {
     const appointment = allAppointments.find(apt => apt.id === appointmentId);
-    if (appointment) {
-      if (newStatus === 'completed' && !appointment.bloodType) {
-        setSelectedAppointment(appointment);
-        setShowBloodTypeModal(true);
-        return;
-      }
-      await updateAppointment(appointmentId, { status: newStatus });
-      loadAppointments();
+    if (!appointment) return;
+    if (newStatus === 'completed') {
+      openCompleteModal(appointment);
+      return;
     }
+    await updateAppointment(appointmentId, { status: newStatus });
+    loadAppointments();
   };
 
   const handleCancelAppointment = (appointmentId) => {
@@ -130,26 +161,75 @@ const StaffAppointments = () => {
     }
   };
 
-  const handleAssignBloodType = async () => {
-    if (!selectedBloodType) {
-      alert('Please select a blood type');
+  const handleCompleteAppointment = async () => {
+    setCompletionError('');
+    if (!completionBloodType) {
+      setCompletionError('Please select a blood type.');
       return;
     }
-    if (!selectedAppointment) return;
+    const units = parseInt(completionUnits, 10);
+    if (!units || units < 1) {
+      setCompletionError('Units collected must be at least 1.');
+      return;
+    }
+    if (!completionDate) {
+      setCompletionError('Please enter a collection date.');
+      return;
+    }
 
-    await Promise.all([
-      updateUserBloodType(selectedAppointment.donorId, selectedBloodType),
-      updateAppointment(selectedAppointment.id, {
-        bloodType: selectedBloodType,
+    setCompletionLoading(true);
+    const apt = selectedAppointment;
+
+    // Blood expires 42 days after collection
+    const collDate = new Date(completionDate + 'T12:00:00');
+    const expDate = new Date(collDate);
+    expDate.setDate(expDate.getDate() + 42);
+    const expirationDate = expDate.toISOString().split('T')[0];
+
+    try {
+      // 1. If first-time donor, update blood type on user profile
+      if (!apt.bloodType) {
+        await updateUserBloodType(apt.donorId, completionBloodType);
+      }
+
+      // 2. Increment donor's lastDonationDate and donationCount
+      const donor = await getUserById(apt.donorId);
+      await updateUserInDB(apt.donorId, {
+        lastDonationDate: completionDate,
+        donationCount: ((donor?.donationCount) || 0) + 1,
+      });
+
+      // 3. Create Donation History record
+      const donationId = await createDonationRecord({
+        donorId: apt.donorId,
+        donorName: apt.donorName,
+        bloodType: completionBloodType,
+        appointmentId: apt.id,
+        date: completionDate,
+        units,
+        staffId: currentUser.uid,
+        staffName: currentUser.name,
         status: 'completed',
-      }),
-    ]);
+      });
 
-    setShowBloodTypeModal(false);
-    setSelectedBloodType('');
-    setSelectedAppointment(null);
-    loadAppointments();
-    alert(`Blood type ${selectedBloodType} assigned successfully!`);
+      // 4. Add batch to Blood Inventory
+      await addInventoryBatch(completionBloodType, units, expirationDate, donationId);
+
+      // 5. Mark appointment completed, store linked donationHistoryId
+      await updateAppointment(apt.id, {
+        status: 'completed',
+        bloodType: completionBloodType,
+        donationHistoryId: donationId,
+      });
+
+      closeCompleteModal();
+      loadAppointments();
+    } catch (err) {
+      setCompletionError('An error occurred. Please try again.');
+      console.error(err);
+    } finally {
+      setCompletionLoading(false);
+    }
   };
 
   const handleViewDetails = (appointment) => {
@@ -299,7 +379,7 @@ const StaffAppointments = () => {
                         <button className="sa-action checkin" onClick={() => handleStatusChange(apt.id, 'checked-in')}>Check In</button>
                       )}
                       {apt.status === 'checked-in' && (
-                        <button className="sa-action complete" onClick={() => handleStatusChange(apt.id, 'completed')}>Complete</button>
+                        <button className="sa-action complete" onClick={() => openCompleteModal(apt)}>Complete</button>
                       )}
                       {(apt.status === 'pending' || apt.status === 'confirmed') && (
                         <button className="sa-action cancel" onClick={() => handleCancelAppointment(apt.id)}>Cancel</button>
@@ -368,37 +448,88 @@ const StaffAppointments = () => {
         </div>
       )}
 
-      {/* Blood Type Assignment Modal */}
-      {showBloodTypeModal && selectedAppointment && (
+      {/* Complete Appointment Modal */}
+      {showCompleteModal && selectedAppointment && (
         <div className="modal-overlay">
-          <div className="modal-card">
+          <div className="modal-card sa-complete-modal">
             <div className="modal-header">
-              <h2>Assign Blood Type</h2>
-              <button className="close-btn" onClick={() => { setShowBloodTypeModal(false); setSelectedBloodType(''); setSelectedAppointment(null); }}>×</button>
+              <h2>Complete Appointment</h2>
+              <button className="close-btn" onClick={closeCompleteModal} disabled={completionLoading}>×</button>
             </div>
             <div className="modal-content">
-              <div className="sa-bt-assignment">
-                <p className="sa-bt-info"><strong>Donor:</strong> {selectedAppointment.donorName}</p>
-                <p className="sa-bt-notice">This is a first-time donor. Please assign their blood type after testing.</p>
-                <div className="sa-bt-selector">
-                  <label>Select Blood Type:</label>
-                  <div className="sa-bt-options">
-                    {BLOOD_TYPES.map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        className={`sa-bt-btn ${selectedBloodType === type ? 'selected' : ''}`}
-                        onClick={() => setSelectedBloodType(type)}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="modal-actions">
-                  <button className="btn-secondary" onClick={() => { setShowBloodTypeModal(false); setSelectedBloodType(''); setSelectedAppointment(null); }}>Cancel</button>
-                  <button className="btn-primary" onClick={handleAssignBloodType} disabled={!selectedBloodType}>Assign & Complete</button>
-                </div>
+              <div className="sa-complete-meta">
+                <p><strong>Donor:</strong> {selectedAppointment.donorName}</p>
+                <p><strong>Appointment:</strong> {new Date(selectedAppointment.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} · {selectedAppointment.time}</p>
+              </div>
+
+              {completionError && (
+                <div className="sa-complete-error">{completionError}</div>
+              )}
+
+              {/* Blood Type */}
+              <div className="form-group">
+                {selectedAppointment.bloodType ? (
+                  // Known blood type — display read-only, no selection needed
+                  <>
+                    <label>Blood Type</label>
+                    <div className="sa-bt-readonly">
+                      <span className="sa-bt-badge sa-bt-known">{selectedAppointment.bloodType}</span>
+                      <span className="sa-bt-readonly-note">Registered blood type — no action needed</span>
+                    </div>
+                  </>
+                ) : (
+                  // First-time donor — staff must select blood type
+                  <>
+                    <label>Blood Type <span className="sa-first-time-tag">First-time donor</span></label>
+                    <div className="sa-bt-options">
+                      {BLOOD_TYPES.map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          className={`sa-bt-btn ${completionBloodType === type ? 'selected' : ''}`}
+                          onClick={() => setCompletionBloodType(type)}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Units Collected */}
+              <div className="form-group">
+                <label>Units Collected</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  value={completionUnits}
+                  onChange={(e) => setCompletionUnits(e.target.value)}
+                  className="sa-units-input"
+                />
+              </div>
+
+              {/* Collection Date */}
+              <div className="form-group">
+                <label>Collection Date</label>
+                <input
+                  type="date"
+                  value={completionDate}
+                  onChange={(e) => setCompletionDate(e.target.value)}
+                  max={APP_CONFIG.TODAY}
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button className="btn-secondary" onClick={closeCompleteModal} disabled={completionLoading}>Cancel</button>
+                <button
+                  className="btn-primary"
+                  onClick={handleCompleteAppointment}
+                  disabled={completionLoading || !completionBloodType || !completionDate}
+                >
+                  {completionLoading ? 'Saving…' : 'Record Donation & Complete'}
+                </button>
               </div>
             </div>
           </div>

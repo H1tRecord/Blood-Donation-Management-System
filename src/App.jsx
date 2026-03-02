@@ -10,7 +10,6 @@ import StaffAppointments from './pages/StaffAppointments';
 import InventoryManagement from './pages/InventoryManagement';
 import DonorSearch from './pages/DonorSearch';
 import AdminDashboard from './pages/AdminDashboard';
-import AdminCalendar from './pages/AdminCalendar';
 import './App.css';
 
 // Protected route wrapper
@@ -24,7 +23,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(currentUser?.role)) {
-    return <Navigate to="/" />;
+    // Redirect to the user's own home page instead of a generic fallback
+    if (currentUser?.role === 'donor') return <Navigate to="/donor-dashboard" />;
+    if (currentUser?.role === 'staff') return <Navigate to="/staff-dashboard" />;
+    if (currentUser?.role === 'admin') return <Navigate to="/admin-dashboard" />;
+    return <Navigate to="/login" />;
   }
 
   return children;
@@ -97,7 +100,7 @@ function AppContent() {
           <Route
             path="/staff-dashboard"
             element={
-              <ProtectedRoute allowedRoles={['staff', 'admin']}>
+              <ProtectedRoute allowedRoles={['staff']}>
                 <StaffDashboard />
               </ProtectedRoute>
             }
@@ -105,7 +108,7 @@ function AppContent() {
           <Route
             path="/staff-appointments"
             element={
-              <ProtectedRoute allowedRoles={['staff', 'admin']}>
+              <ProtectedRoute allowedRoles={['staff']}>
                 <StaffAppointments />
               </ProtectedRoute>
             }
@@ -113,7 +116,7 @@ function AppContent() {
           <Route
             path="/inventory-management"
             element={
-              <ProtectedRoute allowedRoles={['staff', 'admin']}>
+              <ProtectedRoute allowedRoles={['staff']}>
                 <InventoryManagement />
               </ProtectedRoute>
             }
@@ -121,7 +124,7 @@ function AppContent() {
           <Route
             path="/donor-search"
             element={
-              <ProtectedRoute allowedRoles={['staff', 'admin']}>
+              <ProtectedRoute allowedRoles={['staff']}>
                 <DonorSearch />
               </ProtectedRoute>
             }
@@ -133,14 +136,6 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-calendar"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminCalendar />
               </ProtectedRoute>
             }
           />

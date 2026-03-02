@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
 // Firebase project configuration
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyB6weNm1c_LG7iU0uhKGLluznOv5voVL5Y",
   authDomain: "bdms-software-engineering.firebaseapp.com",
   databaseURL: "https://bdms-software-engineering-default-rtdb.asia-southeast1.firebasedatabase.app",

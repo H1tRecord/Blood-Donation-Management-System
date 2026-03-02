@@ -1,26 +1,18 @@
 priorities:
-- database
-- make everything working
-- admin is the only person who can make staff and admin accounts
 - improve chapter 3
-- donor dashboard displays requests
+- let admin adjust user information like blood type only for donors 
+- fix the donation history logic appointment > staff process > staff input to mark complete > update inventory (admin can only update???)
+- expiration date is synced to the last item to expire
 
 must:
-- remove phone number
 - consider if user can edit their password in the dashboard
-- improve design for donor dashboard
-- account id assignment (new register, appointment, role change)
 - All changes are logged with staff ID and timestamp blood inventory 
-- log appointment who last process with ID (decide if whoever interacts are responsible and non transferable)
 - no deletion of accounts just disable
 
 optional:
-- adjust the calendar design for the staff appointment since it is not consistent with the other calendar
 - undo button for appointment thing?
 - let donor cancel appointment from their dashboard
-- appoiment calnedar for user not updated to latest date??
 - animations?
-- improve design of staff dashboard
 - show password hide etc
 
 ???:

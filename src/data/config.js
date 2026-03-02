@@ -11,12 +11,12 @@
 
 // ── Core settings ───────────────────────────
 export const APP_CONFIG = {
-  /** Simulated "today" for the mock environment */
-  TODAY: '2026-02-28',
+  /** Today's date (dynamic) */
+  TODAY: new Date().toISOString().split('T')[0],
   /** Minimum days between whole-blood donations (FDA guideline) */
   DEFERRAL_PERIOD_DAYS: 56,
   /** Default max appointments per time-slot (admin calendar) */
-  DEFAULT_SLOT_CAPACITY: 3,
+  DEFAULT_SLOT_CAPACITY: 5,
 };
 
 // ── Time slots ──────────────────────────────

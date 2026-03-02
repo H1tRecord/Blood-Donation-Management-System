@@ -44,7 +44,7 @@ const Navbar = () => {
             </>
           )}
 
-          {(currentUser?.role === 'staff' || currentUser?.role === 'admin') && (
+          {currentUser?.role === 'staff' && (
             <>
               <Link
                 to="/staff-dashboard"
@@ -75,12 +75,6 @@ const Navbar = () => {
 
           {currentUser?.role === 'admin' && (
             <>
-              <Link
-                to="/admin-calendar"
-                className={`nav-link ${isActive('/admin-calendar')}`}
-              >
-                Master Calendar
-              </Link>
               <Link
                 to="/admin-dashboard"
                 className={`nav-link ${isActive('/admin-dashboard')}`}

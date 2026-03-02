@@ -31,6 +31,10 @@ const DonorSearch = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [allRequests, setAllRequests] = useState([]);
 
+  // Pagination
+  const PAGE_SIZE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
   const loadData = async () => {
     const [fetchedUsers, fetchedRequests] = await Promise.all([
       getUsers(),
@@ -51,7 +55,7 @@ const DonorSearch = () => {
   // Build full donor list with computed fields
   const allDonors = useMemo(() => {
     return allUsers
-      .filter(user => user.role === 'donor' && user.isActive && user.lastDonationDate)
+      .filter(user => user.role === 'donor' && user.isActive)
       .map(donor => ({
         ...donor,
         daysSinceLast: calculateDaysSinceLastDonation(donor.lastDonationDate),
@@ -84,7 +88,6 @@ const DonorSearch = () => {
       result = result.filter(d =>
         d.name.toLowerCase().includes(q) ||
         d.email.toLowerCase().includes(q) ||
-        d.phone.includes(q) ||
         d.id.toLowerCase().includes(q) ||
         (d.bloodType && d.bloodType.toLowerCase().includes(q))
       );
@@ -113,6 +116,7 @@ const DonorSearch = () => {
   }, [allDonors, filterBloodType, filterEligibility, searchQuery, sortField, sortDirection]);
 
   const handleSort = (field) => {
+    setCurrentPage(1);
     if (sortField === field) {
       setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
     } else {
@@ -173,9 +177,16 @@ const DonorSearch = () => {
     setSearchQuery('');
     setFilterBloodType('all');
     setFilterEligibility('all');
+    setCurrentPage(1);
   };
 
   const hasActiveFilters = searchQuery || filterBloodType !== 'all' || filterEligibility !== 'all';
+
+  const totalPages = Math.max(1, Math.ceil(filteredDonors.length / PAGE_SIZE));
+  const pagedDonors = filteredDonors.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // Reset to page 1 whenever filters/search change
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, filterBloodType, filterEligibility]);
 
   return (
     <div className="donor-search">
@@ -262,7 +273,7 @@ const DonorSearch = () => {
             </div>
 
             {filteredDonors.length > 0 ? (
-              filteredDonors.map((donor) => (
+              pagedDonors.map((donor) => (
                 <div key={donor.id} className="ds-table-row">
                   <div className="ds-col-name">
                     <span className="ds-donor-name">{donor.name}</span>
@@ -272,7 +283,6 @@ const DonorSearch = () => {
                   </div>
                   <div className="ds-col-contact">
                     <span className="ds-contact-line">{donor.email}</span>
-                    <span className="ds-contact-line ds-phone">{donor.phone}</span>
                   </div>
                   <div className="ds-col-donations">
                     <span className="ds-donation-count">{donor.donationCount}</span>
@@ -324,6 +334,54 @@ const DonorSearch = () => {
             )}
           </div>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="ds-pagination">
+            <button
+              className="ds-page-btn"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              ‹ Prev
+            </button>
+
+            <div className="ds-page-numbers">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                .reduce((acc, p, idx, arr) => {
+                  if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...');
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, idx) =>
+                  p === '...' ? (
+                    <span key={`ellipsis-${idx}`} className="ds-page-ellipsis">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      className={`ds-page-num${currentPage === p ? ' active' : ''}`}
+                      onClick={() => setCurrentPage(p)}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+            </div>
+
+            <button
+              className="ds-page-btn"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next ›
+            </button>
+
+            <span className="ds-page-info">
+              {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredDonors.length)} of {filteredDonors.length}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Request Modal */}

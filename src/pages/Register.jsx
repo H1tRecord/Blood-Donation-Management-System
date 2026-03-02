@@ -7,7 +7,6 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
     role: 'donor'
@@ -33,7 +32,7 @@ const Register = () => {
     setIsLoading(true);
 
     // Validate inputs
-    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
+    if (!formData.name || !formData.email || !formData.password) {
       setError('Please fill in all required fields');
       setIsLoading(false);
       return;
@@ -49,14 +48,6 @@ const Register = () => {
     // Validate password match
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
-      setIsLoading(false);
-      return;
-    }
-
-    // Validate phone number format
-    const phoneRegex = /^\d{3}-\d{4}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      setError('Phone number must be in format: 555-0123');
       setIsLoading(false);
       return;
     }
@@ -136,34 +127,17 @@ const Register = () => {
               />
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="email">Email Address</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="phone">Phone Number</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="555-0123"
-                  pattern="\d{3}-\d{4}"
-                  required
-                />
-                <small>Format: 555-0123</small>
-              </div>
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                required
+              />
             </div>
 
             <div className="form-row">

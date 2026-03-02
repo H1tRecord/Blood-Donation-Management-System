@@ -4,17 +4,26 @@ import { getUsers, updateUserInDB, deleteUserFromDB } from '../data/db';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-  const { currentUser, resetSessionTimeout } = useAuth();
+  const { currentUser, resetSessionTimeout, adminCreateAccount } = useAuth();
   const [accounts, setAccounts] = useState([]);
   const [filterRole, setFilterRole] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [editingUser, setEditingUser] = useState(null);
-  const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', role: '' });
+  const [editForm, setEditForm] = useState({ name: '', email: '', role: '' });
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  // Create-account modal
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    role: 'staff', name: '', email: '', password: '', confirmPassword: '',
+  });
+  const [createError, setCreateError] = useState('');
+  const [createLoading, setCreateLoading] = useState(false);
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   useEffect(() => {
     resetSessionTimeout();
@@ -25,6 +34,11 @@ const AdminDashboard = () => {
     const all = await getUsers();
     setAccounts(all);
   };
+
+  // Reset page when filters/search/sort change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterRole, filterStatus, sortField, sortDirection]);
 
   // Sorting
   const handleSort = (field) => {
@@ -52,7 +66,7 @@ const AdminDashboard = () => {
         return (
           user.name.toLowerCase().includes(q) ||
           user.email.toLowerCase().includes(q) ||
-          user.id.toLowerCase().includes(q)
+          user.uid.toLowerCase().includes(q)
         );
       }
       return true;
@@ -72,6 +86,9 @@ const AdminDashboard = () => {
           return 0;
       }
     });
+
+  const totalPages = Math.max(1, Math.ceil(filteredAccounts.length / PAGE_SIZE));
+  const pagedAccounts = filteredAccounts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   // Stats
   const totalDonors = accounts.filter(u => u.role === 'donor').length;
@@ -95,20 +112,18 @@ const AdminDashboard = () => {
     setEditForm({
       name: user.name,
       email: user.email,
-      phone: user.phone,
       role: user.role
     });
   };
 
   const handleSaveEdit = async () => {
-    if (!editForm.name || !editForm.email || !editForm.phone) {
+    if (!editForm.name || !editForm.email) {
       alert('All fields are required');
       return;
     }
     const updates = {
       name: editForm.name,
       email: editForm.email,
-      phone: editForm.phone,
     };
     if (editingUser.uid !== currentUser.uid) {
       updates.role = editForm.role;
@@ -143,6 +158,43 @@ const AdminDashboard = () => {
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
+  // Create account
+  const openCreateModal = () => {
+    setCreateForm({ role: 'staff', name: '', email: '', password: '', confirmPassword: '' });
+    setCreateError('');
+    setShowCreateModal(true);
+  };
+
+  const handleCreateAccount = async () => {
+    setCreateError('');
+    const { name, email, password, confirmPassword, role } = createForm;
+
+    if (!name || !email || !password || !confirmPassword) {
+      setCreateError('All fields are required.');
+      return;
+    }
+    if (password.length < 6) {
+      setCreateError('Password must be at least 6 characters.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setCreateError('Passwords do not match.');
+      return;
+    }
+
+    setCreateLoading(true);
+    const result = await adminCreateAccount({ role, name, email, password });
+    setCreateLoading(false);
+
+    if (result.success) {
+      setShowCreateModal(false);
+      await loadAccounts();
+      showToast(result.message);
+    } else {
+      setCreateError(result.message);
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       <div className="admin-page-header">
@@ -150,6 +202,9 @@ const AdminDashboard = () => {
           <h1>Account Management</h1>
           <p className="admin-subtitle">Manage all user accounts in the system</p>
         </div>
+        <button className="btn-create-account" onClick={openCreateModal}>
+          + Create Account
+        </button>
       </div>
 
       {showSuccess && (
@@ -231,7 +286,6 @@ const AdminDashboard = () => {
               <div className="admin-col-email sortable" onClick={() => handleSort('email')}>
                 Email{getSortIndicator('email')}
               </div>
-              <div className="admin-col-phone">Phone</div>
               <div className="admin-col-role sortable" onClick={() => handleSort('role')}>
                 Role{getSortIndicator('role')}
               </div>
@@ -242,11 +296,11 @@ const AdminDashboard = () => {
               <div className="admin-col-actions">Actions</div>
             </div>
 
-            {filteredAccounts.length > 0 ? (
-              filteredAccounts.map((user) => (
+            {pagedAccounts.length > 0 ? (
+              pagedAccounts.map((user) => (
                 <div key={user.uid} className={`admin-table-row ${!user.isActive ? 'inactive-row' : ''}`}>
                   <div className="admin-col-id">
-                    <span className="admin-user-id">{user.id}</span>
+                    <span className="admin-user-id" title={user.uid}>{user.uid.slice(0, 8)}…</span>
                   </div>
                   <div className="admin-col-name">
                     <span className="admin-user-name">{user.name}</span>
@@ -255,7 +309,6 @@ const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="admin-col-email">{user.email}</div>
-                  <div className="admin-col-phone">{user.phone}</div>
                   <div className="admin-col-role">
                     <span className={`admin-role-tag ${user.role}`}>{user.role}</span>
                   </div>
@@ -301,7 +354,133 @@ const AdminDashboard = () => {
             )}
           </div>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="admin-pagination">
+            <button
+              className="admin-page-btn"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              ‹ Prev
+            </button>
+
+            <div className="admin-page-numbers">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                .reduce((acc, p, idx, arr) => {
+                  if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...');
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, idx) =>
+                  p === '...' ? (
+                    <span key={`ellipsis-${idx}`} className="admin-page-ellipsis">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      className={`admin-page-num${currentPage === p ? ' active' : ''}`}
+                      onClick={() => setCurrentPage(p)}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+            </div>
+
+            <button
+              className="admin-page-btn"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next ›
+            </button>
+
+            <span className="admin-page-info">
+              {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filteredAccounts.length)} of {filteredAccounts.length}
+            </span>
+          </div>
+        )}
       </div>
+
+      {/* Create Account Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <div className="modal-header">
+              <h2>Create Account</h2>
+              <button className="close-btn" onClick={() => setShowCreateModal(false)}>×</button>
+            </div>
+            <div className="modal-content">
+
+              {createError && (
+                <div className="create-modal-error">{createError}</div>
+              )}
+
+              <div className="form-group">
+                <label>Role</label>
+                <select
+                  value={createForm.role}
+                  onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
+                >
+                  <option value="staff">Staff</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Nurse Williams"
+                  value={createForm.name}
+                  onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Email Address</label>
+                <input
+                  type="email"
+                  placeholder="e.g. nurse.williams@bdms.org"
+                  value={createForm.email}
+                  onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Password</label>
+                <input
+                  type="password"
+                  placeholder="At least 6 characters"
+                  value={createForm.password}
+                  onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Confirm Password</label>
+                <input
+                  type="password"
+                  placeholder="Repeat password"
+                  value={createForm.confirmPassword}
+                  onChange={(e) => setCreateForm({ ...createForm, confirmPassword: e.target.value })}
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button className="btn-secondary" onClick={() => setShowCreateModal(false)} disabled={createLoading}>
+                  Cancel
+                </button>
+                <button className="btn-primary" onClick={handleCreateAccount} disabled={createLoading}>
+                  {createLoading ? 'Creating…' : 'Create Account'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       {editingUser && (
@@ -313,8 +492,8 @@ const AdminDashboard = () => {
             </div>
             <div className="modal-content">
               <div className="admin-edit-id">
-                <span className="admin-edit-id-label">Account ID:</span>
-                <span className="admin-edit-id-value">{editingUser.id}</span>
+                <span className="admin-edit-id-label">Firebase UID:</span>
+                <span className="admin-edit-id-value">{editingUser.uid}</span>
               </div>
 
               <div className="form-group">
@@ -332,15 +511,6 @@ const AdminDashboard = () => {
                   type="email"
                   value={editForm.email}
                   onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Phone Number</label>
-                <input
-                  type="tel"
-                  value={editForm.phone}
-                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
                 />
               </div>
 

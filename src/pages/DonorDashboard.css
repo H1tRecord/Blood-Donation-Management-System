@@ -292,15 +292,51 @@
   grid-column: span 1;
 }
 
+.requests-card--active {
+  border-color: var(--danger-300);
+}
+
+.requests-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.requests-card-header h2 {
+  margin: 0;
+}
+
+.requests-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--danger-600);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  border-radius: var(--radius-full);
+  padding: 0 0.3rem;
+}
+
 .requests-info {
   color: var(--gray-500);
   margin-bottom: 0.75rem;
   font-size: 0.85rem;
 }
 
+.requests-empty {
+  color: var(--gray-400);
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
+
 .request-item {
-  background: var(--gray-50);
-  border: 1px solid var(--gray-100);
+  background: var(--danger-50);
+  border: 1px solid var(--danger-100);
+  border-left: 3px solid var(--danger-500);
   border-radius: var(--radius-md);
   padding: 1rem;
   margin-bottom: 0.75rem;
@@ -327,7 +363,7 @@
 
 .request-staff {
   font-size: 0.8rem;
-  color: var(--gray-400);
+  color: var(--gray-500);
   margin-bottom: 0.75rem;
 }
 
@@ -341,7 +377,7 @@
   background: var(--success-600);
   color: white;
   border: none;
-  padding: 0.5rem 0.75rem;
+  padding: 0.55rem 0.75rem;
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 0.85rem;
@@ -349,16 +385,21 @@
   transition: background var(--transition-fast);
 }
 
-.btn-accept:hover {
+.btn-accept:hover:not(:disabled) {
   background: var(--success-700);
 }
 
+.btn-accept:disabled,
+.btn-decline:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .btn-decline {
-  flex: 1;
   background: var(--gray-100);
   color: var(--gray-600);
   border: 1px solid var(--gray-200);
-  padding: 0.5rem 0.75rem;
+  padding: 0.55rem 0.9rem;
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 0.85rem;
@@ -366,7 +407,7 @@
   transition: all var(--transition-fast);
 }
 
-.btn-decline:hover {
+.btn-decline:hover:not(:disabled) {
   background: var(--gray-200);
   color: var(--gray-800);
 }

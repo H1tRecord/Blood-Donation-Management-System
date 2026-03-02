@@ -12,6 +12,8 @@ classDiagram
         +login(email, password): void
         +logout(): void
         +register(userData): void
+        +adminCreateAccount(userData): void
+        +generateUserId(role): string
         +startSessionTimeout(): void
         +useAuth(): AuthContextType
     }
@@ -22,7 +24,6 @@ classDiagram
         -email: string
         -password: string
         -name: string
-        -phone: string
         -isActive: boolean
         -registrationDate: date
     }
@@ -36,11 +37,10 @@ classDiagram
     }
 
     class Staff {
-        -position: string
     }
 
     class Admin {
-        +viewAnalytics(): object
+        +manageAccounts(): void
     }
 
     class Appointment {
@@ -116,12 +116,15 @@ classDiagram
     }
 
     class AdminDashboard {
-        -totalDonations: number
-        -activeAppointments: number
-        -criticalInventory: array
-        -analytics: object
-        +viewAnalytics(): void
-        +generateReports(): void
+        -accounts: array
+        -filterRole: string
+        -filterStatus: string
+        -searchQuery: string
+        +loadAccounts(): void
+        +createAccount(): void
+        +editAccount(): void
+        +toggleStatus(): void
+        +deleteAccount(): void
     }
 
     class AppointmentBooking {
@@ -173,7 +176,6 @@ classDiagram
         +calculateDaysSinceLastDonation(date): number
         +isEligibleToDonate(lastDonation): boolean
         +getDaysUntilEligible(lastDonation): number
-        +getBloodTypeCompatibility(type): array
     }
 
     App --> AuthContext
@@ -199,9 +201,7 @@ classDiagram
     StaffDashboard --> DonorSearch
     StaffDashboard --> DataHelpers
 
-    AdminDashboard --> Appointment
-    AdminDashboard --> BloodInventory
-    AdminDashboard --> DonationHistory
+    AdminDashboard --> User
 
     AppointmentBooking --> Appointment
     AppointmentBooking --> DataHelpers

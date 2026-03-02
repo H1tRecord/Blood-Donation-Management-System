@@ -1,12 +1,14 @@
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { initializeApp, deleteApp } from 'firebase/app';
 import {
+  getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
 } from 'firebase/auth';
 import { ref, set, get, update } from 'firebase/database';
-import { auth, db } from '../firebase/firebase';
+import { auth, db, firebaseConfig } from '../firebase/firebase';
 
 const AuthContext = createContext();
 
@@ -102,7 +104,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ── Register ───────────────────────────────────────────────────────
+  // ── ID generation ──────────────────────────────────────────────────
+  // ── Register ───────────────────────────────────────────────────────────
   const register = async (userData, autoLogin = false) => {
     try {
       // Create Firebase Auth account
@@ -118,16 +121,12 @@ export const AuthProvider = ({ children }) => {
         role: userData.role,
         email: userData.email,
         name: userData.name,
-        phone: userData.phone,
         registrationDate: new Date().toISOString().split('T')[0],
         isActive: true,
         ...(userData.role === 'donor' && {
           bloodType: null,
           lastDonationDate: null,
           donationCount: 0,
-        }),
-        ...(userData.role === 'staff' && {
-          position: userData.position || 'Staff Member',
         }),
       };
 
@@ -149,6 +148,53 @@ export const AuthProvider = ({ children }) => {
         success: true,
         message: 'Registration successful! Please log in.',
         user: userWithUid,
+      };
+    } catch (err) {
+      const msg =
+        err.code === 'auth/email-already-in-use'
+          ? 'Email already registered'
+          : err.message;
+      return { success: false, message: msg };
+    }
+  };
+
+  // ── Admin: create staff / admin account without logging out ─────────
+  // Uses a secondary Firebase app instance so the admin's current session
+  // is never disrupted by the createUserWithEmailAndPassword call.
+  const adminCreateAccount = async (userData) => {
+    try {
+      // Spin up a temporary secondary app with a unique name
+      const secondaryApp = initializeApp(firebaseConfig, `admin-create-${Date.now()}`);
+      const secondaryAuth = getAuth(secondaryApp);
+
+      let uid;
+      try {
+        const credential = await createUserWithEmailAndPassword(
+          secondaryAuth,
+          userData.email,
+          userData.password
+        );
+        uid = credential.user.uid;
+        await signOut(secondaryAuth);
+      } finally {
+        // Always clean up the secondary app regardless of success/failure
+        await deleteApp(secondaryApp);
+      }
+
+      const profile = {
+        role: userData.role,
+        email: userData.email,
+        name: userData.name,
+        registrationDate: new Date().toISOString().split('T')[0],
+        isActive: true,
+      };
+
+      await set(ref(db, `users/${uid}`), profile);
+
+      return {
+        success: true,
+        message: `Account created successfully.`,
+        user: { uid, ...profile },
       };
     } catch (err) {
       const msg =
@@ -192,6 +238,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     register,
+    adminCreateAccount,
     logout,
     updateProfile,
     updateUserBloodType,

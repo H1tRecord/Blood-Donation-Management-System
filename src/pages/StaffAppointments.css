@@ -6,13 +6,15 @@
 
 /* ── Header ─────────────────────────────── */
 .sa-header {
-  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 .sa-header h1 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--gray-900);
-  margin-bottom: 0.25rem;
 }
 .sa-subtitle {
   font-size: 0.92rem;
@@ -21,36 +23,35 @@
 
 /* ── Stats Row ───────────────────────────── */
 .sa-stats-row {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
 }
 .sa-stat {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: var(--gray-50);
+  background: #fff;
   border: 1px solid var(--gray-200);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
 }
-.sa-stat.pending { background: var(--warning-50); border-color: #fde68a; }
-.sa-stat.confirmed { background: var(--primary-50); border-color: var(--primary-100); }
-.sa-stat.checkedin { background: #f5f3ff; border-color: #e9d5ff; }
-.sa-stat.completed { background: var(--success-50); border-color: #bbf7d0; }
 .sa-stat-num {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--gray-900);
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gray-800);
 }
 .sa-stat-lbl {
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 0.78rem;
   color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
+.sa-stat.pending .sa-stat-num { color: var(--warning-600, #d97706); }
+.sa-stat.confirmed .sa-stat-num { color: var(--primary-600); }
+.sa-stat.checkedin .sa-stat-num { color: #7c3aed; }
+.sa-stat.completed .sa-stat-num { color: var(--success-600, #16a34a); }
+.sa-stat.cancelled .sa-stat-num { color: var(--danger-600, #dc2626); }
 
 /* ── Layout ──────────────────────────────── */
 .sa-layout {
@@ -61,9 +62,8 @@
 }
 
 /* ── Calendar Card ───────────────────────── */
-.sa-calendar-panel {}
 .sa-cal-card {
-  background: var(--white);
+  background: #fff;
   border: 1px solid var(--gray-200);
   border-radius: 12px;
   padding: 20px;
@@ -221,52 +221,57 @@
   gap: 1rem;
 }
 .sa-detail-card {
-  background: var(--white);
+  background: #fff;
   border: 1px solid var(--gray-200);
   border-radius: 12px;
   padding: 20px;
 }
 .sa-detail-header {
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--gray-100);
+  gap: 10px;
+  flex-wrap: wrap;
 }
 .sa-detail-date {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: var(--gray-900);
-  margin: 0 0 0.15rem 0;
+  color: var(--gray-800);
+  margin: 0;
 }
 .sa-detail-count {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--gray-500);
-  margin: 0;
+  margin-top: 2px;
 }
 
 /* Appointment List */
 .sa-appt-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
   max-height: 480px;
   overflow-y: auto;
 }
 .sa-appt-item {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 0.75rem;
+  display: flex;
   align-items: center;
-  padding: 0.7rem 0.85rem;
+  gap: 14px;
+  padding: 12px 14px;
   background: var(--gray-50);
-  border: 1px solid var(--gray-100);
-  border-radius: var(--radius-md);
-  transition: background 0.15s;
+  border-radius: 10px;
+  border-left: 3px solid var(--primary-400);
+  transition: all 0.12s;
 }
 .sa-appt-item:hover {
   background: var(--gray-100);
 }
 .sa-appt-item.cancelled {
   opacity: 0.55;
+  border-left-color: var(--gray-300);
 }
 
 /* Time column */
@@ -275,16 +280,12 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  min-width: 68px;
+  min-width: 75px;
 }
 .sa-appt-time {
-  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--primary-700);
-  background: var(--primary-50);
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  white-space: nowrap;
+  font-size: 0.85rem;
+  color: var(--gray-700);
 }
 .sa-appt-status {
   font-size: 0.62rem;
@@ -302,18 +303,16 @@
 
 /* Info column */
 .sa-appt-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
 }
 .sa-appt-name {
   font-weight: 600;
   color: var(--gray-800);
-  font-size: 0.85rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.88rem;
 }
 .sa-appt-meta {
   display: flex;
@@ -344,34 +343,27 @@
 /* Actions column */
 .sa-appt-actions {
   display: flex;
-  gap: 0.3rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  gap: 6px;
 }
 .sa-action {
-  border: 1px solid var(--gray-200);
-  cursor: pointer;
-  font-size: 0.65rem;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: var(--radius-sm);
-  transition: all 0.15s;
-  background: var(--gray-50);
-  color: var(--gray-600);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.12s;
 }
-.sa-action:hover { background: var(--gray-200); }
-.sa-action.view { background: var(--gray-50); color: var(--gray-600); border-color: var(--gray-200); }
-.sa-action.view:hover { background: var(--gray-100); color: var(--gray-800); }
-.sa-action.confirm { background: var(--primary-50); color: var(--primary-700); border-color: var(--primary-200); }
+.sa-action.view { background: var(--gray-100); color: var(--gray-600); }
+.sa-action.view:hover { background: var(--gray-200); }
+.sa-action.confirm { background: var(--primary-50); color: var(--primary-600); }
 .sa-action.confirm:hover { background: var(--primary-100); }
-.sa-action.checkin { background: #f5f3ff; color: #6b21a8; border-color: #e9d5ff; }
+.sa-action.checkin { background: #f5f3ff; color: #6d28d9; }
 .sa-action.checkin:hover { background: #ede9fe; }
-.sa-action.complete { background: var(--success-50); color: var(--success-700); border-color: #bbf7d0; }
-.sa-action.complete:hover { background: var(--success-100); }
-.sa-action.cancel { background: var(--danger-50); color: var(--danger-700); border-color: var(--accent-200); }
-.sa-action.cancel:hover { background: var(--danger-100); }
+.sa-action.complete { background: var(--success-50, #f0fdf4); color: var(--success-700, #15803d); }
+.sa-action.complete:hover { background: var(--success-100, #dcfce7); }
+.sa-action.cancel { background: var(--warning-50, #fffbeb); color: var(--warning-600, #d97706); }
+.sa-action.cancel:hover { background: var(--warning-100, #fef3c7); }
 
 /* No Appointments */
 .sa-no-appts {
@@ -504,13 +496,80 @@
     grid-template-columns: 1fr;
   }
 }
+@media (max-width: 1100px) {
+  .sa-stats-row { grid-template-columns: repeat(3, 1fr); }
+}
 @media (max-width: 700px) {
   .sa-header h1 { font-size: 1.35rem; }
-  .sa-stats-row { gap: 0.4rem; }
-  .sa-stat { padding: 0.4rem 0.65rem; }
-  .sa-stat-num { font-size: 1rem; }
+  .sa-stats-row { grid-template-columns: repeat(2, 1fr); }
   .sa-cell { min-height: 48px; }
   .sa-cell-day { font-size: 0.72rem; }
-  .sa-appt-item { grid-template-columns: auto 1fr; }
-  .sa-appt-actions { display: none; }
+  .sa-appt-item { flex-direction: column; align-items: flex-start; }
+  .sa-appt-actions { margin-top: 6px; }
+}
+
+/* ── Complete Appointment Modal ────────────────────── */
+.sa-complete-modal {
+  max-width: 480px;
+}
+
+.sa-complete-meta {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.sa-complete-meta p {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+  color: var(--gray-700);
+}
+
+.sa-complete-error {
+  background: #fff0f0;
+  border: 1px solid var(--danger-300);
+  color: var(--danger-700);
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.sa-first-time-tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  background: var(--primary-100);
+  color: var(--primary-700);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+
+.sa-bt-readonly {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.sa-bt-known {
+  font-size: 1rem;
+  font-weight: 700;
+  background: var(--primary-600);
+  color: #fff;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+}
+
+.sa-bt-readonly-note {
+  font-size: 0.82rem;
+  color: var(--gray-500);
+}
+
+.sa-units-input {
+  width: 100px;
 }

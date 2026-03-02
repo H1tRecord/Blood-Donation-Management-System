@@ -11,13 +11,11 @@ erDiagram
         string email UK
         string password
         string name
-        string phone
         boolean isActive
         date registrationDate
         string bloodType "Donor-specific"
         date lastDonationDate "Donor-specific"
         int donationCount "Donor-specific"
-        string position "Staff-specific"
     }
 
     APPOINTMENTS {
