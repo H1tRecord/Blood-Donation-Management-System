@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
-  bloodInventory,
   getInventoryStatus,
   getInventoryColor
 } from '../data';
+import { getBloodInventory, setInventoryItem } from '../data/db';
 import './InventoryManagement.css';
 
 // ─── Expiry helpers ───────────────────────────────────────────────────────────
@@ -95,23 +95,20 @@ const InventoryManagement = () => {
     loadInventory();
   }, []);
 
-  const loadInventory = () => {
-    const { updatedInventory, expired, alerts } = processExpiryData(bloodInventory);
+  const loadInventory = async () => {
+    const rawInventory = await getBloodInventory();
+    const { updatedInventory, expired, alerts } = processExpiryData(rawInventory);
 
-    // Persist changes back into the shared data source (mirrors what would be a DB write)
-    updatedInventory.forEach((updItem) => {
-      const original = bloodInventory.find((b) => b.type === updItem.type);
-      if (original) {
-        original.units         = updItem.units;
-        original.expirationDate = updItem.expirationDate;
-        original.batches       = updItem.batches;
-        if (expired.some((e) => e.type === updItem.type)) {
-          original.lastUpdated = new Date().toISOString().split('T')[0];
-        }
-      }
-    });
+    // Write back any items that had expired batches removed
+    const writePromises = updatedInventory
+      .filter((updItem) => expired.some((e) => e.type === updItem.type))
+      .map((updItem) => setInventoryItem(updItem.type, {
+        ...updItem,
+        lastUpdated: new Date().toISOString().split('T')[0],
+      }));
+    await Promise.all(writePromises);
 
-    setInventory([...bloodInventory]);
+    setInventory(updatedInventory);
     setExpiryAlerts(alerts);
     setAutoExpiredUnits(expired);
   };
@@ -150,7 +147,7 @@ const InventoryManagement = () => {
     }
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!selectedType || quantity < 1) {
@@ -158,7 +155,10 @@ const InventoryManagement = () => {
       return;
     }
 
-    const inventoryItem = bloodInventory.find(item => item.type === selectedType);
+    // Find item in current state (deep clone to avoid mutating state directly)
+    const inventoryItem = JSON.parse(JSON.stringify(
+      inventory.find(item => item.type === selectedType)
+    ));
 
     if (!inventoryItem) {
       alert('Blood type not found');
@@ -170,12 +170,10 @@ const InventoryManagement = () => {
         alert('Please enter an expiration date for new units');
         return;
       }
-      // Push a new batch so expiry can be tracked per-donation
       inventoryItem.batches = inventoryItem.batches || [];
       inventoryItem.batches.push({ units: quantity, expirationDate });
       inventoryItem.units += quantity;
       inventoryItem.lastUpdated = new Date().toISOString().split('T')[0];
-      // Update headline expirationDate to nearest batch
       const sorted = [...inventoryItem.batches].sort(
         (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
       );
@@ -186,7 +184,6 @@ const InventoryManagement = () => {
         alert(`Cannot remove ${quantity} units. Only ${inventoryItem.units} units available.`);
         return;
       }
-      // Deduct from oldest (nearest-expiry) batches first — FIFO
       let remaining = quantity;
       const batches = [...(inventoryItem.batches || [])].sort(
         (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
@@ -197,7 +194,6 @@ const InventoryManagement = () => {
         batch.units -= deduct;
         remaining  -= deduct;
       }
-      // Remove fully-depleted batches and write back
       inventoryItem.batches = batches.filter(b => b.units > 0);
       inventoryItem.units -= quantity;
       inventoryItem.lastUpdated = new Date().toISOString().split('T')[0];
@@ -207,27 +203,14 @@ const InventoryManagement = () => {
       setSuccessMessage(`Successfully removed ${quantity} unit(s) of ${selectedType}`);
     }
 
-    console.log({
-      action,
-      bloodType: selectedType,
-      quantity,
-      staffId: currentUser.id,
-      staffName: currentUser.name,
-      timestamp: new Date().toISOString(),
-      expirationDate: action === 'add' ? expirationDate : null,
-    });
+    await setInventoryItem(selectedType, inventoryItem);
+    await loadInventory();
 
-    loadInventory();
     setShowSuccess(true);
-
-    // Reset form
     setSelectedType('');
     setQuantity(1);
     setExpirationDate('');
-
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 3000);
+    setTimeout(() => setShowSuccess(false), 3000);
   };
 
   const getMinExpirationDate = () => {
@@ -387,7 +370,7 @@ const InventoryManagement = () => {
                 required
               >
                 <option value="">Select blood type</option>
-                {bloodInventory.map((item) => (
+                {inventory.map((item) => (
                   <option key={item.type} value={item.type}>
                     {item.type} (Currently: {item.units} units)
                   </option>

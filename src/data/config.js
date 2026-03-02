@@ -38,21 +38,6 @@ export const BLOOD_TYPES = [
   'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-',
 ];
 
-/**
- * Donor → compatible recipient types.
- * Key = donor blood type, value = array of recipient types it can supply.
- */
-export const BLOOD_TYPE_COMPATIBILITY = {
-  'O-':  ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'],
-  'O+':  ['O+', 'A+', 'B+', 'AB+'],
-  'A-':  ['A-', 'A+', 'AB-', 'AB+'],
-  'A+':  ['A+', 'AB+'],
-  'B-':  ['B-', 'B+', 'AB-', 'AB+'],
-  'B+':  ['B+', 'AB+'],
-  'AB-': ['AB-', 'AB+'],
-  'AB+': ['AB+'],
-};
-
 // ── Demo / quick-login accounts ─────────────
 /**
  * Pre-filled credentials shown on the login page for demonstration.

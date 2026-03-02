@@ -205,13 +205,13 @@ Users shall be supported by the following documentation:
 ●  On-Screen Guidance: Contextual tooltips and data validation labels within the UI.
 
 2.7  Assumptions and Dependencies
-2.7.1 Project Assumptions
+Project Assumptions
 ●  Accurate History: It is assumed that donors provide truthful information regarding their
    previous donation dates.
 ●  Standard Deferral: It is assumed that 56 days is the correct and only deferral period
    required for the localized center operations.
 
-2.7.2 Technical Dependencies
+Technical Dependencies
 ●  React Library: Dependency on the stable APIs of React 19 and React Router v6.
 ●  Browser LocalStorage: Dependency on persistent local storage not being cleared by browser
    privacy settings between sessions.

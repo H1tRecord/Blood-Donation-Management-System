@@ -62,7 +62,7 @@ const Register = () => {
     }
 
     // Attempt registration
-    const result = register(formData, formData.role === 'donor'); // Auto-login donors
+    const result = await register(formData, formData.role === 'donor'); // Auto-login donors
     
     if (result.success) {
       if (formData.role === 'donor') {

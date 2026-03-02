@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { users } from '../data';
+import { getUsers, updateUserInDB, deleteUserFromDB } from '../data/db';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -21,8 +21,9 @@ const AdminDashboard = () => {
     loadAccounts();
   }, []);
 
-  const loadAccounts = () => {
-    setAccounts([...users]);
+  const loadAccounts = async () => {
+    const all = await getUsers();
+    setAccounts(all);
   };
 
   // Sorting
@@ -79,13 +80,13 @@ const AdminDashboard = () => {
   const activeAccounts = accounts.filter(u => u.isActive).length;
 
   // Toggle active status
-  const handleToggleStatus = (userId) => {
-    const userIndex = users.findIndex(u => u.id === userId);
-    if (userIndex !== -1) {
-      users[userIndex].isActive = !users[userIndex].isActive;
-      loadAccounts();
-      showToast(`Account ${users[userIndex].isActive ? 'activated' : 'deactivated'} successfully`);
-    }
+  const handleToggleStatus = async (userUid) => {
+    const target = accounts.find(u => u.uid === userUid);
+    if (!target) return;
+    const newStatus = !target.isActive;
+    await updateUserInDB(userUid, { isActive: newStatus });
+    await loadAccounts();
+    showToast(`Account ${newStatus ? 'activated' : 'deactivated'} successfully`);
   };
 
   // Edit user
@@ -99,25 +100,23 @@ const AdminDashboard = () => {
     });
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editForm.name || !editForm.email || !editForm.phone) {
       alert('All fields are required');
       return;
     }
-
-    const userIndex = users.findIndex(u => u.id === editingUser.id);
-    if (userIndex !== -1) {
-      users[userIndex].name = editForm.name;
-      users[userIndex].email = editForm.email;
-      users[userIndex].phone = editForm.phone;
-      // Don't allow changing own role or the last admin's role
-      if (editingUser.id !== currentUser.id) {
-        users[userIndex].role = editForm.role;
-      }
-      loadAccounts();
-      setEditingUser(null);
-      showToast('Account updated successfully');
+    const updates = {
+      name: editForm.name,
+      email: editForm.email,
+      phone: editForm.phone,
+    };
+    if (editingUser.uid !== currentUser.uid) {
+      updates.role = editForm.role;
     }
+    await updateUserInDB(editingUser.uid, updates);
+    await loadAccounts();
+    setEditingUser(null);
+    showToast('Account updated successfully');
   };
 
   const handleCancelEdit = () => {
@@ -125,22 +124,17 @@ const AdminDashboard = () => {
   };
 
   // Delete user
-  const handleDeleteUser = (userId) => {
-    if (userId === currentUser.id) {
+  const handleDeleteUser = async (userUid) => {
+    if (userUid === currentUser.uid) {
       alert('You cannot delete your own account');
       return;
     }
-
     if (!window.confirm('Are you sure you want to delete this account? This action cannot be undone.')) {
       return;
     }
-
-    const userIndex = users.findIndex(u => u.id === userId);
-    if (userIndex !== -1) {
-      users.splice(userIndex, 1);
-      loadAccounts();
-      showToast('Account deleted successfully');
-    }
+    await deleteUserFromDB(userUid);
+    await loadAccounts();
+    showToast('Account deleted successfully');
   };
 
   const showToast = (msg) => {
@@ -250,7 +244,7 @@ const AdminDashboard = () => {
 
             {filteredAccounts.length > 0 ? (
               filteredAccounts.map((user) => (
-                <div key={user.id} className={`admin-table-row ${!user.isActive ? 'inactive-row' : ''}`}>
+                <div key={user.uid} className={`admin-table-row ${!user.isActive ? 'inactive-row' : ''}`}>
                   <div className="admin-col-id">
                     <span className="admin-user-id">{user.id}</span>
                   </div>
@@ -283,15 +277,15 @@ const AdminDashboard = () => {
                     </button>
                     <button
                       className={`admin-action-btn ${user.isActive ? 'deactivate' : 'activate'}`}
-                      onClick={() => handleToggleStatus(user.id)}
+                      onClick={() => handleToggleStatus(user.uid)}
                       title={user.isActive ? 'Deactivate' : 'Activate'}
                     >
                       {user.isActive ? 'Disable' : 'Enable'}
                     </button>
-                    {user.id !== currentUser.id && (
+                    {user.uid !== currentUser.uid && (
                       <button
                         className="admin-action-btn delete"
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDeleteUser(user.uid)}
                         title="Delete account"
                       >
                         Delete
@@ -350,7 +344,7 @@ const AdminDashboard = () => {
                 />
               </div>
 
-              {editingUser.id !== currentUser.id && (
+              {editingUser.uid !== currentUser.uid && (
                 <div className="form-group">
                   <label>Role</label>
                   <select

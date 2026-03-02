@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  appointments,
-  bloodInventory,
   getInventoryStatus,
-  getInventoryColor
+  getInventoryColor,
+  APP_CONFIG,
 } from '../data';
+import { getAppointments, getBloodInventory } from '../data/db';
 import './StaffDashboard.css';
 
 const StaffDashboard = () => {
@@ -20,16 +20,20 @@ const StaffDashboard = () => {
     loadStaffData();
   }, []);
 
-  const loadStaffData = () => {
-    const todayAppts = appointments
-      .filter((apt) => apt.date === '2026-02-27' && apt.status !== 'cancelled')
+  const loadStaffData = async () => {
+    const [allAppts, allInv] = await Promise.all([
+      getAppointments(),
+      getBloodInventory(),
+    ]);
+    const todayAppts = allAppts
+      .filter((apt) => apt.date === APP_CONFIG.TODAY && apt.status !== 'cancelled')
       .sort((a, b) => a.time.localeCompare(b.time));
     setTodayAppointments(todayAppts);
-    setInventory(bloodInventory);
+    setInventory(allInv);
   };
 
-  const criticalTypes = bloodInventory.filter((inv) => inv.units < 10);
-  const lowTypes      = bloodInventory.filter((inv) => inv.units >= 10 && inv.units < 20);
+  const criticalTypes = inventory.filter((inv) => inv.units < 10);
+  const lowTypes      = inventory.filter((inv) => inv.units >= 10 && inv.units < 20);
 
   const stats = [
     { value: todayAppointments.length,                                       label: 'Appointments',  accent: 'blue'   },

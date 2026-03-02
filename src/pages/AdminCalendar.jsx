@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { appointments, timeSlots, APP_CONFIG } from '../data';
+import { timeSlots, APP_CONFIG } from '../data';
+import { getAppointments, updateAppointment, deleteAppointment } from '../data/db';
 import './AdminCalendar.css';
 
 const DEFAULT_SLOT_CAP = APP_CONFIG.DEFAULT_SLOT_CAPACITY;
@@ -44,8 +45,9 @@ const AdminCalendar = () => {
     loadAppointments();
   }, []);
 
-  const loadAppointments = () => {
-    setAllAppointments([...appointments]);
+  const loadAppointments = async () => {
+    const appts = await getAppointments();
+    setAllAppointments(appts);
   };
 
   const showToast = (message, type = 'success') => {
@@ -175,12 +177,11 @@ const AdminCalendar = () => {
     setSelectedDate(cell.dateStr);
   };
 
-  const handleToggleBlock = () => {
+  const handleToggleBlock = async () => {
     if (isSelectedDateBlocked) {
       setBlockedDates(prev => prev.filter(d => d !== selectedDate));
       showToast(`${selectedDateLabel} unblocked`);
     } else {
-      // Cancel all pending/confirmed appointments on that day
       const toCancel = allAppointments.filter(
         a => a.date === selectedDate && (a.status === 'pending' || a.status === 'confirmed')
       );
@@ -188,10 +189,7 @@ const AdminCalendar = () => {
         if (!window.confirm(`Blocking this date will cancel ${toCancel.length} active appointment(s). Continue?`)) {
           return;
         }
-        toCancel.forEach(a => {
-          const idx = appointments.findIndex(ap => ap.id === a.id);
-          if (idx !== -1) appointments[idx].status = 'cancelled';
-        });
+        await Promise.all(toCancel.map(a => updateAppointment(a.id, { status: 'cancelled' })));
         loadAppointments();
       }
       setBlockedDates(prev => [...prev, selectedDate]);
@@ -235,43 +233,36 @@ const AdminCalendar = () => {
     setShowEditModal(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editForm.date || !editForm.time || !editForm.status) {
       showToast('All fields are required', 'error');
       return;
     }
-    const idx = appointments.findIndex(a => a.id === editingAppointment.id);
-    if (idx !== -1) {
-      appointments[idx].date = editForm.date;
-      appointments[idx].time = editForm.time;
-      appointments[idx].status = editForm.status;
-      loadAppointments();
-      setShowEditModal(false);
-      showToast('Appointment updated');
-    }
+    await updateAppointment(editingAppointment.id, {
+      date: editForm.date,
+      time: editForm.time,
+      status: editForm.status,
+    });
+    await loadAppointments();
+    setShowEditModal(false);
+    showToast('Appointment updated');
   };
 
   // ── Delete appointment ────────────────────────
 
-  const handleDeleteAppointment = (apptId) => {
+  const handleDeleteAppointment = async (apptId) => {
     if (!window.confirm('Permanently delete this appointment?')) return;
-    const idx = appointments.findIndex(a => a.id === apptId);
-    if (idx !== -1) {
-      appointments.splice(idx, 1);
-      loadAppointments();
-      showToast('Appointment deleted');
-    }
+    await deleteAppointment(apptId);
+    await loadAppointments();
+    showToast('Appointment deleted');
   };
 
   // ── Cancel appointment ────────────────────────
 
-  const handleCancelAppointment = (apptId) => {
-    const idx = appointments.findIndex(a => a.id === apptId);
-    if (idx !== -1) {
-      appointments[idx].status = 'cancelled';
-      loadAppointments();
-      showToast('Appointment cancelled');
-    }
+  const handleCancelAppointment = async (apptId) => {
+    await updateAppointment(apptId, { status: 'cancelled' });
+    await loadAppointments();
+    showToast('Appointment cancelled');
   };
 
   // ── Week view helpers ─────────────────────────

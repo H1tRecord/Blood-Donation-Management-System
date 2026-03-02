@@ -2,14 +2,17 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  appointments,
-  donationHistory,
-  donationRequests,
-  bloodInventory,
   isEligibleToDonate,
   getDaysUntilEligible,
   calculateDaysSinceLastDonation
 } from '../data';
+import {
+  getAppointments,
+  getDonationHistory,
+  getDonationRequests,
+  getBloodInventory,
+  updateDonationRequest,
+} from '../data/db';
 import './DonorDashboard.css';
 
 const DonorDashboard = () => {
@@ -21,6 +24,7 @@ const DonorDashboard = () => {
   const [isEligible, setIsEligible] = useState(false);
   const [daysUntilEligible, setDaysUntilEligible] = useState(0);
   const [daysSinceLast, setDaysSinceLast] = useState(null);
+  const [inventory, setInventory] = useState([]);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editEmail, setEditEmail] = useState('');
   const [editPhone, setEditPhone] = useState('');
@@ -32,26 +36,34 @@ const DonorDashboard = () => {
     loadDonorData();
   }, [currentUser]);
 
-  const loadDonorData = () => {
+  const loadDonorData = async () => {
     if (!currentUser) return;
 
-    // Get user appointments
-    const userAppts = appointments.filter(
-      (apt) => apt.donorId === currentUser.id && apt.status !== 'cancelled'
+    const [allAppts, allDons, allReqs, allInv] = await Promise.all([
+      getAppointments(),
+      getDonationHistory(),
+      getDonationRequests(),
+      getBloodInventory(),
+    ]);
+
+    // Filter by Firebase UID
+    const userAppts = allAppts.filter(
+      (apt) => apt.donorId === currentUser.uid && apt.status !== 'cancelled'
     );
     setUserAppointments(userAppts);
 
-    // Get user donation history
-    const userDons = donationHistory.filter(
-      (don) => don.donorId === currentUser.id
-    ).sort((a, b) => new Date(b.date) - new Date(a.date));
+    const userDons = allDons
+      .filter((don) => don.donorId === currentUser.uid)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
     setUserDonations(userDons);
 
-    // Get donation requests
-    const requests = donationRequests.filter(
-      (req) => req.donorId === currentUser.id && req.status === 'pending'
+    const requests = allReqs.filter(
+      (req) => req.donorId === currentUser.uid && req.status === 'pending'
     );
     setUserRequests(requests);
+
+    // Store inventory for the "needed blood types" section
+    setInventory(allInv);
 
     // Calculate eligibility
     const eligible = isEligibleToDonate(currentUser.lastDonationDate);
@@ -60,7 +72,7 @@ const DonorDashboard = () => {
     if (currentUser.lastDonationDate) {
       const daysUntil = getDaysUntilEligible(currentUser.lastDonationDate);
       setDaysUntilEligible(daysUntil);
-      
+
       const daysSince = calculateDaysSinceLastDonation(currentUser.lastDonationDate);
       setDaysSinceLast(daysSince);
     }
@@ -79,7 +91,7 @@ const DonorDashboard = () => {
     setProfileError('');
   };
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     setProfileError('');
     setProfileSuccess('');
 
@@ -94,7 +106,7 @@ const DonorDashboard = () => {
       return;
     }
 
-    const result = updateProfile({ email: editEmail, phone: editPhone });
+    const result = await updateProfile({ email: editEmail, phone: editPhone });
     if (result.success) {
       setIsEditingProfile(false);
       setProfileSuccess('Profile updated successfully');
@@ -102,25 +114,22 @@ const DonorDashboard = () => {
     }
   };
 
-  const handleRespondToRequest = (requestId, response) => {
-    const request = donationRequests.find(r => r.id === requestId);
-    if (request) {
-      request.status = response;
-      request.responseDate = new Date().toISOString().split('T')[0];
-      
-      if (response === 'accepted') {
-        alert('Thank you for accepting! Please book an appointment to donate.');
-        navigate('/appointment-booking');
-      } else {
-        alert('Request declined. Thank you for your response.');
-      }
-      
-      loadDonorData();
+  const handleRespondToRequest = async (requestId, response) => {
+    await updateDonationRequest(requestId, {
+      status: response,
+      responseDate: new Date().toISOString().split('T')[0],
+    });
+    if (response === 'accepted') {
+      alert('Thank you for accepting! Please book an appointment to donate.');
+      navigate('/appointment-booking');
+    } else {
+      alert('Request declined. Thank you for your response.');
     }
+    loadDonorData();
   };
 
   const getNeededBloodTypes = () => {
-    return bloodInventory
+    return inventory
       .filter(inv => inv.units < 20)
       .sort((a, b) => a.units - b.units)
       .slice(0, 3);

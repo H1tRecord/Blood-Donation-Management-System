@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { appointments, bloodInventory, BLOOD_TYPES } from '../data';
+import { BLOOD_TYPES } from '../data';
+import { getAppointments, updateAppointment } from '../data/db';
 import './StaffAppointments.css';
 
 const StaffAppointments = () => {
@@ -25,8 +26,8 @@ const StaffAppointments = () => {
     }
   }, [selectedDate, allAppointments]);
 
-  const loadAppointments = () => {
-    const appts = [...appointments].sort((a, b) => {
+  const loadAppointments = async () => {
+    const appts = (await getAppointments()).sort((a, b) => {
       const dateCompare = a.date.localeCompare(b.date);
       if (dateCompare !== 0) return dateCompare;
       return a.time.localeCompare(b.time);
@@ -110,21 +111,15 @@ const StaffAppointments = () => {
     setDateAppointments(filtered);
   };
 
-  const handleStatusChange = (appointmentId, newStatus) => {
-    const appointment = appointments.find(apt => apt.id === appointmentId);
+  const handleStatusChange = async (appointmentId, newStatus) => {
+    const appointment = allAppointments.find(apt => apt.id === appointmentId);
     if (appointment) {
       if (newStatus === 'completed' && !appointment.bloodType) {
         setSelectedAppointment(appointment);
         setShowBloodTypeModal(true);
         return;
       }
-      
-      appointment.status = newStatus;
-      
-      if (newStatus === 'completed') {
-        console.log('Appointment completed - would record donation');
-      }
-      
+      await updateAppointment(appointmentId, { status: newStatus });
       loadAppointments();
     }
   };
@@ -135,22 +130,25 @@ const StaffAppointments = () => {
     }
   };
 
-  const handleAssignBloodType = () => {
+  const handleAssignBloodType = async () => {
     if (!selectedBloodType) {
       alert('Please select a blood type');
       return;
     }
     if (!selectedAppointment) return;
-    
-    updateUserBloodType(selectedAppointment.donorId, selectedBloodType);
-    selectedAppointment.bloodType = selectedBloodType;
-    selectedAppointment.status = 'completed';
-    
+
+    await Promise.all([
+      updateUserBloodType(selectedAppointment.donorId, selectedBloodType),
+      updateAppointment(selectedAppointment.id, {
+        bloodType: selectedBloodType,
+        status: 'completed',
+      }),
+    ]);
+
     setShowBloodTypeModal(false);
     setSelectedBloodType('');
     setSelectedAppointment(null);
     loadAppointments();
-    
     alert(`Blood type ${selectedBloodType} assigned successfully!`);
   };
 

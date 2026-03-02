@@ -15,7 +15,9 @@ import './App.css';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { isAuthenticated, currentUser } = useAuth();
+  const { isAuthenticated, currentUser, loading } = useAuth();
+
+  if (loading) return null; // wait for Firebase Auth to resolve
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
@@ -30,7 +32,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 // Public route wrapper (redirect if already logged in)
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, currentUser } = useAuth();
+  const { isAuthenticated, currentUser, loading } = useAuth();
+
+  if (loading) return null; // wait for Firebase Auth to resolve
 
   if (isAuthenticated) {
     if (currentUser?.role === 'donor') {

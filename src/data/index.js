@@ -3,18 +3,13 @@
  * Data Layer — Barrel Export
  * ─────────────────────────────────────────────
  *
- * Single import point for all collections, config, and helpers.
+ * Single import point for config and helpers.
+ * All collection data is fetched from Firebase Realtime Database via src/data/db.js.
  *
  * Usage:
- *   import { users, appointments, timeSlots, isEligibleToDonate } from '../data';
+ *   import { timeSlots, isEligibleToDonate } from '../data';
+ *   import { getAppointments, createAppointment } from '../data/db';
  */
-
-// ── Collections (Firestore tables) ──────────
-export { users }              from './collections/users';
-export { appointments }       from './collections/appointments';
-export { donationHistory }    from './collections/donationHistory';
-export { donationRequests }   from './collections/donationRequests';
-export { bloodInventory }     from './collections/bloodInventory';
 
 // ── Configuration ───────────────────────────
 export {

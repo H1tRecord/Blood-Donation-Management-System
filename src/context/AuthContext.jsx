@@ -1,5 +1,12 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { users } from '../data';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { ref, set, get, update } from 'firebase/database';
+import { auth, db } from '../firebase/firebase';
 
 const AuthContext = createContext();
 
@@ -14,173 +21,181 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [sessionTimeout, setSessionTimeout] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const sessionTimeoutRef = useRef(null);
 
-  // Check for existing session on mount
+  // ── Helpers ────────────────────────────────────────────────────────
+
+  // Fetch user profile from Realtime DB using the Firebase UID
+  const fetchProfile = async (uid) => {
+    const snapshot = await get(ref(db, `users/${uid}`));
+    return snapshot.exists() ? snapshot.val() : null;
+  };
+
+  // Start / reset 30-minute idle session timeout
+  const startSessionTimeout = () => {
+    if (sessionTimeoutRef.current) clearTimeout(sessionTimeoutRef.current);
+    sessionTimeoutRef.current = setTimeout(async () => {
+      alert('Your session has expired due to inactivity. Please log in again.');
+      await logout();
+    }, 30 * 60 * 1000);
+  };
+
+  // Reset timeout on user activity
+  const resetSessionTimeout = () => {
+    if (isAuthenticated) startSessionTimeout();
+  };
+
+  // ── Session persistence via Firebase Auth listener ─────────────────
   useEffect(() => {
-    const storedUser = localStorage.getItem('currentUser');
-    const sessionExpiry = localStorage.getItem('sessionExpiry');
-    
-    if (storedUser && sessionExpiry) {
-      const now = new Date().getTime();
-      if (now < parseInt(sessionExpiry)) {
-        setCurrentUser(JSON.parse(storedUser));
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const profile = await fetchProfile(firebaseUser.uid);
+        if (profile && profile.isActive) {
+          setCurrentUser({ uid: firebaseUser.uid, ...profile });
+          setIsAuthenticated(true);
+          startSessionTimeout();
+        } else {
+          // Profile missing or deactivated – sign out silently
+          await signOut(auth);
+          setCurrentUser(null);
+          setIsAuthenticated(false);
+        }
+      } else {
+        setCurrentUser(null);
+        setIsAuthenticated(false);
+        if (sessionTimeoutRef.current) clearTimeout(sessionTimeoutRef.current);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Login ──────────────────────────────────────────────────────────
+  const login = async (email, password) => {
+    try {
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      const profile = await fetchProfile(credential.user.uid);
+
+      if (!profile) {
+        await signOut(auth);
+        return { success: false, message: 'Account profile not found. Please contact support.' };
+      }
+      if (!profile.isActive) {
+        await signOut(auth);
+        return { success: false, message: 'Your account has been deactivated.' };
+      }
+
+      const userWithUid = { uid: credential.user.uid, ...profile };
+      setCurrentUser(userWithUid);
+      setIsAuthenticated(true);
+      startSessionTimeout();
+      return { success: true, user: userWithUid };
+    } catch (err) {
+      const msg =
+        err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential'
+          ? 'Invalid email or password'
+          : err.message;
+      return { success: false, message: msg };
+    }
+  };
+
+  // ── Register ───────────────────────────────────────────────────────
+  const register = async (userData, autoLogin = false) => {
+    try {
+      // Create Firebase Auth account
+      const credential = await createUserWithEmailAndPassword(
+        auth,
+        userData.email,
+        userData.password
+      );
+      const uid = credential.user.uid;
+
+      // Build the profile (never store plain password in DB)
+      const profile = {
+        role: userData.role,
+        email: userData.email,
+        name: userData.name,
+        phone: userData.phone,
+        registrationDate: new Date().toISOString().split('T')[0],
+        isActive: true,
+        ...(userData.role === 'donor' && {
+          bloodType: null,
+          lastDonationDate: null,
+          donationCount: 0,
+        }),
+        ...(userData.role === 'staff' && {
+          position: userData.position || 'Staff Member',
+        }),
+      };
+
+      // Write profile to Realtime Database at users/{uid}
+      await set(ref(db, `users/${uid}`), profile);
+
+      const userWithUid = { uid, ...profile };
+
+      if (autoLogin && userData.role === 'donor') {
+        setCurrentUser(userWithUid);
         setIsAuthenticated(true);
         startSessionTimeout();
       } else {
-        // Session expired
-        logout();
+        // Sign out so staff must log in explicitly; page redirects to /login
+        await signOut(auth);
       }
-    }
-  }, []);
 
-  // Start 30-minute session timeout
-  const startSessionTimeout = () => {
-    if (sessionTimeout) {
-      clearTimeout(sessionTimeout);
-    }
-
-    const timeout = setTimeout(() => {
-      alert('Your session has expired due to inactivity. Please log in again.');
-      logout();
-    }, 30 * 60 * 1000); // 30 minutes
-
-    setSessionTimeout(timeout);
-    
-    // Store expiry time
-    const expiryTime = new Date().getTime() + (30 * 60 * 1000);
-    localStorage.setItem('sessionExpiry', expiryTime.toString());
-  };
-
-  // Reset session timeout on activity
-  const resetSessionTimeout = () => {
-    if (isAuthenticated) {
-      startSessionTimeout();
+      return {
+        success: true,
+        message: 'Registration successful! Please log in.',
+        user: userWithUid,
+      };
+    } catch (err) {
+      const msg =
+        err.code === 'auth/email-already-in-use'
+          ? 'Email already registered'
+          : err.message;
+      return { success: false, message: msg };
     }
   };
 
-  // Login function
-  const login = (email, password) => {
-    const user = users.find(
-      (u) => u.email === email && u.password === password && u.isActive
-    );
-
-    if (user) {
-      // Don't store password in session
-      const { password: _, ...userWithoutPassword } = user;
-      setCurrentUser(userWithoutPassword);
-      setIsAuthenticated(true);
-      localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
-      startSessionTimeout();
-      return { success: true, user: userWithoutPassword };
-    }
-
-    return { success: false, message: 'Invalid email or password' };
-  };
-
-  // Register function
-  const register = (userData, autoLogin = false) => {
-    // Check if email already exists
-    const existingUser = users.find((u) => u.email === userData.email);
-    if (existingUser) {
-      return { success: false, message: 'Email already registered' };
-    }
-
-    // Validate password
-    if (userData.password.length < 6) {
-      return { success: false, message: 'Password must be at least 6 characters' };
-    }
-
-    // Create new user
-    const newUser = {
-      id: userData.role === 'donor' ? `D${(users.filter(u => u.role === 'donor').length + 1).toString().padStart(3, '0')}` : `S${(users.filter(u => u.role === 'staff').length + 1).toString().padStart(3, '0')}`,
-      role: userData.role,
-      email: userData.email,
-      password: userData.password,
-      name: userData.name,
-      phone: userData.phone,
-      registrationDate: new Date().toISOString().split('T')[0],
-      isActive: true,
-      ...(userData.role === 'donor' && {
-        bloodType: null,
-        lastDonationDate: null,
-        donationCount: 0
-      }),
-      ...(userData.role === 'staff' && {
-        position: userData.position || 'Staff Member'
-      })
-    };
-
-    // Add to users array (in real app, this would be a database call)
-    users.push(newUser);
-
-    // Return user without password
-    const { password: _, ...userWithoutPassword } = newUser;
-    
-    // Auto-login for donors who need to book first appointment
-    if (autoLogin && userData.role === 'donor') {
-      setCurrentUser(userWithoutPassword);
-      setIsAuthenticated(true);
-      localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
-      startSessionTimeout();
-    }
-    
-    return { success: true, message: 'Registration successful! Please log in.', user: userWithoutPassword };
-  };
-
-  // Logout function
-  const logout = () => {
+  // ── Logout ─────────────────────────────────────────────────────────
+  const logout = async () => {
+    await signOut(auth);
     setCurrentUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('sessionExpiry');
-    if (sessionTimeout) {
-      clearTimeout(sessionTimeout);
-    }
+    if (sessionTimeoutRef.current) clearTimeout(sessionTimeoutRef.current);
   };
 
-  // Update user profile
-  const updateProfile = (updates) => {
+  // ── Update current user's own profile ─────────────────────────────
+  const updateProfile = async (updates) => {
+    if (!currentUser?.uid) return { success: false, message: 'Not authenticated' };
+    await update(ref(db, `users/${currentUser.uid}`), updates);
     const updatedUser = { ...currentUser, ...updates };
     setCurrentUser(updatedUser);
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-    
-    // Update in users array
-    const userIndex = users.findIndex(u => u.id === currentUser.id);
-    if (userIndex !== -1) {
-      users[userIndex] = { ...users[userIndex], ...updates };
-    }
-    
     return { success: true };
   };
 
-  // Update blood type for a specific user (used by staff)
-  const updateUserBloodType = (userId, bloodType) => {
-    const userIndex = users.findIndex(u => u.id === userId);
-    if (userIndex !== -1) {
-      users[userIndex].bloodType = bloodType;
-      
-      // If it's the current user, update their session too
-      if (currentUser && currentUser.id === userId) {
-        const updatedUser = { ...currentUser, bloodType };
-        setCurrentUser(updatedUser);
-        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-      }
-      
-      return { success: true };
+  // ── Update blood type for any user (used by staff) ─────────────────
+  // userId here is the Firebase UID stored on currentUser.uid
+  const updateUserBloodType = async (userId, bloodType) => {
+    await update(ref(db, `users/${userId}`), { bloodType });
+    if (currentUser && currentUser.uid === userId) {
+      setCurrentUser({ ...currentUser, bloodType });
     }
-    return { success: false, message: 'User not found' };
+    return { success: true };
   };
 
   const value = {
     currentUser,
     isAuthenticated,
+    loading,
     login,
     register,
     logout,
     updateProfile,
     updateUserBloodType,
-    resetSessionTimeout
+    resetSessionTimeout,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

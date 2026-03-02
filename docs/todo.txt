@@ -2,12 +2,16 @@ priorities:
 - database
 - make everything working
 - admin is the only person who can make staff accounts
+- improve chapter 3
+- donor dashboard displays requests
 
 must:
-- update phone number (decide whether or not to include it idk remove it)
-- consult whether or not admin can edit password or see password
+- remove phone number
 - consider if user can edit their password in the dashboard
 - improve design for donor dashboard
+- account id assignment (new register, appointment, role change)
+- All changes are logged with staff ID and timestamp blood inventory 
+- log appointment who last process with ID (decide if whoever interacts are responsible and non transferable)
 
 optional:
 - adjust the calendar design for the staff appointment since it is not consistent with the other calendar
@@ -17,6 +21,7 @@ optional:
 - appoiment calnedar for user not updated to latest date??
 - animations?
 - improve design of staff dashboard
+- show password hide etc
 
 ???:
 - close weekends since it is closed that day (8am to 5pm??)

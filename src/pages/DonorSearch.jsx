@@ -2,12 +2,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  users,
-  donationRequests,
   BLOOD_TYPES,
   isEligibleToDonate,
   calculateDaysSinceLastDonation
 } from '../data';
+import { getUsers, getDonationRequests, createDonationRequest } from '../data/db';
 import './DonorSearch.css';
 
 const DonorSearch = () => {
@@ -29,26 +28,39 @@ const DonorSearch = () => {
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const [allUsers, setAllUsers] = useState([]);
+  const [allRequests, setAllRequests] = useState([]);
+
+  const loadData = async () => {
+    const [fetchedUsers, fetchedRequests] = await Promise.all([
+      getUsers(),
+      getDonationRequests(),
+    ]);
+    setAllUsers(fetchedUsers);
+    setAllRequests(fetchedRequests);
+  };
+
   useEffect(() => {
     resetSessionTimeout();
     if (location.state?.bloodType) {
       setFilterBloodType(location.state.bloodType);
     }
+    loadData();
   }, [location]);
 
   // Build full donor list with computed fields
   const allDonors = useMemo(() => {
-    return users
+    return allUsers
       .filter(user => user.role === 'donor' && user.isActive && user.lastDonationDate)
       .map(donor => ({
         ...donor,
         daysSinceLast: calculateDaysSinceLastDonation(donor.lastDonationDate),
         eligible: isEligibleToDonate(donor.lastDonationDate),
-        hasActiveRequest: donationRequests.some(
-          req => req.donorId === donor.id && req.status === 'pending'
+        hasActiveRequest: allRequests.some(
+          req => req.donorId === donor.uid && req.status === 'pending'
         )
       }));
-  }, [showSuccess]); // re-compute after a request is sent
+  }, [allUsers, allRequests]);
 
   // Apply filters, search, and sort
   const filteredDonors = useMemo(() => {
@@ -120,7 +132,7 @@ const DonorSearch = () => {
     setShowRequestForm(true);
   };
 
-  const handleSubmitRequest = (e) => {
+  const handleSubmitRequest = async (e) => {
     e.preventDefault();
     if (!requestMessage.trim()) {
       alert('Please enter a message');
@@ -128,18 +140,19 @@ const DonorSearch = () => {
     }
 
     const newRequest = {
-      id: `REQ${(donationRequests.length + 1).toString().padStart(3, '0')}`,
       bloodType: selectedDonor.bloodType,
-      requestedBy: currentUser.id,
+      requestedBy: currentUser.uid,
       requestedByName: currentUser.name,
-      donorId: selectedDonor.id,
+      donorId: selectedDonor.uid,
       donorName: selectedDonor.name,
       requestDate: new Date().toISOString().split('T')[0],
       status: 'pending',
-      message: requestMessage
+      message: requestMessage,
     };
 
-    donationRequests.push(newRequest);
+    await createDonationRequest(newRequest);
+    await loadData();
+
     setShowSuccess(true);
     setShowRequestForm(false);
 

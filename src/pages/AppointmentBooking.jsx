@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  appointments,
   timeSlots,
   APP_CONFIG,
   isEligibleToDonate,
   getDaysUntilEligible
 } from '../data';
+import { getAppointments, createAppointment } from '../data/db';
 import './AppointmentBooking.css';
 
 const AppointmentBooking = () => {
@@ -22,18 +22,18 @@ const AppointmentBooking = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationNumber, setConfirmationNumber] = useState('');
   const [isFirstTime, setIsFirstTime] = useState(false);
+  const [allAppointments, setAllAppointments] = useState([]);
 
   // Calendar state
   const [calendarMonth, setCalendarMonth] = useState(new Date(2026, 1, 1)); // Feb 2026
 
   useEffect(() => {
     resetSessionTimeout();
-    
     if (location.state?.isFirstTime) {
       setIsFirstTime(true);
     }
-    
     checkEligibility();
+    getAppointments().then(setAllAppointments);
   }, [currentUser]);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ const AppointmentBooking = () => {
       const isSunday = cellDate.getDay() === 0;
       const isPast = cellDate <= today;
       const isToday = dateStr === '2026-02-28';
-      const dayAppts = appointments.filter(a => a.date === dateStr && a.status !== 'cancelled');
+      const dayAppts = allAppointments.filter(a => a.date === dateStr && a.status !== 'cancelled');
       const totalCapacity = timeSlots.length * APP_CONFIG.DEFAULT_SLOT_CAPACITY;
       const hasAvailability = dayAppts.length < totalCapacity;
 
@@ -138,7 +138,7 @@ const AppointmentBooking = () => {
   // ── Slot & booking logic ──────────────────────
 
   const loadAvailableSlots = (date) => {
-    const dateAppointments = appointments.filter(apt => apt.date === date && apt.status !== 'cancelled');
+    const dateAppointments = allAppointments.filter(apt => apt.date === date && apt.status !== 'cancelled');
     const cap = APP_CONFIG.DEFAULT_SLOT_CAPACITY;
     const available = timeSlots
       .map(slot => {
@@ -149,41 +149,42 @@ const AppointmentBooking = () => {
     setAvailableSlots(available);
   };
 
-  const handleBookAppointment = (e) => {
+  const handleBookAppointment = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedDate || !selectedTime) {
       alert('Please select both date and time');
       return;
     }
 
     const cap = APP_CONFIG.DEFAULT_SLOT_CAPACITY;
-    const bookedCount = appointments.filter(
+    const bookedCount = allAppointments.filter(
       apt => apt.date === selectedDate && apt.time === selectedTime && apt.status !== 'cancelled'
     ).length;
-    
+
     if (bookedCount >= cap) {
       alert('This slot has just been filled. Please select another time.');
+      const freshAppts = await getAppointments();
+      setAllAppointments(freshAppts);
       loadAvailableSlots(selectedDate);
       return;
     }
 
     const confNum = `CONF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-    
+
     const newAppointment = {
-      id: `APT${(appointments.length + 1).toString().padStart(3, '0')}`,
-      donorId: currentUser.id,
+      donorId: currentUser.uid,
       donorName: currentUser.name,
-      bloodType: currentUser.bloodType,
+      bloodType: currentUser.bloodType || null,
       date: selectedDate,
       time: selectedTime,
       status: 'pending',
       confirmationNumber: confNum,
-      createdDate: new Date().toISOString().split('T')[0]
+      createdDate: new Date().toISOString().split('T')[0],
     };
-    
-    appointments.push(newAppointment);
-    
+
+    await createAppointment(newAppointment);
+
     setConfirmationNumber(confNum);
     setShowConfirmation(true);
   };
