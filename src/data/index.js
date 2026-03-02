@@ -16,7 +16,6 @@ export {
   APP_CONFIG,
   timeSlots,
   BLOOD_TYPES,
-  BLOOD_TYPE_COMPATIBILITY,
   DEMO_ACCOUNTS,
 } from './config';
 
@@ -27,5 +26,4 @@ export {
   calculateDaysSinceLastDonation,
   isEligibleToDonate,
   getDaysUntilEligible,
-  getBloodTypeCompatibility,
 } from './helpers';

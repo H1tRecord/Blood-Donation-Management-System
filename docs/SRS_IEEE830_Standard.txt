@@ -53,6 +53,7 @@ Appendix C: To Be Determined List  6
 Revision History
 Name                Date            Reason For Changes                  Version
 Dev Team Grp 5      24-Feb-26       Initial complete SRS document       1.0
+GitHub Copilot      02-Mar-26       Migrated to Firebase (Auth/RTDB)    1.1
 
 1. Introduction
 1.1  Purpose
@@ -61,7 +62,8 @@ description of the Blood Donation Management System (BDMS). Its primary purpose 
 establish a clear agreement between project stakeholders, medical staff, and developers by
 defining the functional and non-functional requirements of the application. This system serves
 as a central coordination hub for managing blood donation appointments, monitoring inventory
-levels in real-time, and identifying eligible donors to maintain a stable blood supply.
+levels in real-time, and identifying eligible donors to maintain a stable blood supply. Now
+integrated with Google Firebase for secure data persistence.
 
 1.2  Document Conventions
 This document adheres to the IEEE 830-1998 standard for software requirements. To ensure
@@ -98,7 +100,7 @@ This document is designed for the following stakeholders:
 ●  Project Managers: To verify that the proposed solution meets business objectives. They
    should focus on Section 1.4 (Scope) and Section 5 (Nonfunctional Requirements).
 ●  Software Developers: To understand the technical specifications for implementing the
-   React-based frontend and associated mock data layers. They should prioritize Section 3
+   React-based frontend and associated Firebase data layers. They should prioritize Section 3
    (External Interfaces) and Section 4 (System Features).
 ●  Quality Assurance (QA) Testers: To derive test cases and validate that the system
    performs according to the specified accuracy and performance metrics. They should use
@@ -112,13 +114,13 @@ entire lifecycle of blood donation, from donor registration to inventory trackin
 
 1.4.1 Included Capabilities (In-Scope):
 ●  User Management: Registration, authentication, and profile management for Donors, Staff,
-   and Administrators.
+   and Administrators via Firebase Auth.
 ●  Appointment Lifecycle: A guided two-step booking process for donors and a calendar-based
    management interface for staff.
 ●  Inventory Monitoring: Real-time tracking of blood units by type, including automated
    expiry alerts and manual batch adjustments.
 ●  Eligibility Logic: Automated calculation of the 56-day deferral period based on donation
-   history.
+   history stored in Firebase RTDB.
 
 1.4.2 Exclusions (Out-of-Scope):
 ●  Laboratory Equipment: The system does not interface with physical blood analysis or
@@ -132,22 +134,23 @@ entire lifecycle of blood donation, from donor registration to inventory trackin
 IEEE Computer Society. (1998). IEEE Std 830-1998: IEEE Recommended Practice for Software
 Requirements Specifications.
 AABB Standards for Blood Banks and Transfusion Services.
-React 19.2.0 Documentation: https://react.dev
-Vite 7.3.1 Documentation: https://vitejs.dev
+React 19.x Documentation: https://react.dev
+Vite 7.x Documentation: https://vitejs.dev
+Firebase Documentation: https://firebase.google.com/docs
 
 2. Overall Description
 2.1  Product Perspective
 The Blood Donation Management System (BDMS) is an independent, web-based platform designed
-to centralize and digitize blood bank operations. It functions as a standalone single-page
-application (SPA) that coordinates the relationship between donors, medical staff, and stock
-management.
+to centralize and digitize blood bank operations. It functions as a single-page application (SPA)
+integrated with Firebase as a backend-as-a-service (BaaS) for authentication and data persistence.
 
 2.1.1 System Architecture
-The application follows a modern decoupled architecture:
+The application follows a modern serverless architecture:
 ●  Frontend Layer: Developed with React 19.x, providing a reactive and component-based
    user interface.
-●  Data Layer: Utilizes local browser storage (localStorage) and structured mock data objects
-   for high-performance, stateless execution without backend dependencies in Phase 1.
+●  Backend Layer: Firebase Authentication manages user security and sessions.
+●  Data Layer: Firebase Realtime Database (RTDB) provides consistent, real-time data
+   synchronization for all users.
 ●  Routing Layer: Implements React Router v6 for client-side navigation and role-based
    access protection.
 
@@ -156,7 +159,7 @@ The BDMS core functions are categorized into automated tracking and management t
 
 2.2.1 Core Tracking Functions:
 1.  Dynamic Eligibility Calculation: Automated monitoring of donor eligibility status using
-    a 56-day deferral algorithm applied to historical data.
+    a 56-day deferral algorithm applied to live historical data.
 2.  Stock Health Visualizer: Real-time inventory monitoring with color-coded alerts for
     Critical (<10 units), Low (10-19 units), and Adequate (20+ units) supply levels.
 3.  Expiry Management: Automated identification of blood units expiring within a 7-day
@@ -182,19 +185,20 @@ The system supports three distinct user classes with specialized permissions:
 The BDMS executes within standard modern web browsers on mobile or desktop devices:
 ●  Desktop: Chrome 90+, Firefox 88+, Safari 14+, or Edge 90+.
 ●  Mobile: iOS Safari 14+ or Android Chrome 90+.
-●  Required Client Features: JavaScript enabled; localStorage support.
+●  Required Client Features: JavaScript enabled; HTTPS support for Firebase SDK.
 
 2.4.2 Build and Development Environment
 ●  Node.js: Version 18.x or higher for local development.
-●  Bundler: Vite 7.3.1 for optimized resource packaging and HMR (Hot Module Replacement).
+●  Bundler: Vite 7.x for optimized resource packaging and HMR (Hot Module Replacement).
+●  Backend: Firebase Project (Admin Console) for environment configuration.
 
 2.5  Design and Implementation Constraints
-1.  Stateless Persistence: The application shall maintain all session and operational data
-    locally within the browser's localStorage, limiting data sharing across different devices.
+1.  Persistent Cloud Storage: The application shall maintain all session and operational data
+    in Firebase, ensuring data sharing and consistency across different devices.
 2.  Standard Deferral: The system shall strictly enforce a 56-day whole blood deferral period in
     accordance with AABB standards.
-3.  Modular Components: Code shall follow a modular React architecture to ensure
-    maintainability for future backend integration.
+3.  Asynchronous Operations: UI components shall handle data fetching asynchronously to
+    provide a smooth user experience despite network latency.
 
 2.6  User Documentation
 Users shall be supported by the following documentation:
@@ -210,11 +214,12 @@ Project Assumptions
    previous donation dates.
 ●  Standard Deferral: It is assumed that 56 days is the correct and only deferral period
    required for the localized center operations.
+●  Cloud Connectivity: It is assumed that users have stable internet access to communicate
+   with Firebase services.
 
 Technical Dependencies
 ●  React Library: Dependency on the stable APIs of React 19 and React Router v6.
-●  Browser LocalStorage: Dependency on persistent local storage not being cleared by browser
-   privacy settings between sessions.
+●  Firebase SDK: Dependency on Firebase Authentication and Realtime Database modules.
 ●  Vite Runtime: Dependency on the Vite development server for local execution and bundling.
 
 3. External Interface Requirements
@@ -246,18 +251,18 @@ The BDMS is a software-only product that requires standard human-interface devic
 3.3  Software Interfaces
 3.3.1 Browser Runtime
 The system interface is dependent on the following modern web technologies:
-●  Web Storage API: For persistent localStorage operations.
+●  Firebase SDK API: For real-time database and auth operations.
 ●  DOM Level 3: For reactive UI updates via React's virtual DOM.
 ●  ECMAScript 2022 (ES13): For modern JavaScript functionality (Optional Chaining, etc.).
 
 3.4  Communications Interfaces
 3.4.1 HTTPS Protocol
-In Phase 2/Production, all communication between the client browser and the API server shall
+All communication between the client browser and Firebase servers shall
 be encrypted using Transport Layer Security (TLS) 1.2 or higher.
 
 3.4.2 API Standards
-Data exchange between the client and (future) backend shall follow RESTful principles using
-JSON (JavaScript Object Notation) as the primary data format.
+Data exchange between the client and Firebase shall follow the Firebase Realtime
+Database wire protocol utilizing JSON (JavaScript Object Notation).
 
 B) INTERNAL DEPENDENCIES
    - Authentication system must be operational before any other feature
@@ -633,14 +638,14 @@ This feature set manages the lifecycle of user identities and their access to th
       a mandatory notice that "Blood type is determined by medical staff during the first
       donation."
 [FR-05] Upon successful registration, the system shall generate a unique persistent ID and
-      persist the record to the localStorage data layer.
+      persist the record to the Firebase Realtime Database.
 
 4.1.2 Requirement: Secure Authentication
 [FR-06] The system shall provide a centralized login interface requiring Email and Password
       credentials.
-[FR-07] The system shall validate credentials against the stored user objects in
-      localStorage and redirect users to their role-specific dashboard (Donor, Staff, or
-      Admin) upon success.
+[FR-07] The system shall validate credentials against Firebase Authentication and
+      redirect users to their role-specific dashboard (Donor, Staff, or Admin) upon
+      success.
 [FR-08] The system shall maintain session state using context providers, clearing all
       session data upon a manual "Logout" action.
 [FR-09] The system shall display clear error notifications for "Invalid Email/Password" or
@@ -682,7 +687,7 @@ This feature set coordinates the scheduling of donation slots.
       from the clinical schedule.
 [FR-21] Step 2 (Confirmation): The system shall present a summary of the selection for
       final user approval.
-[FR-22] The system shall update the global appointment collection in localStorage
+[FR-22] The system shall update the global appointment collection in Firebase RTDB
       immediately upon successful booking.
 
 4.3.2 Requirement: Staff Clinical Calendar
@@ -723,28 +728,28 @@ This feature set provides global system control.
 5. Nonfunctional Requirements
 5.1  Performance Requirements
 [NFR-01] Response Time: The system shall render UI transitions (routing) in less than
-       200ms under standard browser conditions.
-[NFR-02] Data Processing: Eligibility calculations and inventory health filtering shall
-       execute in less than 50ms upon data retrieval from localStorage.
-[NFR-03] Concurrency: The client-side application shall support a minimum of 50
-       simultaneous component state updates without perceptible frame drops (maintain
-       60 FPS).
+       300ms under standard network conditions.
+[NFR-02] Data Synchronization: Changes to Firebase RTDB shall reflect on all connected
+       clients within 2 seconds.
+[NFR-03] Concurrency: The application shall support multiple simultaneous users tracking
+       live inventory and appointment updates.
 
 5.2  Safety and Security Requirements
 [NFR-04] Access Control: The system shall enforce role-based redirection, ensuring that
        unauthenticated users cannot view sensitive clinical or administrative data.
 [NFR-05] Data Integrity: All destructive operations (e.g., deleting a blood unit or
        deactivating a user) shall require explicit modal confirmation.
-[NFR-06] Session Persistence: User session data (role, ID) shall be stored in encrypted
-       or obscured formats within sessionStorage to prevent basic XSS hijacking in
-       Phase 2.
+[NFR-06] Session Persistence: Firebase Authentication state shall be persisted in
+       secure storage (IndexedDB/Local) managed by the Firebase SDK to maintain
+       user sessions across refresh.
 
 5.3  Software Quality Attributes
 [NFR-07] Usability: The Donor Portal shall maintain a System Usability Scale (SUS) score
        equivalent to "Excellent," requiring no more than 3 clicks to complete an
        appointment booking.
-[NFR-08] Availability: As a client-side SPA, the system shall remain functional even
-       during intermittent network latency, provided the initial bundle is cached.
+[NFR-08] Scalability: The use of Firebase as a backend enables the system to scale
+       horizontally to handle increased user loads and data volume without
+       infrastructure changes.
 [NFR-09] Maintainability: The codebase shall adhere to ESLint "recommended" rules and
        maintain a modular structure with separate concerns for 'components', 'hooks',
        and 'context'.
@@ -753,12 +758,13 @@ This feature set provides global system control.
 6.1  Appendix A: Terminology and Glossary
 ●  Deferral: A period during which a donor is ineligible to give blood (56 days).
 ●  SPA: Single Page Application (React architecture).
-●  LocalStorage: Web API used for data persistence in the browser.
-●  Batch: A group of blood units sharing a common blood type and expiry date.
+●  Firebase RTDB: Firebase Realtime Database used for cloud persistence.
+●  Firebase Auth: Service used for user registration and secure login.
+●  BaaS: Backend-as-a-Service architecture.
 
 6.2  Appendix B: To-Be-Determined (TBD) List
-1.  Integration specifications for external SMTP/Email services (Phase 2).
-2.  SQL Schema mapping for transition from localStorage to PostgreSQL (Phase 2).
+1.  Integration specifications for external SMTP/Email services.
+2.  Automated backup procedures for Firebase RTDB exports.
   * Statistics for total units, critical, and low stock types
   * Low stock alerts displayed on inventory page
 

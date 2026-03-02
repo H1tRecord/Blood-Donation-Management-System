@@ -10,7 +10,7 @@
  *   • Firestore Security Rules (eligibility checks)
  */
 
-import { APP_CONFIG, BLOOD_TYPE_COMPATIBILITY } from './config';
+import { APP_CONFIG} from './config';
 
 // ── Inventory helpers ───────────────────────
 
@@ -53,11 +53,4 @@ export const getDaysUntilEligible = (lastDonationDate) => {
   const days = calculateDaysSinceLastDonation(lastDonationDate);
   if (days >= APP_CONFIG.DEFERRAL_PERIOD_DAYS) return 0;
   return APP_CONFIG.DEFERRAL_PERIOD_DAYS - days;
-};
-
-// ── Blood-type helpers ──────────────────────
-
-/** Returns the list of recipient blood types compatible with a given donor type */
-export const getBloodTypeCompatibility = (bloodType) => {
-  return BLOOD_TYPE_COMPATIBILITY[bloodType] || [];
 };

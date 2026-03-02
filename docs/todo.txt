@@ -1,7 +1,7 @@
 priorities:
 - database
 - make everything working
-- admin is the only person who can make staff accounts
+- admin is the only person who can make staff and admin accounts
 - improve chapter 3
 - donor dashboard displays requests
 
@@ -12,10 +12,10 @@ must:
 - account id assignment (new register, appointment, role change)
 - All changes are logged with staff ID and timestamp blood inventory 
 - log appointment who last process with ID (decide if whoever interacts are responsible and non transferable)
+- no deletion of accounts just disable
 
 optional:
 - adjust the calendar design for the staff appointment since it is not consistent with the other calendar
-- no deletion of accounts just disable
 - undo button for appointment thing?
 - let donor cancel appointment from their dashboard
 - appoiment calnedar for user not updated to latest date??
