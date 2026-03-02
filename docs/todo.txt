@@ -8,6 +8,8 @@ must:
 - consider if user can edit their password in the dashboard
 - All changes are logged with staff ID and timestamp blood inventory 
 - no deletion of accounts just disable
+- redesign staff dashboard
+- improve donor history
 
 optional:
 - undo button for appointment thing?

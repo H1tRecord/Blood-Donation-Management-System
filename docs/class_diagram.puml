@@ -23,7 +23,6 @@ package "Models" {
         - email: string
         - password: string
         - name: string
-        - phone: string
         - isActive: boolean
         - registrationDate: Date
         + authenticate(): boolean
@@ -40,7 +39,6 @@ package "Models" {
     }
 
     class Staff extends User {
-        - position: string
         + manageDonations(): void
         + searchDonors(): void
         + sendDonationRequest(): void
@@ -61,6 +59,7 @@ package "Models" {
         - status: enum(pending|confirmed|checked-in|completed|cancelled)
         - confirmationNumber: string
         - createdDate: Date
+        - donationHistoryId: string
         + createAppointment(): void
         + updateStatus(newStatus): void
         + cancelAppointment(): void
@@ -85,12 +84,14 @@ package "Models" {
 
     class DonationHistory {
         - id: string
+        - appointmentId: string
         - donorId: string
         - donorName: string
         - bloodType: string
         - date: Date
         - units: integer
         - staffId: string
+        - staffName: string
         - status: enum(completed)
         + recordDonation(): void
         + updateInventory(): void

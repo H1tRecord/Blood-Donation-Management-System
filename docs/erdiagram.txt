@@ -40,12 +40,14 @@ erDiagram
 
     DONATION_HISTORY {
         string id PK
+        string appointmentId FK "source appointment"
         string donorId FK
         string donorName "denormalized"
         string bloodType "denormalized"
         date date
         int units "amount donated"
         string staffId FK "staff who processed"
+        string staffName "denormalized"
         string status "completed"
     }
 

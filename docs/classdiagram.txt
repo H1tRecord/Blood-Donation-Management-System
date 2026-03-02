@@ -1,10 +1,4 @@
 classDiagram
-    class App {
-        -BrowserRouter router
-        -AuthProvider provider
-        +AppContent()
-    }
-
     class AuthContext {
         -currentUser: User
         -isAuthenticated: boolean
@@ -13,7 +7,6 @@ classDiagram
         +logout(): void
         +register(userData): void
         +adminCreateAccount(userData): void
-        +generateUserId(role): string
         +startSessionTimeout(): void
         +useAuth(): AuthContextType
     }
@@ -32,15 +25,12 @@ classDiagram
         -bloodType: string
         -lastDonationDate: date
         -donationCount: number
-        +checkEligibility(): boolean
-        +getDaysUntilEligible(): number
     }
 
     class Staff {
     }
 
     class Admin {
-        +manageAccounts(): void
     }
 
     class Appointment {
@@ -53,6 +43,7 @@ classDiagram
         -status: enum(pending, confirmed, checked-in, completed, cancelled)
         -confirmationNumber: string
         -createdDate: date
+        -donationHistoryId: string
         +createAppointment(): void
         +updateStatus(newStatus): void
         +cancelAppointment(): void
@@ -64,21 +55,19 @@ classDiagram
         -lastUpdated: date
         -expirationDate: date
         -batches: array
-        +updateUnits(amount): void
-        +checkExpiration(): void
-        +getInventoryStatus(): enum(low, caution, warning, critical)
     }
 
     class DonationHistory {
         -id: string
+        -appointmentId: string
         -donorId: string
         -donorName: string
         -bloodType: string
         -date: date
         -units: number
         -staffId: string
+        -staffName: string
         -status: enum(completed)
-        +recordDonation(): void
     }
 
     class DonationRequest {
@@ -93,127 +82,15 @@ classDiagram
         -message: string
         -responseDate: date
         -responseMessage: string
-        +sendRequest(): void
-        +respondToRequest(response): void
     }
-
-    class DonorDashboard {
-        -eligibilityStatus: object
-        -daysUntilEligible: number
-        -donationHistory: array
-        +displayEligibility(): void
-        +bookAppointment(): void
-        +viewHistory(): void
-    }
-
-    class StaffDashboard {
-        -appointments: array
-        -inventory: array
-        +viewAppointments(): void
-        +searchDonor(): void
-        +sendDonationRequest(): void
-        +manageInventory(): void
-    }
-
-    class AdminDashboard {
-        -accounts: array
-        -filterRole: string
-        -filterStatus: string
-        -searchQuery: string
-        +loadAccounts(): void
-        +createAccount(): void
-        +editAccount(): void
-        +toggleStatus(): void
-        +deleteAccount(): void
-    }
-
-    class AppointmentBooking {
-        -availableSlots: array
-        -selectedDate: date
-        -selectedTime: string
-        +fetchAvailableSlots(): void
-        +confirmAppointment(): void
-    }
-
-    class InventoryManagement {
-        -bloodInventory: array
-        -filterCriteria: object
-        +viewInventory(): void
-        +updateBatch(): void
-        +monitorExpiration(): void
-    }
-
-    class DonorSearch {
-        -searchFilters: object
-        -donorList: array
-        +searchDonors(): void
-        +filterByBloodType(): void
-    }
-
-    class Login {
-        -email: string
-        -password: string
-        +authenticate(): void
-        +handleError(): void
-    }
-
-    class Register {
-        -formData: object
-        +registerUser(): void
-        +validateInput(): void
-    }
-
-    class Navbar {
-        -currentUser: User
-        -navItems: array
-        +logout(): void
-        +navigateTo(page): void
-    }
-
-    class DataHelpers {
-        +getInventoryStatus(units): enum
-        +getInventoryColor(status): string
-        +calculateDaysSinceLastDonation(date): number
-        +isEligibleToDonate(lastDonation): boolean
-        +getDaysUntilEligible(lastDonation): number
-    }
-
-    App --> AuthContext
-    App --> DonorDashboard
-    App --> StaffDashboard
-    App --> AdminDashboard
-    App --> Login
-    App --> Register
-    App --> Navbar
-
     AuthContext --> User
     User <|-- Donor
     User <|-- Staff
     User <|-- Admin
 
-    DonorDashboard --> Appointment
-    DonorDashboard --> DonationHistory
-    DonorDashboard --> DataHelpers
-
-    StaffDashboard --> Appointment
-    StaffDashboard --> BloodInventory
-    StaffDashboard --> DonationRequest
-    StaffDashboard --> DonorSearch
-    StaffDashboard --> DataHelpers
-
-    AdminDashboard --> User
-
-    AppointmentBooking --> Appointment
-    AppointmentBooking --> DataHelpers
-
-    InventoryManagement --> BloodInventory
-    InventoryManagement --> DataHelpers
-
-    DonationHistory --> Donor
-    DonationHistory --> Staff
-
-    DonationRequest --> Donor
-    DonationRequest --> Staff
-
     Appointment --> Donor
     Appointment --> DonationHistory
+    DonationHistory --> Donor
+    DonationHistory --> Staff
+    DonationRequest --> Donor
+    DonationRequest --> Staff

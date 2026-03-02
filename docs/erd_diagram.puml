@@ -9,13 +9,11 @@ entity "users" as users {
   email : string
   password : string
   name : string
-  phone : string
   isActive : boolean
   registrationDate : Date
   bloodType : string
   lastDonationDate : Date
   donationCount : integer
-  position : string
 }
 
 entity "appointments" as appointments {
@@ -43,12 +41,14 @@ entity "blood_inventory" as blood_inventory {
 entity "donation_history" as donation_history {
   *id : string <<PK>>
   --
+  appointmentId : string <<FK>>
   donorId : string <<FK>>
   donorName : string
   bloodType : string
   date : Date
   units : integer
   staffId : string <<FK>>
+  staffName : string
   status : enum(completed)
 }
 
@@ -74,11 +74,11 @@ appointments ||--|| donation_history : results_in
 blood_inventory ||--|| donation_history : receives_blood
 
 note right of users
-  Firestore Collection
+  RTDB node: /users/{uid}
   Roles: donor, staff, admin
   Donor-specific: bloodType, lastDonationDate,
                  donationCount
-  Staff-specific: position
+  Staff profiles reuse uid; no custom id field
 end note
 
 note right of appointments

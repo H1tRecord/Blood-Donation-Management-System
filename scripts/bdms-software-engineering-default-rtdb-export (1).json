@@ -1,0 +1,442 @@
+{
+  "appointments": {
+    "APT001": {
+      "bloodType": "O+",
+      "confirmationNumber": "CONF-001",
+      "createdDate": "2026-02-20",
+      "date": "2026-02-27",
+      "donorId": "0C48ynsvrOOxzgZy05bYfZyZLVy1",
+      "donorName": "John Smith",
+      "status": "confirmed",
+      "time": "09:00 AM"
+    },
+    "APT002": {
+      "bloodType": "B+",
+      "confirmationNumber": "CONF-002",
+      "createdDate": "2026-02-21",
+      "date": "2026-02-27",
+      "donorId": "3pBkKC6dmgQS5sJBMQIzRZaKGnm1",
+      "donorName": "Michael Brown",
+      "status": "confirmed",
+      "time": "10:00 AM"
+    },
+    "APT003": {
+      "bloodType": "O-",
+      "confirmationNumber": "CONF-003",
+      "createdDate": "2026-02-25",
+      "date": "2026-02-27",
+      "donorId": "uXG78dHSctbbBKWrOCDPgXvi3GG3",
+      "donorName": "David Wilson",
+      "status": "checked-in",
+      "time": "02:00 PM"
+    },
+    "APT004": {
+      "bloodType": "B-",
+      "confirmationNumber": "CONF-004",
+      "createdDate": "2026-02-22",
+      "date": "2026-02-28",
+      "donorId": "ngQaT7kQJuWPV6xjJmgAG0NGzyB3",
+      "donorName": "James Anderson",
+      "status": "confirmed",
+      "time": "09:00 AM"
+    },
+    "APT005": {
+      "bloodType": "O+",
+      "confirmationNumber": "CONF-005",
+      "createdDate": "2026-02-24",
+      "date": "2026-02-28",
+      "donorId": "M5i8GUvslVZC9bLT7VZlSlL8CLv1",
+      "donorName": "Robert Thomas",
+      "status": "pending",
+      "time": "11:00 AM"
+    },
+    "APT006": {
+      "bloodType": "A+",
+      "confirmationNumber": "CONF-006",
+      "createdDate": "2026-02-18",
+      "date": "2026-03-01",
+      "donorId": "kHutdlf8leUtRvHitDWkjWs5ik02",
+      "donorName": "Sarah Jones",
+      "status": "cancelled",
+      "time": "10:00 AM"
+    },
+    "APT007": {
+      "bloodType": "A+",
+      "confirmationNumber": "CONF-007",
+      "createdDate": "2026-02-26",
+      "date": "2026-02-27",
+      "donationHistoryId": "DON006",
+      "donorId": "p35Y6QfXFxdP8a7cTgd6y8M9AOa2",
+      "donorName": "Alex Chen",
+      "status": "completed",
+      "time": "03:00 PM"
+    }
+  },
+  "bloodInventory": {
+    "A+": {
+      "batches": [
+        {
+          "expirationDate": "2026-03-07",
+          "units": 5
+        },
+        {
+          "donationHistoryId": "DON003",
+          "expirationDate": "2026-03-30",
+          "units": 20
+        },
+        {
+          "donationHistoryId": "DON006",
+          "expirationDate": "2026-04-10",
+          "units": 6
+        }
+      ],
+      "expirationDate": "2026-04-10",
+      "lastUpdated": "2026-03-02",
+      "type": "A+",
+      "units": 31
+    },
+    "A-": {
+      "batches": [
+        {
+          "expirationDate": "2026-03-06",
+          "units": 4
+        },
+        {
+          "expirationDate": "2026-03-25",
+          "units": 4
+        }
+      ],
+      "expirationDate": "2026-03-06",
+      "lastUpdated": "2026-02-24",
+      "type": "A-",
+      "units": 8
+    },
+    "AB+": {
+      "batches": [
+        {
+          "expirationDate": "2026-03-28",
+          "units": 10
+        }
+      ],
+      "expirationDate": "2026-03-28",
+      "lastUpdated": "2026-03-02",
+      "type": "AB+",
+      "units": 10
+    },
+    "AB-": {
+      "expirationDate": "2026-02-28",
+      "lastUpdated": "2026-03-02",
+      "type": "AB-",
+      "units": 0
+    },
+    "B+": {
+      "batches": [
+        {
+          "expirationDate": "2026-03-04",
+          "units": 3
+        },
+        {
+          "donationHistoryId": "DON004",
+          "expirationDate": "2026-04-01",
+          "units": 12
+        }
+      ],
+      "expirationDate": "2026-03-04",
+      "lastUpdated": "2026-02-25",
+      "type": "B+",
+      "units": 15
+    },
+    "B-": {
+      "batches": [
+        {
+          "expirationDate": "2026-03-04",
+          "units": 5
+        }
+      ],
+      "expirationDate": "2026-03-04",
+      "lastUpdated": "2026-02-23",
+      "type": "B-",
+      "units": 5
+    },
+    "O+": {
+      "batches": [
+        {
+          "donationHistoryId": "DON001",
+          "expirationDate": "2026-03-03",
+          "units": 2
+        },
+        {
+          "expirationDate": "2026-04-05",
+          "units": 28
+        }
+      ],
+      "expirationDate": "2026-03-03",
+      "lastUpdated": "2026-02-26",
+      "type": "O+",
+      "units": 30
+    },
+    "O-": {
+      "batches": [
+        {
+          "donationHistoryId": "DON005",
+          "expirationDate": "2026-03-05",
+          "units": 3
+        },
+        {
+          "expirationDate": "2026-03-22",
+          "units": 4
+        }
+      ],
+      "expirationDate": "2026-03-05",
+      "lastUpdated": "2026-02-24",
+      "type": "O-",
+      "units": 7
+    }
+  },
+  "donationHistory": {
+    "DON001": {
+      "bloodType": "O+",
+      "date": "2026-01-01",
+      "donorId": "0C48ynsvrOOxzgZy05bYfZyZLVy1",
+      "donorName": "John Smith",
+      "staffId": "iSQhc0VMfsYZXM1xjzxV3Fvr30H3",
+      "status": "completed",
+      "units": 1
+    },
+    "DON002": {
+      "bloodType": "O+",
+      "date": "2025-11-05",
+      "donorId": "0C48ynsvrOOxzgZy05bYfZyZLVy1",
+      "donorName": "John Smith",
+      "staffId": "9gaBJPn8tUP5t0TIp8tYkkR6Z6g2",
+      "status": "completed",
+      "units": 1
+    },
+    "DON003": {
+      "bloodType": "A+",
+      "date": "2026-02-15",
+      "donorId": "kHutdlf8leUtRvHitDWkjWs5ik02",
+      "donorName": "Sarah Jones",
+      "staffId": "iSQhc0VMfsYZXM1xjzxV3Fvr30H3",
+      "status": "completed",
+      "units": 1
+    },
+    "DON004": {
+      "bloodType": "B+",
+      "date": "2025-12-20",
+      "donorId": "3pBkKC6dmgQS5sJBMQIzRZaKGnm1",
+      "donorName": "Michael Brown",
+      "staffId": "9gaBJPn8tUP5t0TIp8tYkkR6Z6g2",
+      "status": "completed",
+      "units": 1
+    },
+    "DON005": {
+      "bloodType": "O-",
+      "date": "2025-11-30",
+      "donorId": "uXG78dHSctbbBKWrOCDPgXvi3GG3",
+      "donorName": "David Wilson",
+      "staffId": "iSQhc0VMfsYZXM1xjzxV3Fvr30H3",
+      "status": "completed",
+      "units": 1
+    },
+    "DON006": {
+      "appointmentId": "APT007",
+      "bloodType": "A+",
+      "date": "2026-02-27",
+      "donorId": "p35Y6QfXFxdP8a7cTgd6y8M9AOa2",
+      "donorName": "Alex Chen",
+      "staffId": "iSQhc0VMfsYZXM1xjzxV3Fvr30H3",
+      "staffName": "Nurse Smith",
+      "status": "completed",
+      "units": 6
+    }
+  },
+  "donationRequests": {
+    "REQ001": {
+      "bloodType": "A-",
+      "donorId": "xPtVLHLDgrbv7eYXTQFoTM7cfhJ2",
+      "donorName": "Lisa Martinez",
+      "message": "We urgently need A- blood. Would you be able to donate soon?",
+      "requestDate": "2026-02-24",
+      "requestedBy": "iSQhc0VMfsYZXM1xjzxV3Fvr30H3",
+      "requestedByName": "Nurse Smith",
+      "status": "pending"
+    },
+    "REQ002": {
+      "bloodType": "B-",
+      "donorId": "ngQaT7kQJuWPV6xjJmgAG0NGzyB3",
+      "donorName": "James Anderson",
+      "message": "Our B- inventory is critically low. Can you help?",
+      "requestDate": "2026-02-23",
+      "requestedBy": "9gaBJPn8tUP5t0TIp8tYkkR6Z6g2",
+      "requestedByName": "Tech Johnson",
+      "status": "accepted"
+    },
+    "REQ003": {
+      "bloodType": "AB-",
+      "donorId": "0rT10YInrkOduZHsO7POsWHx8kI2",
+      "donorName": "Jennifer Taylor",
+      "message": "We need AB- donations. Are you available?",
+      "requestDate": "2026-02-22",
+      "requestedBy": "iSQhc0VMfsYZXM1xjzxV3Fvr30H3",
+      "requestedByName": "Nurse Smith",
+      "status": "declined"
+    },
+    "REQ004": {
+      "bloodType": "O-",
+      "donorId": "uXG78dHSctbbBKWrOCDPgXvi3GG3",
+      "donorName": "David Wilson",
+      "message": "O- is running low. Your donation would be greatly appreciated!",
+      "requestDate": "2026-02-25",
+      "requestedBy": "iSQhc0VMfsYZXM1xjzxV3Fvr30H3",
+      "requestedByName": "Nurse Smith",
+      "status": "pending"
+    }
+  },
+  "users": {
+    "0C48ynsvrOOxzgZy05bYfZyZLVy1": {
+      "bloodType": "O+",
+      "donationCount": 5,
+      "email": "john.smith@email.com",
+      "isActive": true,
+      "lastDonationDate": "2026-01-01",
+      "name": "John Smith",
+      "password": "donor123",
+      "registrationDate": "2025-01-15",
+      "role": "donor"
+    },
+    "0rT10YInrkOduZHsO7POsWHx8kI2": {
+      "bloodType": "AB-",
+      "donationCount": 0,
+      "email": "jennifer.taylor@email.com",
+      "isActive": true,
+      "name": "Jennifer Taylor",
+      "password": "donor123",
+      "registrationDate": "2025-08-30",
+      "role": "donor"
+    },
+    "3pBkKC6dmgQS5sJBMQIzRZaKGnm1": {
+      "bloodType": "B+",
+      "donationCount": 4,
+      "email": "michael.brown@email.com",
+      "isActive": true,
+      "lastDonationDate": "2025-12-20",
+      "name": "Michael Brown",
+      "password": "donor123",
+      "registrationDate": "2025-02-10",
+      "role": "donor"
+    },
+    "9gaBJPn8tUP5t0TIp8tYkkR6Z6g2": {
+      "email": "phlebotomist.johnson@bdms.org",
+      "isActive": true,
+      "name": "Tech Johnson",
+      "password": "staff123",
+      "registrationDate": "2025-01-01",
+      "role": "staff"
+    },
+    "A4D0yMUIleOQZJSForYfK2hCPuu2": {
+      "email": "admin@bdms.org",
+      "isActive": true,
+      "name": "Admin User",
+      "password": "admin123",
+      "registrationDate": "2025-01-01",
+      "role": "admin"
+    },
+    "M5i8GUvslVZC9bLT7VZlSlL8CLv1": {
+      "bloodType": "O+",
+      "donationCount": 1,
+      "email": "robert.thomas@email.com",
+      "isActive": true,
+      "lastDonationDate": "2025-12-25",
+      "name": "Robert Thomas",
+      "password": "donor123",
+      "registrationDate": "2025-09-14",
+      "role": "donor"
+    },
+    "PnCCKyJXRiarN4kxbRHQ6GIyCsp2": {
+      "bloodType": "A+",
+      "donationCount": 2,
+      "email": "mary.jackson@email.com",
+      "isActive": true,
+      "lastDonationDate": "2026-02-10",
+      "name": "Mary Jackson",
+      "password": "donor123",
+      "registrationDate": "2025-10-20",
+      "role": "donor"
+    },
+    "iSQhc0VMfsYZXM1xjzxV3Fvr30H3": {
+      "email": "nurse.smith@bdms.org",
+      "isActive": true,
+      "name": "Nurse Smith",
+      "password": "staff123",
+      "registrationDate": "2025-01-01",
+      "role": "staff"
+    },
+    "kHutdlf8leUtRvHitDWkjWs5ik02": {
+      "bloodType": "A+",
+      "donationCount": 3,
+      "email": "sarah.jones@email.com",
+      "isActive": true,
+      "lastDonationDate": "2026-02-15",
+      "name": "Sarah Jones",
+      "password": "donor123",
+      "registrationDate": "2025-03-20",
+      "role": "donor"
+    },
+    "ngQaT7kQJuWPV6xjJmgAG0NGzyB3": {
+      "bloodType": "B-",
+      "donationCount": 2,
+      "email": "james.anderson@email.com",
+      "isActive": true,
+      "lastDonationDate": "2025-12-10",
+      "name": "James Anderson",
+      "password": "donor123",
+      "registrationDate": "2025-07-22",
+      "role": "donor"
+    },
+    "p35Y6QfXFxdP8a7cTgd6y8M9AOa2": {
+      "bloodType": "A+",
+      "donationCount": 1,
+      "email": "alex.chen@email.com",
+      "isActive": true,
+      "lastDonationDate": "2026-02-27",
+      "name": "Alex Chen",
+      "password": "donor123",
+      "registrationDate": "2026-02-26",
+      "role": "donor"
+    },
+    "rcQfjcJGSmVY2XQsu30xbdhO9c82": {
+      "bloodType": "AB+",
+      "donationCount": 2,
+      "email": "emily.davis@email.com",
+      "isActive": true,
+      "lastDonationDate": "2026-01-10",
+      "name": "Emily Davis",
+      "password": "donor123",
+      "registrationDate": "2025-04-05",
+      "role": "donor"
+    },
+    "uXG78dHSctbbBKWrOCDPgXvi3GG3": {
+      "bloodType": "O-",
+      "donationCount": 6,
+      "email": "david.wilson@email.com",
+      "isActive": true,
+      "lastDonationDate": "2025-11-30",
+      "name": "David Wilson",
+      "password": "donor123",
+      "registrationDate": "2025-05-12",
+      "role": "donor"
+    },
+    "xPtVLHLDgrbv7eYXTQFoTM7cfhJ2": {
+      "bloodType": "A-",
+      "donationCount": 3,
+      "email": "lisa.martinez@email.com",
+      "isActive": true,
+      "lastDonationDate": "2026-01-05",
+      "name": "Lisa Martinez",
+      "password": "donor123",
+      "registrationDate": "2025-06-18",
+      "role": "donor"
+    }
+  }
+}

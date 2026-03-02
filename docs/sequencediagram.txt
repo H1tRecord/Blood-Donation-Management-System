@@ -9,7 +9,7 @@ sequenceDiagram
         User->>UI: 1. Login / Register
         UI->>Auth: Submit credentials
         Auth->>DB: Query /users/{uid}
-        DB-->>Auth: Validate & fetch profile
+        DB-->>Auth: Validate & fetch profile (uid is primary key)
         Auth->>Auth: Session management (30 min timeout)
         Auth-->>UI: User profile + role
         UI-->>User: Redirect to role dashboard
@@ -24,12 +24,18 @@ sequenceDiagram
         System-->>UI: Eligibility status & next eligible date
 
         alt If Eligible
-            User->>UI: 3. Book Appointment
-            UI->>DB: Fetch /appointments (count by date+time)
-            DB-->>UI: Display calendar with slot availability
+            User->>UI: 3. Book Appointment (optional: from request)
+            UI->>System: Request new APT### id + availability
+            System->>DB: Read /appointments to check slot counts
+            DB-->>System: Slot availability
             User->>UI: Select date & time
-            UI->>DB: Create /appointments/{id}
-            DB-->>UI: Confirmation number
+            UI->>System: Create appointment (with requestId?)
+            System->>DB: Write /appointments/{APT###}
+            DB-->>System: Confirmation number
+            alt Appointment created from a donation request
+                System->>DB: Update /donationRequests/{id}.status = accepted
+                DB-->>System: Request marked accepted
+            end
 
             User->>UI: 4. View donation history
             UI->>DB: Query /donationHistory (donorId = uid)
@@ -51,6 +57,13 @@ sequenceDiagram
         User->>UI: 7. Manage Appointments
         UI->>DB: Update /appointments/{id} status
         DB-->>UI: Status updated
+
+        alt Complete appointment
+            UI->>System: Submit completion (bloodType?, units, collectionDate)
+            System->>DB: Multi-update
+            DB-->>System: Acknowledged
+            note right of DB: Writes in one step:<br/>- /donationHistory/{DON###} (links appointmentId)<br/>- /users/{donorId}: bloodType, donationCount++, lastDonationDate<br/>- /bloodInventory/{type}: batches[], units, expirationDate<br/>- /appointments/{id}: status=completed, donationHistoryId
+        end
 
         User->>UI: 8. Search Donors
         UI->>DB: Query /users (role=donor, filters)
@@ -74,10 +87,9 @@ sequenceDiagram
         DB-->>UI: Account list
 
         User->>UI: 12. Create staff / admin account
-        Auth->>Auth: generateUserId(role)
         Auth->>DB: createUserWithEmailAndPassword (secondary app)
         Auth->>DB: Write /users/{uid} profile
-        DB-->>UI: Account created with sequential ID
+        DB-->>UI: Account created (uid only)
 
         User->>UI: 13. Edit / enable / disable / delete account
         UI->>DB: Update or remove /users/{uid}
