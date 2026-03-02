@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
-// Firebase project configuration
+// Firebase project configuration (yes this is public i dont care since it's a school project and im too lazy to hide it i have backed up the database so even if someone deletes it i can just restore it)
 export const firebaseConfig = {
   apiKey: "AIzaSyB6weNm1c_LG7iU0uhKGLluznOv5voVL5Y",
   authDomain: "bdms-software-engineering.firebaseapp.com",

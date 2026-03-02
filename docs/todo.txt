@@ -1,7 +1,7 @@
 priorities:
 - improve chapter 3
 - let admin adjust user information like blood type only for donors 
-- fix the donation history logic appointment > staff process > staff input to mark complete > update inventory (admin can only update???)
+- fix the donation history logic appointment > staff process > staff input to mark complete > update inventory (consider: admin can only update???)
 - expiration date is synced to the last item to expire
 
 must:
@@ -10,10 +10,10 @@ must:
 - no deletion of accounts just disable
 - redesign staff dashboard
 - improve donor history
+- let donor cancel appointment from their dashboard
 
 optional:
 - undo button for appointment thing?
-- let donor cancel appointment from their dashboard
 - animations?
 - show password hide etc
 
