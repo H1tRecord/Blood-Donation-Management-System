@@ -6,6 +6,9 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
 import { ref, set, get, update } from 'firebase/database';
 import { auth, db, firebaseConfig } from '../firebase/firebase';
@@ -222,6 +225,24 @@ export const AuthProvider = ({ children }) => {
     return { success: true };
   };
 
+  // ── Change current user's own password ───────────────────────────
+  const changePassword = async (currentPassword, newPassword) => {
+    if (!currentUser?.uid) return { success: false, message: 'Not authenticated' };
+    try {
+      const user = auth.currentUser;
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+      await updatePassword(user, newPassword);
+      return { success: true };
+    } catch (err) {
+      const msg =
+        err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential'
+          ? 'Current password is incorrect'
+          : err.message;
+      return { success: false, message: msg };
+    }
+  };
+
   // ── Update blood type for any user (used by staff) ─────────────────
   // userId here is the Firebase UID stored on currentUser.uid
   const updateUserBloodType = async (userId, bloodType) => {
@@ -241,6 +262,7 @@ export const AuthProvider = ({ children }) => {
     adminCreateAccount,
     logout,
     updateProfile,
+    changePassword,
     updateUserBloodType,
     resetSessionTimeout,
   };

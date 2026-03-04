@@ -89,6 +89,9 @@ const InventoryManagement = () => {
   const [sortDirection, setSortDirection] = useState('asc');
   const [expiryAlerts, setExpiryAlerts] = useState([]);
   const [autoExpiredUnits, setAutoExpiredUnits] = useState([]);
+  const [sessionRemovedUnits, setSessionRemovedUnits] = useState([]);
+  const [showBatchesModal, setShowBatchesModal] = useState(false);
+  const [batchesItem, setBatchesItem] = useState(null);
 
   useEffect(() => {
     resetSessionTimeout();
@@ -201,6 +204,7 @@ const InventoryManagement = () => {
         inventoryItem.expirationDate = inventoryItem.batches[0].expirationDate;
       }
       setSuccessMessage(`Successfully removed ${quantity} unit(s) of ${selectedType}`);
+      setSessionRemovedUnits(prev => [...prev, { type: selectedType, units: quantity }]);
     }
 
     await setInventoryItem(selectedType, inventoryItem);
@@ -232,7 +236,8 @@ const InventoryManagement = () => {
    * - if any units were auto-removed for this type: a removed notice
    */
   const renderExpiryCell = (item) => {
-    const removedForType = autoExpiredUnits.filter((e) => e.type === item.type);
+    const expiredForType = autoExpiredUnits.filter((e) => e.type === item.type);
+    const removedForType = sessionRemovedUnits.filter((r) => r.type === item.type);
     const expiringBatches = (item.batches || [])
       .map((b) => ({ ...b, daysUntilExpiry: getDaysUntilExpiry(b.expirationDate) }))
       .filter((b) => b.daysUntilExpiry <= 7)
@@ -256,10 +261,16 @@ const InventoryManagement = () => {
             </span>
           );
         })}
-        {removedForType.map((e, idx) => (
-          <span key={`rm-${idx}`} className="expiry-line removed">
-            <span className="expiry-dot expired"></span>
-            {e.units} unit{e.units !== 1 ? 's' : ''} removed
+        {expiredForType.map((e, idx) => (
+          <span key={`exp-${idx}`} className="expiry-line auto-expired">
+            <span className="expiry-dot auto-expired"></span>
+            {e.units} unit{e.units !== 1 ? 's' : ''} expired
+          </span>
+        ))}
+        {removedForType.map((r, idx) => (
+          <span key={`rm-${idx}`} className="expiry-line manually-removed">
+            <span className="expiry-dot manually-removed"></span>
+            {r.units} unit{r.units !== 1 ? 's' : ''} removed
           </span>
         ))}
       </div>
@@ -300,6 +311,7 @@ const InventoryManagement = () => {
               <div className="col-updated sortable" onClick={() => handleSort('updated')}>
                 Last Updated{getSortIndicator('updated')}
               </div>
+              <div className="col-batches">Batches</div>
             </div>
             {sortedInventory.map((item) => {
               const status = getInventoryStatus(item.units);
@@ -322,6 +334,14 @@ const InventoryManagement = () => {
                   </div>
                   <div className="col-updated">
                     {new Date(item.lastUpdated).toLocaleDateString()}
+                  </div>
+                  <div className="col-batches">
+                    <button
+                      className="btn-view-batches"
+                      onClick={() => { setBatchesItem(item); setShowBatchesModal(true); }}
+                    >
+                      {(item.batches || []).length} batch{(item.batches || []).length !== 1 ? 'es' : ''}
+                    </button>
                   </div>
                 </div>
               );
@@ -477,11 +497,77 @@ const InventoryManagement = () => {
               <div className="stat-value">
                 {autoExpiredUnits.reduce((sum, e) => sum + e.units, 0)}
               </div>
-              <div className="stat-label">Units Expired Today</div>
+              <div className="stat-label">Auto-Expired</div>
+            </div>
+            <div className="stat-box manually-removed-stat">
+              <div className="stat-value">
+                {sessionRemovedUnits.reduce((sum, r) => sum + r.units, 0)}
+              </div>
+              <div className="stat-label">Manually Removed</div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* ── Batches Modal ── */}
+      {showBatchesModal && batchesItem && (
+        <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setShowBatchesModal(false); }}>
+          <div className="modal-card modal-card--wide">
+            <div className="modal-header">
+              <h2>
+                <span className="blood-type-badge" style={{ marginRight: '0.5rem' }}>{batchesItem.type}</span>
+                Batch List
+              </h2>
+              <button className="close-btn" onClick={() => setShowBatchesModal(false)}>×</button>
+            </div>
+            <div className="modal-content">
+              {(batchesItem.batches || []).length === 0 ? (
+                <p className="batches-empty">No active batches for this blood type.</p>
+              ) : (
+                <div className="batches-table">
+                  <div className="batches-thead">
+                    <div>#</div>
+                    <div>Expiration Date</div>
+                    <div>Days Remaining</div>
+                    <div>Units</div>
+                    <div>Status</div>
+                  </div>
+                  {[...batchesItem.batches]
+                    .sort((a, b) => new Date(a.expirationDate) - new Date(b.expirationDate))
+                    .map((batch, idx) => {
+                      const days = getDaysUntilExpiry(batch.expirationDate);
+                      const level = days <= 1 ? 'critical' : days <= 3 ? 'warning' : days <= 7 ? 'caution' : 'ok';
+                      return (
+                        <div key={idx} className={`batches-row batch-${level}`}>
+                          <div className="batch-num">{idx + 1}</div>
+                          <div className="batch-expiry">{new Date(batch.expirationDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                          <div className="batch-days">
+                            {days <= 0 ? <span className="batch-tag critical">Expired</span>
+                              : days === 1 ? <span className="batch-tag warning">1 day</span>
+                              : <span className={`batch-tag ${level}`}>{days} days</span>}
+                          </div>
+                          <div className="batch-units">{batch.units} unit{batch.units !== 1 ? 's' : ''}</div>
+                          <div>
+                            {days <= 1 ? <span className="batch-status-pill critical">Expiring</span>
+                              : days <= 7 ? <span className="batch-status-pill warning">Soon</span>
+                              : <span className="batch-status-pill ok">Active</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+              <div className="batches-summary">
+                <span>{(batchesItem.batches || []).length} batch{(batchesItem.batches || []).length !== 1 ? 'es' : ''}</span>
+                <span className="batches-total">{batchesItem.units} total units</span>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowBatchesModal(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

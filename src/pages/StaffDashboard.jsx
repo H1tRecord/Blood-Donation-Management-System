@@ -51,7 +51,9 @@ const StaffDashboard = () => {
           <h1>Good morning, {currentUser?.name?.split(' ')[0]}!</h1>
           <p className="sd-subtitle">Here's what needs your attention today</p>
         </div>
-        <span className="sd-role-badge">Staff</span>
+        <div className="sd-header-right">
+          <span className="sd-role-badge">Staff</span>
+        </div>
       </div>
 
       {/* ── Stat Bar ── */}
@@ -129,73 +131,51 @@ const StaffDashboard = () => {
         </div>
       </div>
 
-      {/* ── Bottom Row ── */}
-      <div className="sd-bottom-row">
+      {/* ── Stock Alerts (full width, only shown when needed) ── */}
+      {(criticalTypes.length > 0 || lowTypes.length > 0) && (
+        <div className="card sd-alerts-card">
+          <h2>Stock Alerts</h2>
 
-        {/* Alerts */}
-        {(criticalTypes.length > 0 || lowTypes.length > 0) && (
-          <div className="card sd-alerts-card">
-            <h2>Stock Alerts</h2>
+          {criticalTypes.length > 0 && (
+            <div className="sd-alert-group">
+              <p className="sd-alert-heading critical">Critical — immediate action needed</p>
+              {criticalTypes.map((inv) => (
+                <div key={inv.type} className="sd-alert-row">
+                  <span className="sd-alert-dot critical" />
+                  <span className="sd-alert-type">{inv.type}</span>
+                  <span className="sd-alert-units">only {inv.units} units</span>
+                  <button
+                    className="sd-alert-btn critical"
+                    onClick={() => navigate('/donor-search', { state: { bloodType: inv.type } })}
+                  >
+                    Request Donors
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
-            {criticalTypes.length > 0 && (
-              <div className="sd-alert-group">
-                <p className="sd-alert-heading critical">Critical — immediate action needed</p>
-                {criticalTypes.map((inv) => (
-                  <div key={inv.type} className="sd-alert-row">
-                    <span className="sd-alert-dot critical" />
-                    <span className="sd-alert-type">{inv.type}</span>
-                    <span className="sd-alert-units">only {inv.units} units</span>
-                    <button
-                      className="sd-alert-btn critical"
-                      onClick={() => navigate('/donor-search', { state: { bloodType: inv.type } })}
-                    >
-                      Request Donors
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {lowTypes.length > 0 && (
-              <div className="sd-alert-group">
-                <p className="sd-alert-heading low">Low — consider requesting donations</p>
-                {lowTypes.map((inv) => (
-                  <div key={inv.type} className="sd-alert-row">
-                    <span className="sd-alert-dot low" />
-                    <span className="sd-alert-type">{inv.type}</span>
-                    <span className="sd-alert-units">{inv.units} units</span>
-                    <button
-                      className="sd-alert-btn low"
-                      onClick={() => navigate('/donor-search', { state: { bloodType: inv.type } })}
-                    >
-                      Request Donors
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Quick Actions */}
-        <div className="card sd-actions-card">
-          <h2>Quick Actions</h2>
-          <div className="sd-actions-grid">
-            <button className="sd-action" onClick={() => navigate('/staff-appointments')}>
-              <span className="sd-action-icon">📅</span>
-              <span>Manage Appointments</span>
-            </button>
-            <button className="sd-action" onClick={() => navigate('/inventory-management')}>
-              <span className="sd-action-icon">📦</span>
-              <span>Update Inventory</span>
-            </button>
-            <button className="sd-action" onClick={() => navigate('/donor-search')}>
-              <span className="sd-action-icon">🔍</span>
-              <span>Search Donors</span>
-            </button>
-          </div>
+          {lowTypes.length > 0 && (
+            <div className="sd-alert-group">
+              <p className="sd-alert-heading low">Low — consider requesting donations</p>
+              {lowTypes.map((inv) => (
+                <div key={inv.type} className="sd-alert-row">
+                  <span className="sd-alert-dot low" />
+                  <span className="sd-alert-type">{inv.type}</span>
+                  <span className="sd-alert-units">{inv.units} units</span>
+                  <button
+                    className="sd-alert-btn low"
+                    onClick={() => navigate('/donor-search', { state: { bloodType: inv.type } })}
+                  >
+                    Request Donors
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
+      )}
+
     </div>
   );
 };

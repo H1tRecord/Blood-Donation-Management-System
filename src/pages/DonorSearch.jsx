@@ -6,7 +6,7 @@ import {
   isEligibleToDonate,
   calculateDaysSinceLastDonation
 } from '../data';
-import { getUsers, getDonationRequests, createDonationRequest } from '../data/db';
+import { getUsers, getDonationRequests, createDonationRequest, getDonationHistory } from '../data/db';
 import './DonorSearch.css';
 
 const DonorSearch = () => {
@@ -27,6 +27,12 @@ const DonorSearch = () => {
   const [requestMessage, setRequestMessage] = useState('');
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Profile modal
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileDonor, setProfileDonor] = useState(null);
+  const [profileHistory, setProfileHistory] = useState([]);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const [allUsers, setAllUsers] = useState([]);
   const [allRequests, setAllRequests] = useState([]);
@@ -128,6 +134,18 @@ const DonorSearch = () => {
   const getSortIndicator = (field) => {
     if (sortField !== field) return '';
     return sortDirection === 'asc' ? ' ▲' : ' ▼';
+  };
+
+  const handleViewProfile = async (donor) => {
+    setProfileDonor(donor);
+    setProfileLoading(true);
+    setShowProfileModal(true);
+    const allHistory = await getDonationHistory();
+    const donorHistory = allHistory
+      .filter(h => h.donorId === donor.uid)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+    setProfileHistory(donorHistory);
+    setProfileLoading(false);
   };
 
   const handleRequestDonation = (donor) => {
@@ -309,6 +327,12 @@ const DonorSearch = () => {
                     )}
                   </div>
                   <div className="ds-col-action">
+                    <button
+                      className="ds-btn-view"
+                      onClick={() => handleViewProfile(donor)}
+                    >
+                      View
+                    </button>
                     {!donor.eligible ? (
                       <button className="ds-btn-disabled" disabled>Ineligible</button>
                     ) : donor.hasActiveRequest ? (
@@ -383,6 +407,123 @@ const DonorSearch = () => {
           </div>
         )}
       </div>
+
+      {/* Donor Profile Modal */}
+      {showProfileModal && profileDonor && (
+        <div className="modal-overlay">
+          <div className="modal-card ds-profile-modal">
+            <div className="modal-header">
+              <h2>Donor Profile</h2>
+              <button className="close-btn" onClick={() => setShowProfileModal(false)}>×</button>
+            </div>
+            <div className="modal-content">
+              <div className="ds-profile-info">
+                <div className="ds-profile-row">
+                  <span className="ds-req-label">Name</span>
+                  <span className="ds-req-value">{profileDonor.name}</span>
+                </div>
+                <div className="ds-profile-row">
+                  <span className="ds-req-label">Email</span>
+                  <span className="ds-req-value">{profileDonor.email}</span>
+                </div>
+                <div className="ds-profile-row">
+                  <span className="ds-req-label">Blood Type</span>
+                  <span className="ds-req-value">
+                    {profileDonor.bloodType
+                      ? <span className="blood-type-badge">{profileDonor.bloodType}</span>
+                      : <span className="ds-tbd">To be determined</span>}
+                  </span>
+                </div>
+                <div className="ds-profile-row">
+                  <span className="ds-req-label">Total Donations</span>
+                  <span className="ds-req-value">{profileDonor.donationCount || 0}</span>
+                </div>
+                <div className="ds-profile-row">
+                  <span className="ds-req-label">Last Donation</span>
+                  <span className="ds-req-value">
+                    {profileDonor.lastDonationDate
+                      ? new Date(profileDonor.lastDonationDate).toLocaleDateString()
+                      : 'Never'}
+                  </span>
+                </div>
+                <div className="ds-profile-row">
+                  <span className="ds-req-label">Eligibility</span>
+                  <span className="ds-req-value">
+                    {profileDonor.eligible
+                      ? <span className="ds-status-tag available">Eligible</span>
+                      : <span className="ds-status-tag ineligible">Ineligible</span>}
+                  </span>
+                </div>
+                <div className="ds-profile-row">
+                  <span className="ds-req-label">Member Since</span>
+                  <span className="ds-req-value">
+                    {profileDonor.registrationDate
+                      ? new Date(profileDonor.registrationDate).toLocaleDateString()
+                      : 'N/A'}
+                  </span>
+                </div>
+                <div className="ds-profile-row">
+                  <span className="ds-req-label">Status</span>
+                  <span className="ds-req-value">
+                    {profileDonor.isActive
+                      ? <span className="ds-status-tag available">Active</span>
+                      : <span className="ds-status-tag ineligible">Inactive</span>}
+                  </span>
+                </div>
+              </div>
+
+              <div className="ds-profile-history">
+                <h3>Donation History</h3>
+                {profileLoading ? (
+                  <p className="ds-profile-loading">Loading history…</p>
+                ) : profileHistory.length > 0 ? (
+                  <div className="ds-history-table">
+                    <div className="ds-ht-head">
+                      <div className="ds-ht-col ds-ht-num">#</div>
+                      <div className="ds-ht-col ds-ht-date">Date</div>
+                      <div className="ds-ht-col ds-ht-type">Blood Type</div>
+                      <div className="ds-ht-col ds-ht-units">Units</div>
+                      <div className="ds-ht-col ds-ht-staff">Recorded By</div>
+                    </div>
+                    {profileHistory.map((h, idx) => (
+                      <div key={h.id} className="ds-ht-row">
+                        <div className="ds-ht-col ds-ht-num">{idx + 1}</div>
+                        <div className="ds-ht-col ds-ht-date">
+                          {new Date(h.date).toLocaleDateString('en-US', {
+                            year: 'numeric', month: 'short', day: 'numeric'
+                          })}
+                        </div>
+                        <div className="ds-ht-col ds-ht-type">
+                          <span className="blood-type-badge">{h.bloodType}</span>
+                        </div>
+                        <div className="ds-ht-col ds-ht-units">{h.units} unit{h.units !== 1 ? 's' : ''}</div>
+                        <div className="ds-ht-col ds-ht-staff">{h.staffName || '—'}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="ds-profile-empty">No donation history on record.</p>
+                )}
+              </div>
+
+              <div className="modal-actions">
+                <button className="btn-secondary" onClick={() => setShowProfileModal(false)}>Close</button>
+                {profileDonor.eligible && !profileDonor.hasActiveRequest && (
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      setShowProfileModal(false);
+                      handleRequestDonation(profileDonor);
+                    }}
+                  >
+                    Send Donation Request
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Request Modal */}
       {showRequestForm && selectedDonor && (

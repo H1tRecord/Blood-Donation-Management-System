@@ -312,6 +312,10 @@
   animation: modalSlideUp 0.25s ease-out;
 }
 
+.modal-card--wide {
+  max-width: 780px;
+}
+
 @keyframes modalSlideUp {
   from {
     transform: translateY(16px);
@@ -370,6 +374,46 @@
 
 .modal-actions button {
   flex: 1;
+}
+
+/* ===== Password Show/Hide wrapper ===== */
+.pw-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pw-wrapper input {
+  flex: 1;
+  min-width: 0;
+  padding-right: 3rem !important;
+}
+
+.pw-toggle {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--gray-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs, 2px);
+  transition: color 0.15s;
+  line-height: 0;
+}
+
+.pw-toggle:hover {
+  color: var(--primary-600);
+}
+
+.pw-toggle:focus-visible {
+  outline: 2px solid var(--primary-400);
+  outline-offset: 1px;
 }
 
 /* ===== Responsive ===== */

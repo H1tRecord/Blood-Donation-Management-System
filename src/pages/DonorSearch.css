@@ -134,12 +134,12 @@
 
 .ds-table {
   width: 100%;
-  min-width: 800px;
+  min-width: 860px;
 }
 
 .ds-table-head {
   display: grid;
-  grid-template-columns: 1.5fr 0.8fr 2fr 0.7fr 1.3fr 1fr 0.8fr;
+  grid-template-columns: 1.5fr 0.75fr 1.5fr 0.65fr 1.1fr 0.95fr 1.55fr;
   background: var(--gray-900);
   color: white;
   padding: 0.75rem 1rem;
@@ -162,8 +162,8 @@
 
 .ds-table-row {
   display: grid;
-  grid-template-columns: 1.5fr 0.8fr 2fr 0.7fr 1.3fr 1fr 0.8fr;
-  padding: 0.85rem 1rem;
+  grid-template-columns: 1.5fr 0.75fr 1.5fr 0.65fr 1.1fr 0.95fr 1.55fr;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--gray-100);
   align-items: center;
   transition: background 0.15s;
@@ -276,16 +276,25 @@
 }
 
 /* Action buttons */
+.ds-col-action {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
 .ds-btn-request {
   background: var(--primary-600);
   color: white;
   border: none;
-  padding: 0.45rem 0.85rem;
+  padding: 0.38rem 0.7rem;
   border-radius: var(--radius-sm);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.77rem;
   cursor: pointer;
   transition: all 0.15s;
+  white-space: nowrap;
 }
 
 .ds-btn-request:hover {
@@ -296,11 +305,12 @@
   background: var(--gray-100);
   color: var(--gray-400);
   border: 1px solid var(--gray-200);
-  padding: 0.45rem 0.85rem;
+  padding: 0.38rem 0.7rem;
   border-radius: var(--radius-sm);
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.77rem;
   cursor: not-allowed;
+  white-space: nowrap;
 }
 
 /* Empty state */
@@ -463,4 +473,128 @@
   font-size: 0.82rem;
   color: var(--gray-500);
   white-space: nowrap;
+}
+
+/* ===== View Profile button ===== */
+.ds-btn-view {
+  padding: 0.38rem 0.7rem;
+  font-size: 0.77rem;
+  font-weight: 600;
+  border: 1.5px solid var(--primary-300, #93c5fd);
+  background: transparent;
+  color: var(--primary-700, #1d4ed8);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.ds-btn-view:hover {
+  background: var(--primary-50, #eff6ff);
+}
+
+/* ===== Donor Profile Modal ===== */
+.ds-profile-modal {
+  max-width: 640px;
+  width: 95%;
+}
+
+.ds-profile-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.ds-profile-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* ===== Donor History Table (inside profile modal) ===== */
+.ds-profile-history {
+  border-top: 1px solid var(--gray-100);
+  padding-top: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.ds-profile-history h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gray-700);
+  margin-bottom: 0.75rem;
+}
+
+.ds-profile-loading,
+.ds-profile-empty {
+  font-size: 0.875rem;
+  color: var(--gray-400);
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.ds-history-table {
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+.ds-ht-head {
+  display: grid;
+  grid-template-columns: 2rem 1fr 80px 70px 1fr;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-500);
+  margin-bottom: 0.25rem;
+}
+
+.ds-ht-row {
+  display: grid;
+  grid-template-columns: 2rem 1fr 80px 70px 1fr;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--gray-100);
+  align-items: center;
+  color: var(--gray-700);
+}
+
+.ds-ht-row:last-child {
+  border-bottom: none;
+}
+
+.ds-ht-col {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-ht-num {
+  color: var(--gray-400);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.ds-ht-date {
+  font-weight: 500;
+}
+
+.ds-ht-units {
+  color: var(--gray-600);
+}
+
+.ds-ht-staff {
+  color: var(--gray-500);
+  font-size: 0.82rem;
+}
+
+.ds-tbd {
+  color: var(--gray-400);
+  font-style: italic;
+  font-size: 0.82rem;
 }

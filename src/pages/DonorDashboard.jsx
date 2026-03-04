@@ -12,11 +12,26 @@ import {
   getDonationRequests,
   getBloodInventory,
   updateDonationRequest,
+  updateAppointment,
 } from '../data/db';
 import './DonorDashboard.css';
 
+const EyeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>
+);
+
 const DonorDashboard = () => {
-  const { currentUser, resetSessionTimeout, updateProfile } = useAuth();
+  const { currentUser, resetSessionTimeout, updateProfile, changePassword } = useAuth();
   const navigate = useNavigate();
   const [userAppointments, setUserAppointments] = useState([]);
   const [userDonations, setUserDonations] = useState([]);
@@ -25,11 +40,19 @@ const DonorDashboard = () => {
   const [daysUntilEligible, setDaysUntilEligible] = useState(0);
   const [daysSinceLast, setDaysSinceLast] = useState(null);
   const [inventory, setInventory] = useState([]);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [editEmail, setEditEmail] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
   const [profileError, setProfileError] = useState('');
   const [respondingId, setRespondingId] = useState(null);
+  const [editCurrentPassword, setEditCurrentPassword] = useState('');
+  const [editNewPassword, setEditNewPassword] = useState('');
+  const [editConfirmPassword, setEditConfirmPassword] = useState('');
+  const [cancellingId, setCancellingId] = useState(null);
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   useEffect(() => {
     resetSessionTimeout();
@@ -80,14 +103,20 @@ const DonorDashboard = () => {
 
   const handleStartEdit = () => {
     setEditEmail(currentUser?.email || '');
+    setEditCurrentPassword('');
+    setEditNewPassword('');
+    setEditConfirmPassword('');
     setProfileSuccess('');
     setProfileError('');
-    setIsEditingProfile(true);
+    setShowEditModal(true);
   };
 
   const handleCancelEdit = () => {
-    setIsEditingProfile(false);
+    setShowEditModal(false);
     setProfileError('');
+    setShowCurrentPw(false);
+    setShowNewPw(false);
+    setShowConfirmPw(false);
   };
 
   const handleSaveProfile = async () => {
@@ -99,12 +128,51 @@ const DonorDashboard = () => {
       return;
     }
 
+    // Handle password change if any password field is filled
+    if (editCurrentPassword || editNewPassword || editConfirmPassword) {
+      if (!editCurrentPassword) {
+        setProfileError('Please enter your current password');
+        return;
+      }
+      if (!editNewPassword) {
+        setProfileError('Please enter a new password');
+        return;
+      }
+      if (editNewPassword.length < 6) {
+        setProfileError('New password must be at least 6 characters');
+        return;
+      }
+      if (editNewPassword !== editConfirmPassword) {
+        setProfileError('New passwords do not match');
+        return;
+      }
+      const pwResult = await changePassword(editCurrentPassword, editNewPassword);
+      if (!pwResult.success) {
+        setProfileError(pwResult.message);
+        return;
+      }
+    }
+
     const result = await updateProfile({ email: editEmail });
     if (result.success) {
-      setIsEditingProfile(false);
+      setShowEditModal(false);
+      setEditCurrentPassword('');
+      setEditNewPassword('');
+      setEditConfirmPassword('');
+      setShowCurrentPw(false);
+      setShowNewPw(false);
+      setShowConfirmPw(false);
       setProfileSuccess('Profile updated successfully');
       setTimeout(() => setProfileSuccess(''), 3000);
     }
+  };
+
+  const handleCancelAppointment = async (appointmentId) => {
+    if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
+    setCancellingId(appointmentId);
+    await updateAppointment(appointmentId, { status: 'cancelled' });
+    setCancellingId(null);
+    loadDonorData();
   };
 
   const handleRespondToRequest = async (requestId, response) => {
@@ -188,11 +256,9 @@ const DonorDashboard = () => {
         <div className="card profile-card">
           <div className="profile-card-header">
             <h2>Your Profile</h2>
-            {!isEditingProfile && (
-              <button className="btn-edit-profile" onClick={handleStartEdit}>
-                Edit
-              </button>
-            )}
+            <button className="btn-edit-profile" onClick={handleStartEdit}>
+              Edit
+            </button>
           </div>
 
           {profileSuccess && (
@@ -200,70 +266,30 @@ const DonorDashboard = () => {
               {profileSuccess}
             </div>
           )}
-          {profileError && (
-            <div className="error-message" style={{ marginBottom: '0.75rem' }}>
-              {profileError}
-            </div>
-          )}
 
-          {isEditingProfile ? (
-            <div className="profile-edit-form">
-              <div className="info-row static">
-                <span className="label">Blood Type:</span>
-                <span className="value blood-type">
-                  {currentUser?.bloodType || 'To be determined'}
-                </span>
-              </div>
-              <div className="info-row static">
-                <span className="label">Total Donations:</span>
-                <span className="value">{currentUser?.donationCount || 0}</span>
-              </div>
-              <div className="edit-field">
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={editEmail}
-                  onChange={(e) => setEditEmail(e.target.value)}
-                  placeholder="your@email.com"
-                />
-              </div>
-              <div className="info-row static">
-                <span className="label">Member Since:</span>
-                <span className="value">
-                  {currentUser?.registrationDate ?
-                    new Date(currentUser.registrationDate).toLocaleDateString() : 'N/A'}
-                </span>
-              </div>
-              <div className="edit-actions">
-                <button className="btn-save" onClick={handleSaveProfile}>Save Changes</button>
-                <button className="btn-cancel-edit" onClick={handleCancelEdit}>Cancel</button>
-              </div>
+          <div className="profile-info">
+            <div className="info-row">
+              <span className="label">Blood Type:</span>
+              <span className="value blood-type">
+                {currentUser?.bloodType || 'To be determined'}
+              </span>
             </div>
-          ) : (
-            <div className="profile-info">
-              <div className="info-row">
-                <span className="label">Blood Type:</span>
-                <span className="value blood-type">
-                  {currentUser?.bloodType || 'To be determined'}
-                </span>
-              </div>
-              <div className="info-row">
-                <span className="label">Total Donations:</span>
-                <span className="value">{currentUser?.donationCount || 0}</span>
-              </div>
-              <div className="info-row">
-                <span className="label">Email:</span>
-                <span className="value">{currentUser?.email}</span>
-              </div>
-              <div className="info-row">
-                <span className="label">Member Since:</span>
-                <span className="value">
-                  {currentUser?.registrationDate ?
-                    new Date(currentUser.registrationDate).toLocaleDateString() : 'N/A'}
-                </span>
-              </div>
+            <div className="info-row">
+              <span className="label">Total Donations:</span>
+              <span className="value">{currentUser?.donationCount || 0}</span>
             </div>
-          )}
+            <div className="info-row">
+              <span className="label">Email:</span>
+              <span className="value">{currentUser?.email}</span>
+            </div>
+            <div className="info-row">
+              <span className="label">Member Since:</span>
+              <span className="value">
+                {currentUser?.registrationDate ?
+                  new Date(currentUser.registrationDate).toLocaleDateString() : 'N/A'}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Upcoming Appointment Card */}
@@ -290,6 +316,15 @@ const DonorDashboard = () => {
                   Confirmation: {upcomingAppointment.confirmationNumber}
                 </p>
               </div>
+              {(upcomingAppointment.status === 'pending' || upcomingAppointment.status === 'confirmed') && (
+                <button
+                  className="btn-cancel-appointment"
+                  disabled={cancellingId === upcomingAppointment.id}
+                  onClick={() => handleCancelAppointment(upcomingAppointment.id)}
+                >
+                  {cancellingId === upcomingAppointment.id ? 'Cancelling…' : 'Cancel Appointment'}
+                </button>
+              )}
             </div>
           ) : (
             <div className="no-appointment">
@@ -375,28 +410,32 @@ const DonorDashboard = () => {
 
         {/* Donation History Card */}
         <div className="card history-card">
-          <h2>Donation History</h2>
+          <div className="history-card-header">
+            <h2>Donation History</h2>
+            {userDonations.length > 0 && (
+              <span className="history-count-badge">{userDonations.length} donation{userDonations.length !== 1 ? 's' : ''}</span>
+            )}
+          </div>
           {userDonations.length > 0 ? (
-            <div className="history-timeline">
-              {userDonations.map((donation, index) => (
-                <div key={donation.id} className="history-item">
-                  <div className="history-marker">{index + 1}</div>
-                  <div className="history-content">
-                    <p className="history-date">
-                      {new Date(donation.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
-                    <div className="history-details">
+            <>
+              <div className="history-preview">
+                {userDonations.slice(0, 3).map((donation, index) => (
+                  <div key={donation.id} className="history-preview-row">
+                    <span className="hp-num">{index + 1}</span>
+                    <span className="hp-date">
+                      {new Date(donation.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </span>
+                    <span className="hp-type">
                       <span className="blood-type-small">{donation.bloodType}</span>
-                      <span className="units">{donation.units} unit(s)</span>
-                    </div>
+                    </span>
+                    <span className="hp-units">{donation.units}u</span>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              <button className="btn-view-history" onClick={() => setShowHistoryModal(true)}>
+                View Full History →
+              </button>
+            </>
           ) : (
             <div className="no-history">
               <p>No donation history yet</p>
@@ -407,6 +446,117 @@ const DonorDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* ===== Edit Profile Modal ===== */}
+      {showEditModal && (
+        <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) handleCancelEdit(); }}>
+          <div className="modal-card">
+            <div className="modal-header">
+              <h2>Edit Profile</h2>
+              <button className="close-btn" onClick={handleCancelEdit}>×</button>
+            </div>
+            <div className="modal-content">
+              {profileError && (
+                <div className="error-message" style={{ marginBottom: '0.75rem' }}>
+                  {profileError}
+                </div>
+              )}
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  placeholder="your@email.com"
+                />
+              </div>
+              <div className="form-group">
+                <label>Change Password <span className="optional-label">(optional — leave blank to keep current)</span></label>
+                <div className="pw-wrapper" style={{ marginBottom: '0.5rem' }}>
+                  <input
+                    type={showCurrentPw ? 'text' : 'password'}
+                    value={editCurrentPassword}
+                    onChange={(e) => setEditCurrentPassword(e.target.value)}
+                    placeholder="Current password"
+                  />
+                  <button type="button" className="pw-toggle" onClick={() => setShowCurrentPw(p => !p)} tabIndex={-1} aria-label="Toggle visibility">
+                    {showCurrentPw ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+                <div className="pw-wrapper" style={{ marginBottom: '0.5rem' }}>
+                  <input
+                    type={showNewPw ? 'text' : 'password'}
+                    value={editNewPassword}
+                    onChange={(e) => setEditNewPassword(e.target.value)}
+                    placeholder="New password (min 6 chars)"
+                  />
+                  <button type="button" className="pw-toggle" onClick={() => setShowNewPw(p => !p)} tabIndex={-1} aria-label="Toggle visibility">
+                    {showNewPw ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+                <div className="pw-wrapper">
+                  <input
+                    type={showConfirmPw ? 'text' : 'password'}
+                    value={editConfirmPassword}
+                    onChange={(e) => setEditConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                  />
+                  <button type="button" className="pw-toggle" onClick={() => setShowConfirmPw(p => !p)} tabIndex={-1} aria-label="Toggle visibility">
+                    {showConfirmPw ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={handleCancelEdit}>Cancel</button>
+              <button className="btn-primary" onClick={handleSaveProfile}>Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Donation History Modal ===== */}
+      {showHistoryModal && (
+        <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setShowHistoryModal(false); }}>
+          <div className="modal-card modal-card--wide">
+            <div className="modal-header">
+              <h2>Donation History</h2>
+              <button className="close-btn" onClick={() => setShowHistoryModal(false)}>×</button>
+            </div>
+            <div className="modal-content">
+              <div className="history-table-wrap">
+                <div className="history-table">
+                  <div className="history-thead">
+                    <div className="ht-col ht-col-num">#</div>
+                    <div className="ht-col ht-col-date">Date</div>
+                    <div className="ht-col ht-col-type">Blood Type</div>
+                    <div className="ht-col ht-col-units">Units</div>
+                    <div className="ht-col ht-col-staff">Recorded By</div>
+                  </div>
+                  {userDonations.map((donation, index) => (
+                    <div key={donation.id} className="history-trow">
+                      <div className="ht-col ht-col-num">{index + 1}</div>
+                      <div className="ht-col ht-col-date">
+                        {new Date(donation.date).toLocaleDateString('en-US', {
+                          year: 'numeric', month: 'short', day: 'numeric'
+                        })}
+                      </div>
+                      <div className="ht-col ht-col-type">
+                        <span className="blood-type-small">{donation.bloodType}</span>
+                      </div>
+                      <div className="ht-col ht-col-units">{donation.units} unit{donation.units !== 1 ? 's' : ''}</div>
+                      <div className="ht-col ht-col-staff">{donation.staffName || '—'}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowHistoryModal(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

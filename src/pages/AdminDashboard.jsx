@@ -1,7 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getUsers, updateUserInDB, deleteUserFromDB } from '../data/db';
+import { getUsers, updateUserInDB } from '../data/db';
 import './AdminDashboard.css';
+
+const EyeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>
+);
 
 const AdminDashboard = () => {
   const { currentUser, resetSessionTimeout, adminCreateAccount } = useAuth();
@@ -10,7 +24,7 @@ const AdminDashboard = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [editingUser, setEditingUser] = useState(null);
-  const [editForm, setEditForm] = useState({ name: '', email: '', role: '' });
+  const [editForm, setEditForm] = useState({ name: '', email: '', role: '', bloodType: '' });
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   // Create-account modal
@@ -20,6 +34,8 @@ const AdminDashboard = () => {
   });
   const [createError, setCreateError] = useState('');
   const [createLoading, setCreateLoading] = useState(false);
+  const [showCreatePw, setShowCreatePw] = useState(false);
+  const [showCreateConfirmPw, setShowCreateConfirmPw] = useState(false);
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -112,7 +128,8 @@ const AdminDashboard = () => {
     setEditForm({
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      bloodType: user.bloodType || '',
     });
   };
 
@@ -125,7 +142,9 @@ const AdminDashboard = () => {
       name: editForm.name,
       email: editForm.email,
     };
-    if (editingUser.uid !== currentUser.uid) {
+    if (editingUser.role === 'donor') {
+      updates.bloodType = editForm.bloodType || null;
+    } else if (editingUser.uid !== currentUser.uid) {
       updates.role = editForm.role;
     }
     await updateUserInDB(editingUser.uid, updates);
@@ -138,20 +157,6 @@ const AdminDashboard = () => {
     setEditingUser(null);
   };
 
-  // Delete user
-  const handleDeleteUser = async (userUid) => {
-    if (userUid === currentUser.uid) {
-      alert('You cannot delete your own account');
-      return;
-    }
-    if (!window.confirm('Are you sure you want to delete this account? This action cannot be undone.')) {
-      return;
-    }
-    await deleteUserFromDB(userUid);
-    await loadAccounts();
-    showToast('Account deleted successfully');
-  };
-
   const showToast = (msg) => {
     setSuccessMessage(msg);
     setShowSuccess(true);
@@ -162,6 +167,8 @@ const AdminDashboard = () => {
   const openCreateModal = () => {
     setCreateForm({ role: 'staff', name: '', email: '', password: '', confirmPassword: '' });
     setCreateError('');
+    setShowCreatePw(false);
+    setShowCreateConfirmPw(false);
     setShowCreateModal(true);
   };
 
@@ -335,15 +342,6 @@ const AdminDashboard = () => {
                     >
                       {user.isActive ? 'Disable' : 'Enable'}
                     </button>
-                    {user.uid !== currentUser.uid && (
-                      <button
-                        className="admin-action-btn delete"
-                        onClick={() => handleDeleteUser(user.uid)}
-                        title="Delete account"
-                      >
-                        Delete
-                      </button>
-                    )}
                   </div>
                 </div>
               ))
@@ -451,22 +449,32 @@ const AdminDashboard = () => {
 
               <div className="form-group">
                 <label>Password</label>
-                <input
-                  type="password"
-                  placeholder="At least 6 characters"
-                  value={createForm.password}
-                  onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-                />
+                <div className="pw-wrapper">
+                  <input
+                    type={showCreatePw ? 'text' : 'password'}
+                    placeholder="At least 6 characters"
+                    value={createForm.password}
+                    onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                  />
+                  <button type="button" className="pw-toggle" onClick={() => setShowCreatePw(p => !p)} tabIndex={-1} aria-label={showCreatePw ? 'Hide password' : 'Show password'}>
+                    {showCreatePw ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
               </div>
 
               <div className="form-group">
                 <label>Confirm Password</label>
-                <input
-                  type="password"
-                  placeholder="Repeat password"
-                  value={createForm.confirmPassword}
-                  onChange={(e) => setCreateForm({ ...createForm, confirmPassword: e.target.value })}
-                />
+                <div className="pw-wrapper">
+                  <input
+                    type={showCreateConfirmPw ? 'text' : 'password'}
+                    placeholder="Repeat password"
+                    value={createForm.confirmPassword}
+                    onChange={(e) => setCreateForm({ ...createForm, confirmPassword: e.target.value })}
+                  />
+                  <button type="button" className="pw-toggle" onClick={() => setShowCreateConfirmPw(p => !p)} tabIndex={-1} aria-label={showCreateConfirmPw ? 'Hide password' : 'Show password'}>
+                    {showCreateConfirmPw ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
               </div>
 
               <div className="modal-actions">
@@ -514,18 +522,37 @@ const AdminDashboard = () => {
                 />
               </div>
 
-              {editingUser.uid !== currentUser.uid && (
+              {editingUser.role === 'donor' ? (
                 <div className="form-group">
-                  <label>Role</label>
+                  <label>Blood Type</label>
                   <select
-                    value={editForm.role}
-                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                    value={editForm.bloodType}
+                    onChange={(e) => setEditForm({ ...editForm, bloodType: e.target.value })}
                   >
-                    <option value="donor">Donor</option>
-                    <option value="staff">Staff</option>
-                    <option value="admin">Admin</option>
+                    <option value="">— Unknown / Not set —</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
                   </select>
                 </div>
+              ) : (
+                editingUser.uid !== currentUser.uid && (
+                  <div className="form-group">
+                    <label>Role</label>
+                    <select
+                      value={editForm.role}
+                      onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                    >
+                      <option value="staff">Staff</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                )
               )}
 
               <div className="modal-actions">

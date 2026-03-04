@@ -1,21 +1,16 @@
 priorities:
 - improve chapter 3
-- let admin adjust user information like blood type only for donors 
-- fix the donation history logic appointment > staff process > staff input to mark complete > update inventory (consider: admin can only update???)
 - expiration date is synced to the last item to expire
 
 must:
-- consider if user can edit their password in the dashboard
 - All changes are logged with staff ID and timestamp blood inventory 
-- no deletion of accounts just disable
-- redesign staff dashboard
-- improve donor history
-- let donor cancel appointment from their dashboard
+- test the limit cap
+- view batches list
+- seperate removed and expired
+- admin search limited fix
 
 optional:
-- undo button for appointment thing?
 - animations?
-- show password hide etc
 
 ???:
 - close weekends since it is closed that day (8am to 5pm??)

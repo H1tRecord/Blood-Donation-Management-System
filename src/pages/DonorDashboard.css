@@ -553,6 +553,134 @@
   font-size: 0.9rem;
 }
 
+/* ===== Optional label (password section) ===== */
+.optional-label {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--gray-400);
+  font-style: italic;
+}
+
+/* ===== Stacked password inputs ===== */
+.mt-input {
+  margin-top: 0.5rem;
+}
+
+/* ===== Cancel Appointment Button ===== */
+.btn-cancel-appointment {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  background: transparent;
+  border: 1.5px solid var(--danger-300, #fca5a5);
+  color: var(--danger-600, #dc2626);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-cancel-appointment:hover:not(:disabled) {
+  background: var(--danger-50, #fef2f2);
+}
+
+.btn-cancel-appointment:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== History Card Table ===== */
+.history-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.history-card-header h2 {
+  margin-bottom: 0;
+}
+
+.history-count-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary-600);
+  background: var(--primary-50);
+  border: 1px solid var(--primary-100);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+}
+
+.history-table-wrap {
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+  min-width: 420px;
+  font-size: 0.875rem;
+}
+
+.history-thead {
+  display: grid;
+  grid-template-columns: 2rem 1fr 80px 70px 1fr;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-100);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-500);
+  margin-bottom: 0.25rem;
+}
+
+.history-trow {
+  display: grid;
+  grid-template-columns: 2rem 1fr 80px 70px 1fr;
+  gap: 0.5rem;
+  padding: 0.55rem 0.6rem;
+  border-bottom: 1px solid var(--gray-100);
+  align-items: center;
+  color: var(--gray-700);
+}
+
+.history-trow:last-child {
+  border-bottom: none;
+}
+
+.history-trow:hover {
+  background: var(--gray-50);
+}
+
+.ht-col {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ht-col-num {
+  color: var(--gray-400);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.ht-col-date {
+  font-weight: 500;
+}
+
+.ht-col-units {
+  color: var(--gray-600);
+}
+
+.ht-col-staff {
+  color: var(--gray-500);
+  font-size: 0.83rem;
+}
+
 @media (max-width: 768px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
@@ -561,4 +689,65 @@
   .dashboard-header h1 {
     font-size: 1.35rem;
   }
+}
+
+/* ===== History Card Preview ===== */
+.history-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.history-preview-row {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--gray-50, #f9fafb);
+  font-size: 0.84rem;
+  color: var(--gray-700);
+}
+
+.hp-num {
+  color: var(--gray-400);
+  font-size: 0.78rem;
+  text-align: right;
+}
+
+.hp-date {
+  color: var(--gray-600);
+}
+
+.hp-type {
+  display: flex;
+  align-items: center;
+}
+
+.hp-units {
+  color: var(--gray-500);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.btn-view-history {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  background: none;
+  border: 1px solid var(--primary-200, #bfdbfe);
+  border-radius: var(--radius-sm);
+  color: var(--primary-600);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-view-history:hover {
+  background: var(--primary-50, #eff6ff);
+  color: var(--primary-700);
 }
