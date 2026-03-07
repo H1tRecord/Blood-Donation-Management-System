@@ -27,7 +27,7 @@ const StaffDashboard = () => {
     ]);
     const todayAppts = allAppts
       .filter((apt) => apt.date === APP_CONFIG.TODAY && apt.status !== 'cancelled')
-      .sort((a, b) => a.time.localeCompare(b.time));
+      .sort((a, b) => a.date.localeCompare(b.date));
     setTodayAppointments(todayAppts);
     setInventory(allInv);
   };
@@ -108,7 +108,6 @@ const StaffDashboard = () => {
             {todayAppointments.length > 0 ? (
               todayAppointments.map((apt) => (
                 <div key={apt.id} className={`sd-appt-item status-${apt.status}`}>
-                  <div className="sd-appt-time">{apt.time}</div>
                   <div className="sd-appt-body">
                     <p className="sd-appt-name">{apt.donorName}</p>
                     <div className="sd-appt-tags">

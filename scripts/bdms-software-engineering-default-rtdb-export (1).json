@@ -7,8 +7,7 @@
       "date": "2026-02-27",
       "donorId": "0C48ynsvrOOxzgZy05bYfZyZLVy1",
       "donorName": "John Smith",
-      "status": "confirmed",
-      "time": "09:00 AM"
+      "status": "confirmed"
     },
     "APT002": {
       "bloodType": "B+",
@@ -17,8 +16,7 @@
       "date": "2026-02-27",
       "donorId": "3pBkKC6dmgQS5sJBMQIzRZaKGnm1",
       "donorName": "Michael Brown",
-      "status": "confirmed",
-      "time": "10:00 AM"
+      "status": "confirmed"
     },
     "APT003": {
       "bloodType": "O-",
@@ -27,8 +25,7 @@
       "date": "2026-02-27",
       "donorId": "uXG78dHSctbbBKWrOCDPgXvi3GG3",
       "donorName": "David Wilson",
-      "status": "checked-in",
-      "time": "02:00 PM"
+      "status": "checked-in"
     },
     "APT004": {
       "bloodType": "B-",
@@ -37,8 +34,7 @@
       "date": "2026-02-28",
       "donorId": "ngQaT7kQJuWPV6xjJmgAG0NGzyB3",
       "donorName": "James Anderson",
-      "status": "confirmed",
-      "time": "09:00 AM"
+      "status": "confirmed"
     },
     "APT005": {
       "bloodType": "O+",
@@ -47,8 +43,7 @@
       "date": "2026-02-28",
       "donorId": "M5i8GUvslVZC9bLT7VZlSlL8CLv1",
       "donorName": "Robert Thomas",
-      "status": "pending",
-      "time": "11:00 AM"
+      "status": "pending"
     },
     "APT006": {
       "bloodType": "A+",
@@ -57,8 +52,7 @@
       "date": "2026-03-01",
       "donorId": "kHutdlf8leUtRvHitDWkjWs5ik02",
       "donorName": "Sarah Jones",
-      "status": "cancelled",
-      "time": "10:00 AM"
+      "status": "cancelled"
     },
     "APT007": {
       "bloodType": "A+",
@@ -68,8 +62,7 @@
       "donationHistoryId": "DON006",
       "donorId": "p35Y6QfXFxdP8a7cTgd6y8M9AOa2",
       "donorName": "Alex Chen",
-      "status": "completed",
-      "time": "03:00 PM"
+      "status": "completed"
     },
     "APT008": {
       "bloodType": "O+",
@@ -78,8 +71,7 @@
       "date": "2026-03-04",
       "donorId": "M5i8GUvslVZC9bLT7VZlSlL8CLv1",
       "donorName": "Robert Thomas",
-      "status": "pending",
-      "time": "09:00 AM"
+      "status": "pending"
     },
     "APT009": {
       "bloodType": "A-",
@@ -88,8 +80,7 @@
       "date": "2026-03-05",
       "donorId": "xPtVLHLDgrbv7eYXTQFoTM7cfhJ2",
       "donorName": "Lisa Martinez",
-      "status": "confirmed",
-      "time": "10:00 AM"
+      "status": "confirmed"
     },
     "APT010": {
       "bloodType": "B-",
@@ -98,8 +89,7 @@
       "date": "2026-03-06",
       "donorId": "ngQaT7kQJuWPV6xjJmgAG0NGzyB3",
       "donorName": "James Anderson",
-      "status": "pending",
-      "time": "11:00 AM"
+      "status": "pending"
     },
     "APT011": {
       "bloodType": "O+",
@@ -108,8 +98,7 @@
       "date": "2026-03-10",
       "donorId": "0C48ynsvrOOxzgZy05bYfZyZLVy1",
       "donorName": "John Smith",
-      "status": "confirmed",
-      "time": "09:00 AM"
+      "status": "confirmed"
     },
     "APT012": {
       "bloodType": "O-",
@@ -118,8 +107,7 @@
       "date": "2026-03-12",
       "donorId": "uXG78dHSctbbBKWrOCDPgXvi3GG3",
       "donorName": "David Wilson",
-      "status": "confirmed",
-      "time": "02:00 PM"
+      "status": "confirmed"
     },
     "APT013": {
       "bloodType": "AB-",
@@ -128,8 +116,7 @@
       "date": "2026-03-15",
       "donorId": "0rT10YInrkOduZHsO7POsWHx8kI2",
       "donorName": "Jennifer Taylor",
-      "status": "pending",
-      "time": "01:00 PM"
+      "status": "pending"
     },
     "APT014": {
       "bloodType": "B+",
@@ -138,8 +125,7 @@
       "date": "2026-03-18",
       "donorId": "3pBkKC6dmgQS5sJBMQIzRZaKGnm1",
       "donorName": "Michael Brown",
-      "status": "pending",
-      "time": "10:00 AM"
+      "status": "pending"
     }
   },
   "bloodInventory": {

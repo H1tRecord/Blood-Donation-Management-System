@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  timeSlots,
   APP_CONFIG,
   isEligibleToDonate,
   getDaysUntilEligible
@@ -15,14 +14,13 @@ const AppointmentBooking = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedDate, setSelectedDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
-  const [availableSlots, setAvailableSlots] = useState([]);
   const [isEligible, setIsEligible] = useState(false);
   const [daysUntilEligible, setDaysUntilEligible] = useState(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationNumber, setConfirmationNumber] = useState('');
   const [isFirstTime, setIsFirstTime] = useState(false);
   const [allAppointments, setAllAppointments] = useState([]);
+  const [existingAppointment, setExistingAppointment] = useState(null);
 
   // Calendar state — initialised to today
   const todayStr = APP_CONFIG.TODAY;
@@ -35,14 +33,18 @@ const AppointmentBooking = () => {
       setIsFirstTime(true);
     }
     checkEligibility();
-    getAppointments().then(setAllAppointments);
+    getAppointments().then(apts => {
+      setAllAppointments(apts);
+      if (currentUser) {
+        const existing = apts.find(
+          a => a.donorId === currentUser.uid &&
+               a.status !== 'cancelled' &&
+               a.date >= todayStr
+        );
+        setExistingAppointment(existing || null);
+      }
+    });
   }, [currentUser]);
-
-  useEffect(() => {
-    if (selectedDate) {
-      loadAvailableSlots(selectedDate);
-    }
-  }, [selectedDate]);
 
   const checkEligibility = () => {
     if (!currentUser) return;
@@ -83,11 +85,6 @@ const AppointmentBooking = () => {
       const cellDate = new Date(dateStr + 'T12:00:00');
       const isPast = cellDate <= today;
       const isToday = dateStr === todayStr;
-      const dayAppts = allAppointments.filter(a => a.date === dateStr && a.status !== 'cancelled');
-      const totalCapacity = timeSlots.length * APP_CONFIG.DEFAULT_SLOT_CAPACITY;
-      const hasAvailability = dayAppts.length < totalCapacity;
-
-      const availableCount = totalCapacity - dayAppts.length;
       days.push({
         day: d,
         dateStr,
@@ -95,9 +92,6 @@ const AppointmentBooking = () => {
         isPast,
         isToday,
         isDisabled: isPast,
-        hasAvailability,
-        availableCount,
-        apptCount: dayAppts.length,
       });
     }
 
@@ -120,7 +114,6 @@ const AppointmentBooking = () => {
   const handleToday = () => {
     setCalendarMonth(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1));
     setSelectedDate(todayStr);
-    setSelectedTime('');
   };
 
   const calendarMonthLabel = calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -129,7 +122,6 @@ const AppointmentBooking = () => {
   const handleDayClick = (cell) => {
     if (cell.isOtherMonth || cell.isDisabled) return;
     setSelectedDate(cell.dateStr);
-    setSelectedTime('');
   };
 
   const selectedDateLabel = selectedDate
@@ -143,36 +135,11 @@ const AppointmentBooking = () => {
 
   // ── Slot & booking logic ──────────────────────
 
-  const loadAvailableSlots = (date) => {
-    const dateAppointments = allAppointments.filter(apt => apt.date === date && apt.status !== 'cancelled');
-    const cap = APP_CONFIG.DEFAULT_SLOT_CAPACITY;
-    const available = timeSlots
-      .map(slot => {
-        const booked = dateAppointments.filter(apt => apt.time === slot).length;
-        return { time: slot, booked, available: cap - booked };
-      })
-      .filter(s => s.available > 0);
-    setAvailableSlots(available);
-  };
-
   const handleBookAppointment = async (e) => {
     e.preventDefault();
 
-    if (!selectedDate || !selectedTime) {
-      alert('Please select both date and time');
-      return;
-    }
-
-    const cap = APP_CONFIG.DEFAULT_SLOT_CAPACITY;
-    const bookedCount = allAppointments.filter(
-      apt => apt.date === selectedDate && apt.time === selectedTime && apt.status !== 'cancelled'
-    ).length;
-
-    if (bookedCount >= cap) {
-      alert('This slot has just been filled. Please select another time.');
-      const freshAppts = await getAppointments();
-      setAllAppointments(freshAppts);
-      loadAvailableSlots(selectedDate);
+    if (!selectedDate) {
+      alert('Please select a date');
       return;
     }
 
@@ -183,7 +150,6 @@ const AppointmentBooking = () => {
       donorName: currentUser.name,
       bloodType: currentUser.bloodType || null,
       date: selectedDate,
-      time: selectedTime,
       status: 'pending',
       confirmationNumber: confNum,
       createdDate: new Date().toISOString().split('T')[0],
@@ -264,10 +230,6 @@ const AppointmentBooking = () => {
                 <span className="summary-value">{selectedDateLabel}</span>
               </p>
               <p className="summary-item">
-                <span className="summary-label">Time:</span>
-                <span className="summary-value">{selectedTime}</span>
-              </p>
-              <p className="summary-item">
                 <span className="summary-label">Donor:</span>
                 <span className="summary-value">{currentUser.name}</span>
               </p>
@@ -299,6 +261,41 @@ const AppointmentBooking = () => {
     );
   }
 
+  // ── Existing appointment view ──────────────────
+
+  if (existingAppointment) {
+    const apptDateLabel = new Date(existingAppointment.date + 'T12:00:00').toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+    });
+    return (
+      <div className="appointment-booking">
+        <div className="ineligible-notice">
+          <div className="notice-icon">!</div>
+          <h2>Appointment Already Booked</h2>
+          <p>You already have an upcoming appointment.</p>
+          <div className="appointment-summary" style={{ marginTop: '1rem' }}>
+            <p className="summary-item">
+              <span className="summary-label">Date:</span>
+              <span className="summary-value">{apptDateLabel}</span>
+            </p>
+            <p className="summary-item">
+              <span className="summary-label">Status:</span>
+              <span className="summary-value" style={{ textTransform: 'capitalize' }}>{existingAppointment.status}</span>
+            </p>
+            <p className="summary-item">
+              <span className="summary-label">Confirmation:</span>
+              <span className="summary-value">{existingAppointment.confirmationNumber}</span>
+            </p>
+          </div>
+          <p style={{ marginTop: '1rem', color: '#666' }}>Cancel your existing appointment from the dashboard before booking a new one.</p>
+          <button className="ab-btn ab-btn-primary" onClick={handleBackToDashboard}>
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // ── Main booking view ─────────────────────────
 
   return (
@@ -310,7 +307,7 @@ const AppointmentBooking = () => {
           {isFirstTime ? (
             <p className="ab-subtitle">Welcome! Book your first appointment. Staff will determine your blood type during your visit.</p>
           ) : (
-            <p className="ab-subtitle">Select a date and time for your blood donation</p>
+            <p className="ab-subtitle">Select a date for your blood donation</p>
           )}
         </div>
       </div>
@@ -342,24 +339,16 @@ const AppointmentBooking = () => {
                   disabled={cell.isOtherMonth || cell.isDisabled}
                 >
                   <span className="ab-cell-day">{cell.day}</span>
-                  {!cell.isOtherMonth && !cell.isDisabled && cell.hasAvailability && (
-                    <span className="ab-avail-dot" title={`${cell.availableCount} slots open`} />
-                  )}
-                  {!cell.isOtherMonth && !cell.isDisabled && !cell.hasAvailability && (
-                    <span className="ab-full-dot" title="Full" />
-                  )}
+
                 </button>
               ))}
             </div>
 
-            <div className="ab-legend">
-              <span className="ab-legend-item"><span className="ab-avail-dot legend" /> Slots open</span>
-              <span className="ab-legend-item"><span className="ab-full-dot legend" /> Full</span>
-            </div>
+
           </div>
         </div>
 
-        {/* Right: Time selection + summary */}
+        {/* Right: selection + summary */}
         <div className="ab-detail-panel">
           <div className="ab-detail-card">
             {selectedDate ? (
@@ -367,70 +356,26 @@ const AppointmentBooking = () => {
                 <div className="ab-detail-header">
                   <div>
                     <h2 className="ab-detail-date">{selectedDateLabel}</h2>
-                    <p className="ab-detail-count">
-                      {availableSlots.length} slot{availableSlots.length !== 1 ? 's' : ''} available
-                    </p>
                   </div>
                 </div>
 
-                {availableSlots.length > 0 ? (
-                  <div className="ab-slots">
-                    <h3>Select Time</h3>
-                    <div className="ab-slots-list">
-                      {timeSlots.map((slot) => {
-                        const s = availableSlots.find(a => a.time === slot);
-                        const isUnavailable = !s;
-                        const count = s ? s.booked : APP_CONFIG.DEFAULT_SLOT_CAPACITY;
-                        const cap = APP_CONFIG.DEFAULT_SLOT_CAPACITY;
-                        return (
-                          <button
-                            key={slot}
-                            type="button"
-                            className={`ab-slot-row ${isUnavailable ? 'full' : ''} ${selectedTime === slot ? 'selected' : ''}`}
-                            onClick={() => !isUnavailable && setSelectedTime(slot)}
-                            disabled={isUnavailable}
-                          >
-                            <span className="ab-slot-time">{slot}</span>
-                            <span className="ab-slot-fill">
-                              <span className="ab-slot-bar" style={{ width: `${Math.min((count / cap) * 100, 100)}%` }} />
-                            </span>
-                            <span className="ab-slot-count">{cap - count}/{cap}</span>
-                            <span className="ab-slot-label">{isUnavailable ? 'Full' : 'open'}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                <div className="ab-booking-summary">
+                  <h3>Appointment Summary</h3>
+                  <div className="ab-summary-row">
+                    <span>Date</span>
+                    <strong>{selectedDateLabel}</strong>
                   </div>
-                ) : (
-                  <div className="ab-no-slots">
-                    <p>No slots available for this date</p>
-                    <p className="ab-no-slots-hint">Select another date on the calendar</p>
+                  <div className="ab-summary-row">
+                    <span>Donor</span>
+                    <strong>{currentUser.name}</strong>
                   </div>
-                )}
-
-                {selectedTime && (
-                  <div className="ab-booking-summary">
-                    <h3>Appointment Summary</h3>
-                    <div className="ab-summary-row">
-                      <span>Date</span>
-                      <strong>{selectedDateLabel}</strong>
-                    </div>
-                    <div className="ab-summary-row">
-                      <span>Time</span>
-                      <strong>{selectedTime}</strong>
-                    </div>
-                    <div className="ab-summary-row">
-                      <span>Donor</span>
-                      <strong>{currentUser.name}</strong>
-                    </div>
-                  </div>
-                )}
+                </div>
 
                 <div className="ab-form-actions">
                   <button type="button" className="ab-btn ab-btn-ghost" onClick={handleBackToDashboard}>
                     Cancel
                   </button>
-                  <button type="submit" className="ab-btn ab-btn-primary" disabled={!selectedTime}>
+                  <button type="submit" className="ab-btn ab-btn-primary">
                     Confirm Appointment
                   </button>
                 </div>
@@ -438,7 +383,7 @@ const AppointmentBooking = () => {
             ) : (
               <div className="ab-empty-state">
                 <h2>Select a Date</h2>
-                <p>Choose a date from the calendar to see available time slots</p>
+                <p>Choose a date from the calendar to book your appointment</p>
               </div>
             )}
           </div>

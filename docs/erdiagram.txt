@@ -1,9 +1,10 @@
 erDiagram
     USERS ||--o{ APPOINTMENTS : makes
     USERS ||--o{ DONATION_HISTORY : "completes"
-    USERS ||--o{ DONATION_REQUESTS : requests
-    APPOINTMENTS ||--|| DONATION_HISTORY : "results in"
-    BLOOD_INVENTORY ||--|| DONATION_HISTORY : "receives blood"
+    USERS ||--o{ DONATION_REQUESTS : "receives"
+    USERS ||--o{ DONATION_REQUESTS : "sends"
+    APPOINTMENTS ||--o| DONATION_HISTORY : "results in"
+    BLOOD_INVENTORY ||--o{ DONATION_HISTORY : "updated by"
 
     USERS {
         string id PK
@@ -24,10 +25,10 @@ erDiagram
         string donorName "denormalized"
         string bloodType "denormalized"
         date date
-        string time
         string status "pending|confirmed|checked-in|completed|cancelled"
         string confirmationNumber
         date createdDate
+        string donationHistoryId FK "optional, when completed"
     }
 
     BLOOD_INVENTORY {

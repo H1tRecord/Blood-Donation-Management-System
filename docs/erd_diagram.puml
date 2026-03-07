@@ -23,10 +23,10 @@ entity "appointments" as appointments {
   donorName : string
   bloodType : string
   date : Date
-  time : string
   status : enum(pending|confirmed|checked-in|completed|cancelled)
   confirmationNumber : string
   createdDate : Date
+  donationHistoryId : string <<FK>> {optional}
 }
 
 entity "blood_inventory" as blood_inventory {
@@ -69,9 +69,10 @@ entity "donation_requests" as donation_requests {
 
 users ||--o{ appointments : makes
 users ||--o{ donation_history : completes
-users ||--o{ donation_requests : requests
-appointments ||--|| donation_history : results_in
-blood_inventory ||--|| donation_history : receives_blood
+users ||--o{ donation_requests : receives
+users ||--o{ donation_requests : sends
+appointments ||--o| donation_history : results_in
+blood_inventory ||--o{ donation_history : updated_by
 
 note right of users
   RTDB node: /users/{uid}

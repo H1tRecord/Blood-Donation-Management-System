@@ -306,7 +306,6 @@ const DonorDashboard = () => {
                     day: 'numeric'
                   })}
                 </p>
-                <p className="appointment-time"><span className="appt-label">Time:</span> {upcomingAppointment.time}</p>
                 <p className="appointment-status">
                   Status: <span className={`status-badge ${upcomingAppointment.status}`}>
                     {upcomingAppointment.status}

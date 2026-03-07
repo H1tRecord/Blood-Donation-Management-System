@@ -1,12 +1,10 @@
 priorities:
-- improve chapter 3
+- UPDATE CHAPTER 3 with new stuff
 - expiration date is synced to the last item to expire
 
 must:
 - All changes are logged with staff ID and timestamp blood inventory 
-- test the limit cap
-- view batches list
-- seperate removed and expired
+- improve view batches list ui
 - admin search limited fix
 
 optional:
@@ -14,3 +12,5 @@ optional:
 
 ???:
 - close weekends since it is closed that day (8am to 5pm??)
+- remove time slot? just select a day then do from there
+- figure if capping how many people is max capacity per day

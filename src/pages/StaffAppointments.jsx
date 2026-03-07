@@ -41,11 +41,7 @@ const StaffAppointments = () => {
   }, [selectedDate, allAppointments]);
 
   const loadAppointments = async () => {
-    const appts = (await getAppointments()).sort((a, b) => {
-      const dateCompare = a.date.localeCompare(b.date);
-      if (dateCompare !== 0) return dateCompare;
-      return a.time.localeCompare(b.time);
-    });
+    const appts = (await getAppointments()).sort((a, b) => a.date.localeCompare(b.date));
     setAllAppointments(appts);
   };
 
@@ -354,7 +350,6 @@ const StaffAppointments = () => {
                 dateAppointments.map(apt => (
                   <div key={apt.id} className={`sa-appt-item ${apt.status === 'cancelled' ? 'cancelled' : ''}`}>
                     <div className="sa-appt-time-col">
-                      <span className="sa-appt-time">{apt.time}</span>
                       <span className={`sa-appt-status ${getStatusBadgeClass(apt.status)}`}>
                         {apt.status}
                       </span>
@@ -432,7 +427,6 @@ const StaffAppointments = () => {
                     })}
                   </span>
                 </div>
-                <div className="sa-detail-row"><span className="sa-dlabel">Time:</span><span className="sa-dvalue">{selectedAppointment.time}</span></div>
                 <div className="sa-detail-row"><span className="sa-dlabel">Blood Type:</span><span className="sa-dvalue">{selectedAppointment.bloodType || 'To be determined'}</span></div>
                 <div className="sa-detail-row">
                   <span className="sa-dlabel">Status:</span>
@@ -459,7 +453,7 @@ const StaffAppointments = () => {
             <div className="modal-content">
               <div className="sa-complete-meta">
                 <p><strong>Donor:</strong> {selectedAppointment.donorName}</p>
-                <p><strong>Appointment:</strong> {new Date(selectedAppointment.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} · {selectedAppointment.time}</p>
+                <p><strong>Appointment:</strong> {new Date(selectedAppointment.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</p>
               </div>
 
               {completionError && (
