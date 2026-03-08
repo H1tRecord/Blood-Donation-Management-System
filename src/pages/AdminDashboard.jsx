@@ -100,6 +100,9 @@ const AdminDashboard = () => {
           return dir * a.role.localeCompare(b.role);
         case 'registered':
           return dir * (new Date(a.registrationDate) - new Date(b.registrationDate));
+        case 'status':
+          // Sort by isActive: active first if asc, inactive first if desc
+          return dir * ((b.isActive ? 1 : 0) - (a.isActive ? 1 : 0));
         default:
           return 0;
       }
@@ -301,7 +304,9 @@ const AdminDashboard = () => {
               <div className="admin-col-registered sortable" onClick={() => handleSort('registered')}>
                 Registered{getSortIndicator('registered')}
               </div>
-              <div className="admin-col-status">Status</div>
+              <div className="admin-col-status sortable" onClick={() => handleSort('status')}>
+                Status{getSortIndicator('status')}
+              </div>
               <div className="admin-col-actions">Actions</div>
             </div>
 
