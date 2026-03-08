@@ -157,6 +157,20 @@ const StaffAppointments = () => {
     }
   };
 
+  const prevStatusMap = {
+    confirmed: 'pending',
+    'checked-in': 'confirmed',
+    cancelled: 'pending',
+  };
+
+  const handleRevertAppointment = (appointmentId, currentStatus) => {
+    const prev = prevStatusMap[currentStatus];
+    if (!prev) return;
+    if (window.confirm(`Revert this appointment from "${currentStatus}" back to "${prev}"?`)) {
+      updateAppointment(appointmentId, { status: prev }).then(loadAppointments);
+    }
+  };
+
   const handleCompleteAppointment = async () => {
     setCompletionError('');
     if (!completionBloodType) {
@@ -366,18 +380,31 @@ const StaffAppointments = () => {
                       </span>
                     </div>
                     <div className="sa-appt-actions">
-                      <button className="sa-action view" onClick={() => handleViewDetails(apt)}>View</button>
-                      {apt.status === 'pending' && (
-                        <button className="sa-action confirm" onClick={() => handleStatusChange(apt.id, 'confirmed')}>Confirm</button>
-                      )}
-                      {apt.status === 'confirmed' && (
-                        <button className="sa-action checkin" onClick={() => handleStatusChange(apt.id, 'checked-in')}>Check In</button>
-                      )}
-                      {apt.status === 'checked-in' && (
-                        <button className="sa-action complete" onClick={() => openCompleteModal(apt)}>Complete</button>
-                      )}
-                      {(apt.status === 'pending' || apt.status === 'confirmed') && (
-                        <button className="sa-action cancel" onClick={() => handleCancelAppointment(apt.id)}>Cancel</button>
+                      <button className="sa-action-view" onClick={() => handleViewDetails(apt)}>View</button>
+                      {['pending', 'confirmed', 'checked-in', 'cancelled'].includes(apt.status) && (
+                        <select
+                          className="sa-action-dropdown"
+                          value=""
+                          onChange={(e) => {
+                            const action = e.target.value;
+                            if (!action) return;
+                            if (action === 'confirm') handleStatusChange(apt.id, 'confirmed');
+                            else if (action === 'checkin') handleStatusChange(apt.id, 'checked-in');
+                            else if (action === 'complete') openCompleteModal(apt);
+                            else if (action === 'cancel') handleCancelAppointment(apt.id);
+                            else if (action === 'revert') handleRevertAppointment(apt.id, apt.status);
+                            e.target.value = '';
+                          }}
+                        >
+                          <option value="">Actions...</option>
+                          {apt.status === 'pending' && <option value="confirm">Confirm</option>}
+                          {apt.status === 'confirmed' && <option value="checkin">Check In</option>}
+                          {apt.status === 'checked-in' && <option value="complete">Complete</option>}
+                          {(apt.status === 'pending' || apt.status === 'confirmed') && <option value="cancel">Cancel</option>}
+                          {prevStatusMap[apt.status] && (
+                            <option value="revert">↩ Revert to {prevStatusMap[apt.status]}</option>
+                          )}
+                        </select>
                       )}
                     </div>
                   </div>
