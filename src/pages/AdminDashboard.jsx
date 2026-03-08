@@ -80,9 +80,11 @@ const AdminDashboard = () => {
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         return (
-          user.name.toLowerCase().includes(q) ||
-          user.email.toLowerCase().includes(q) ||
-          user.uid.toLowerCase().includes(q)
+          (user.name || '').toLowerCase().includes(q) ||
+          (user.email || '').toLowerCase().includes(q) ||
+          (user.uid || '').toLowerCase().includes(q) ||
+          (user.role || '').toLowerCase().includes(q) ||
+          (user.bloodType || '').toLowerCase().includes(q)
         );
       }
       return true;
@@ -251,7 +253,7 @@ const AdminDashboard = () => {
             <label>Search</label>
             <input
               type="text"
-              placeholder="Name, email, or ID..."
+              placeholder="Name, email, ID, role, or blood type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="admin-search-input"
