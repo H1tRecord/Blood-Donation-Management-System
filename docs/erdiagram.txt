@@ -1,22 +1,32 @@
 erDiagram
-    USERS ||--o{ APPOINTMENTS : makes
-    USERS ||--o{ DONATION_HISTORY : "completes"
-    USERS ||--o{ DONATION_REQUESTS : "receives"
-    USERS ||--o{ DONATION_REQUESTS : "sends"
+    DONORS ||--o{ APPOINTMENTS : makes
+    DONORS ||--o{ DONATION_HISTORY : "completes"
+    DONORS ||--o{ DONATION_REQUESTS : "receives"
+    STAFF ||--o{ DONATION_REQUESTS : "sends"
+    STAFF ||--o{ DONATION_HISTORY : "processes"
     APPOINTMENTS ||--o| DONATION_HISTORY : "results in"
     BLOOD_INVENTORY ||--o{ DONATION_HISTORY : "updated by"
 
-    USERS {
+    DONORS {
         string id PK
-        string role FK "donor|staff|admin"
         string email UK
         string password
         string name
         boolean isActive
         date registrationDate
-        string bloodType "Donor-specific"
-        date lastDonationDate "Donor-specific"
-        int donationCount "Donor-specific"
+        string bloodType
+        date lastDonationDate
+        int donationCount
+    }
+
+    STAFF {
+        string id PK
+        string role "staff|admin"
+        string email UK
+        string password
+        string name
+        boolean isActive
+        date registrationDate
     }
 
     APPOINTMENTS {
@@ -35,7 +45,7 @@ erDiagram
         string type PK "A+, A-, B+, B-, AB+, AB-, O+, O-"
         int units "total valid units"
         date lastUpdated
-        date expirationDate "nearest expiring batch"
+        date expirationDate "last expiring batch"
         object batches "array of batch objects"
     }
 
@@ -63,5 +73,4 @@ erDiagram
         string status "pending|accepted|declined"
         string message
         date responseDate "optional"
-        string responseMessage "optional"
     }

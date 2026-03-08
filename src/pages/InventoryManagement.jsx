@@ -52,12 +52,12 @@ const processExpiryData = (inventoryData) => {
     cloned.batches = validBatches;
     cloned.units   = validBatches.reduce((sum, b) => sum + b.units, 0);
 
-    // Nearest non-expired batch becomes the headline expiration date
+    // Last-to-expire batch becomes the headline expiration date
     if (validBatches.length > 0) {
       const sorted = [...validBatches].sort(
         (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
       );
-      cloned.expirationDate = sorted[0].expirationDate;
+      cloned.expirationDate = sorted[sorted.length - 1].expirationDate;
     }
 
     return cloned;
@@ -180,7 +180,7 @@ const InventoryManagement = () => {
       const sorted = [...inventoryItem.batches].sort(
         (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
       );
-      inventoryItem.expirationDate = sorted[0].expirationDate;
+      inventoryItem.expirationDate = sorted[sorted.length - 1].expirationDate;
       setSuccessMessage(`Successfully added ${quantity} unit(s) of ${selectedType}`);
     } else {
       if (inventoryItem.units < quantity) {
@@ -201,7 +201,7 @@ const InventoryManagement = () => {
       inventoryItem.units -= quantity;
       inventoryItem.lastUpdated = new Date().toISOString().split('T')[0];
       if (inventoryItem.batches.length > 0) {
-        inventoryItem.expirationDate = inventoryItem.batches[0].expirationDate;
+        inventoryItem.expirationDate = inventoryItem.batches[inventoryItem.batches.length - 1].expirationDate;
       }
       setSuccessMessage(`Successfully removed ${quantity} unit(s) of ${selectedType}`);
       setSessionRemovedUnits(prev => [...prev, { type: selectedType, units: quantity }]);
@@ -339,8 +339,17 @@ const InventoryManagement = () => {
                     <button
                       className="btn-view-batches"
                       onClick={() => { setBatchesItem(item); setShowBatchesModal(true); }}
+                      title={`View ${(item.batches || []).length} batch${(item.batches || []).length !== 1 ? 'es' : ''}`}
                     >
-                      {(item.batches || []).length} batch{(item.batches || []).length !== 1 ? 'es' : ''}
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"/>
+                        <line x1="8" y1="12" x2="21" y2="12"/>
+                        <line x1="8" y1="18" x2="21" y2="18"/>
+                        <polyline points="3 6 4 7 6 5"/>
+                        <polyline points="3 12 4 13 6 11"/>
+                        <polyline points="3 18 4 19 6 17"/>
+                      </svg>
+                      <span className="btn-batch-count">{(item.batches || []).length}</span>
                     </button>
                   </div>
                 </div>
@@ -523,44 +532,68 @@ const InventoryManagement = () => {
             <div className="modal-content">
               {(batchesItem.batches || []).length === 0 ? (
                 <p className="batches-empty">No active batches for this blood type.</p>
-              ) : (
-                <div className="batches-table">
-                  <div className="batches-thead">
-                    <div>#</div>
-                    <div>Expiration Date</div>
-                    <div>Days Remaining</div>
-                    <div>Units</div>
-                    <div>Status</div>
-                  </div>
-                  {[...batchesItem.batches]
-                    .sort((a, b) => new Date(a.expirationDate) - new Date(b.expirationDate))
-                    .map((batch, idx) => {
-                      const days = getDaysUntilExpiry(batch.expirationDate);
-                      const level = days <= 1 ? 'critical' : days <= 3 ? 'warning' : days <= 7 ? 'caution' : 'ok';
-                      return (
-                        <div key={idx} className={`batches-row batch-${level}`}>
-                          <div className="batch-num">{idx + 1}</div>
-                          <div className="batch-expiry">{new Date(batch.expirationDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
-                          <div className="batch-days">
-                            {days <= 0 ? <span className="batch-tag critical">Expired</span>
-                              : days === 1 ? <span className="batch-tag warning">1 day</span>
-                              : <span className={`batch-tag ${level}`}>{days} days</span>}
+              ) : (() => {
+                const sortedBatches = [...batchesItem.batches].sort(
+                  (a, b) => new Date(a.expirationDate) - new Date(b.expirationDate)
+                );
+                const lastIdx = sortedBatches.length - 1;
+                const earliestDate = new Date(sortedBatches[0].expirationDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const latestDate   = new Date(sortedBatches[lastIdx].expirationDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                return (
+                  <>
+                    <div className="batches-strip">
+                      <div className="batches-strip-item">
+                        <span className="batches-strip-value">{batchesItem.units}</span>
+                        <span className="batches-strip-label">Total Units</span>
+                      </div>
+                      <div className="batches-strip-divider" />
+                      <div className="batches-strip-item">
+                        <span className="batches-strip-value">{sortedBatches.length}</span>
+                        <span className="batches-strip-label">Batches</span>
+                      </div>
+                      <div className="batches-strip-divider" />
+                      <div className="batches-strip-item">
+                        <span className="batches-strip-value batches-strip-range">{earliestDate} → {latestDate}</span>
+                        <span className="batches-strip-label">Expiry Range</span>
+                      </div>
+                    </div>
+                    <div className="batches-table">
+                      <div className="batches-thead">
+                        <div>#</div>
+                        <div>Expiration Date</div>
+                        <div>Days Remaining</div>
+                        <div>Units</div>
+                        <div>Status</div>
+                      </div>
+                      {sortedBatches.map((batch, idx) => {
+                        const days  = getDaysUntilExpiry(batch.expirationDate);
+                        const level = days <= 1 ? 'critical' : days <= 3 ? 'warning' : days <= 7 ? 'caution' : 'ok';
+                        const isLast = idx === lastIdx;
+                        return (
+                          <div key={idx} className={`batches-row batch-${level}${isLast ? ' batch-last' : ''}`}>
+                            <div className="batch-num">{idx + 1}</div>
+                            <div className="batch-expiry">
+                              {new Date(batch.expirationDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                              {isLast && <span className="batch-last-badge">Last</span>}
+                            </div>
+                            <div className="batch-days">
+                              {days <= 0 ? <span className="batch-tag critical">Expired</span>
+                                : days === 1 ? <span className="batch-tag warning">1 day</span>
+                                : <span className={`batch-tag ${level}`}>{days} days</span>}
+                            </div>
+                            <div className="batch-units">{batch.units} unit{batch.units !== 1 ? 's' : ''}</div>
+                            <div>
+                              {days <= 1 ? <span className="batch-status-pill critical">Expiring</span>
+                                : days <= 7 ? <span className="batch-status-pill warning">Soon</span>
+                                : <span className="batch-status-pill ok">Active</span>}
+                            </div>
                           </div>
-                          <div className="batch-units">{batch.units} unit{batch.units !== 1 ? 's' : ''}</div>
-                          <div>
-                            {days <= 1 ? <span className="batch-status-pill critical">Expiring</span>
-                              : days <= 7 ? <span className="batch-status-pill warning">Soon</span>
-                              : <span className="batch-status-pill ok">Active</span>}
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
-              <div className="batches-summary">
-                <span>{(batchesItem.batches || []).length} batch{(batchesItem.batches || []).length !== 1 ? 'es' : ''}</span>
-                <span className="batches-total">{batchesItem.units} total units</span>
-              </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
             <div className="modal-actions">
               <button className="btn-secondary" onClick={() => setShowBatchesModal(false)}>Close</button>

@@ -5,7 +5,6 @@ priorities:
 must:
 - All changes are logged with staff ID and timestamp blood inventory 
 - improve view batches list ui
-- admin search limited fix
 
 optional:
 - animations?
