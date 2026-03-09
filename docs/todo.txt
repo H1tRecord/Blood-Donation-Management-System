@@ -3,7 +3,7 @@ priorities:
 
 must:
 - All changes are logged with staff ID and timestamp blood inventory 
-- dropdown instead of button
+
 
 optional:
 - animations?
@@ -11,3 +11,5 @@ optional:
 ???:
 - close weekends since it is closed that day (8am to 5pm??)
 - figure if capping how many people is max capacity per day
+- composite keys??
+- walk in appointment logic?

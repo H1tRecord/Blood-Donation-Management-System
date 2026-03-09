@@ -76,20 +76,6 @@ const Login = () => {
           </div>
           <h1>Blood Donation Management System</h1>
           <p className="hero-tagline">Every drop counts. Save lives through the power of giving.</p>
-          <div className="hero-stats">
-            <div className="hero-stat">
-              <span className="stat-number">500+</span>
-              <span className="stat-text">Donors Registered</span>
-            </div>
-            <div className="hero-stat">
-              <span className="stat-number">1,200+</span>
-              <span className="stat-text">Lives Saved</span>
-            </div>
-            <div className="hero-stat">
-              <span className="stat-number">8</span>
-              <span className="stat-text">Blood Types</span>
-            </div>
-          </div>
         </div>
       </div>
 
