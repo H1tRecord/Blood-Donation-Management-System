@@ -100,7 +100,7 @@ const Login = () => {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="Email Address"
                 required
               />
             </div>
@@ -110,7 +110,7 @@ const Login = () => {
               <div className="pw-wrapper">
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  id="password"
+                  id="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
