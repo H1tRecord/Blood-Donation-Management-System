@@ -1,6 +1,8 @@
 # Blood Donation Management System
 
-An advanced web application for managing blood donation processes, appointments, inventory, and donor information. Built with React, Vite, and Firebase Realtime Database.
+An web application for managing blood donation processes, appointments, inventory, and donor information. Built with React, Vite, and Firebase Realtime Database.
+
+demo: blood-donation-management-system-r1cq7rov5-hitrecords-projects.vercel.app
 
 ## 🚀 Tech Stack
 
