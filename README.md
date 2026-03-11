@@ -2,8 +2,6 @@
 
 An web application for managing blood donation processes, appointments, inventory, and donor information. Built with React, Vite, and Firebase Realtime Database.
 
-demo: blood-donation-management-system-r1cq7rov5-hitrecords-projects.vercel.app
-
 ## 🚀 Tech Stack
 
 - **React 19.2.0** — UI library
