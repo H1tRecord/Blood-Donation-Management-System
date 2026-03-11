@@ -100,72 +100,86 @@ Browser LocalStorage: Dependency on persistent local storage not being cleared b
 3. External Interface Requirements
 
 3.1 User Interfaces
-The Blood Donation Management System user interface shall be designed for high responsiveness and accessibility, following modern web design principles and accessibility standards. The system shall maintain consistent design language across all interfaces while optimizing for different user needs and device types.
+The Blood Donation Management System (BDMS) user interface shall be designed for high responsiveness and accessibility, following modern web design principles (Single Page Application architecture) and WCAG accessibility standards. The system shall maintain a consistent design language across all modules while optimizing for specific user roles.
 
-3.1.1 Donor User Interface
+3.1.1 Global UI Standards and Layout
+*   Navigation Bar: A persistent top navigation bar (Navbar) shall be displayed for all authenticated users. It shall include the system branding "(+) BDMS", role-specific menu links (Dashboard, Appointments, Inventory, etc.), a user profile indicator, and a "Logout" button.
+*   Standard Buttons: Primary actions (Login, Submit, Confirm) shall use consistent high-contrast styling. Secondary actions (Cancel, Go Back) shall use neutral or outlined styles.
+*   Form Controls: All input fields shall include clear labels, placeholder text, and real-time validation feedback. Password fields shall include a visibility toggle.
+*   Error Messaging: System-level errors and validation failures shall be displayed as localized alert messages (e.g., "Invalid email format" or "Incorrect password") directly above the relevant interactive elements.
+*   Loading States: Visual indicators (spinners or skeleton screens) shall be used during asynchronous data fetching from the database.
+
+3.1.2 Donor User Interface
 The donor interface focuses on ease of use for account management and appointment scheduling.
 
 A) AUTHENTICATION INTERFACE
 Login Screen:
-Email address input field with validation
-Password input field with character masking
-"Login" button
-"Create New Account" link to registration
+*   Email address input field with validation.
+*   Password input field with character masking.
+*   "Login" button.
+*   "Create New Account" link to registration.
 
 Registration Screen:
-Full Name input (Required, max 100 characters).
-Email Address input field with format validation
-Password input field (required, minimum 6 characters)
-"Create Account" button
+*   Full Name input (Required, max 100 characters).
+*   Email Address input field with format validation.
+*   Password input field (required, minimum 6 characters).
+*   "Create Account" button.
 
 B) DONOR DASHBOARD
-Navigation: Global header containing donor name and logout functionality.
-Profile Card: Summary of blood type, email, and total lifetime donations.
-Eligibility Tracker: Dynamic status message or countdown timer indicating when the donor can next donate.
-Donation History: A chronological timeline of all past successful donations.
+*   Navigation: Global header containing donor name and logout functionality.
+*   Profile Card: Summary of blood type, email, and total lifetime donations.
+*   Eligibility Tracker: Dynamic status message or countdown timer indicating when the donor can next donate (based on the 56-day deferral rule).
+*   Donation History: A chronological timeline of all past successful donations.
 
 C) APPOINTMENT BOOKING INTERFACE
-Scheduler: Interactive 7-day calendar with real-time slot availability.
-Confirmation View: Summary displaying donor name, blood type, and booking terms.
-Controls: "Confirm Booking" to finalize, "Go Back" to modify, and "Cancel" to abandon the flow.
+*   Scheduler: Interactive 7-day calendar with real-time slot availability.
+*   Confirmation View: Summary displaying donor name, blood type, and booking terms.
+*   Controls: "Confirm Booking" to finalize, "Go Back" to modify, and "Cancel" to abandon the flow.
 
-3.1.2 Staff User Interface
+3.1.3 Staff User Interface
 The staff interface is optimized for data density and quick operational actions.
 
-A) Staff Dashboard
-Overview Statistics: High-level metric cards for total inventory, critical stock alerts, today's confirmed appointments, and total registered donors.
-Inventory Status: Color-coded table (Green/Yellow/Red) showing stock by type and units expiring within 7 days.
-Quick Actions: Large shortcut buttons for Search Donors, Manage Appointments, Manage Inventory, and View Reports.
+A) STAFF DASHBOARD
+*   Overview Statistics: High-level metric cards for total inventory, critical stock alerts, today's confirmed appointments, and total registered donors.
+*   Inventory Status: Color-coded table (Green/Yellow/Red) showing stock by type and units expiring within 7 days.
+*   Quick Actions: Large shortcut buttons for Search Donors, Manage Appointments, Manage Inventory, and View Reports.
 
-B) Appointment Management Interface
-Weekly Calendar View: 7-day grid showing numerical dates, appointment counts, and status-colored indicators.
-Daily List: Chronological list of appointments featuring:
-Donor ID, Name, and Blood Type (or "To Be Determine").
-Status badges and a dropdown to update status (e.g., Checked-in, Completed).
-Process Donation button for active appointments.
-Donation Processing Modal: A focused window to confirm donor identity and "Complete Donation" to update the system records.
+B) APPOINTMENT MANAGEMENT INTERFACE
+*   Weekly Calendar View: 7-day grid showing numerical dates, appointment counts, and status-colored indicators.
+*   Daily List: Chronological list of appointments featuring Donor ID, Name, Blood Type, and status.
+*   Donation Processing Modal: A focused window to confirm donor identity and "Complete Donation" to update system records and inventory.
 
-3.1.3 Donor Search Interface
-Used by staff to locate and manage donor records efficiently.
+3.1.4 Donor Search Interface
+*   Search & Filter: Multi-parameter search (Name, ID, or Email) and dropdown filters for Blood Type and Status.
+*   Donor Records Table: Sortable columns for ID, Name, Blood Type, and Last Donation date with a "View" action button for detailed profiles.
 
-Search & Filter: * Multi-parameter search (Name, ID, or Email)
-Dropdown filters for Blood Type and Status (Active/Eligible/Deferred).
-Donor Records Table: * Sortable columns for ID, Name, Blood Type, and Last Donation date.
-Responsive design with row highlighting and a "View" action button.
-Donor Detail Modal: Comprehensive profile view including contact info and donation statistics.
+3.1.5 Blood Inventory Management Interface
+*   Inventory Overview: Summary of total units across all types with color-coded health indicators (Adequate: 20+, Low: 10-19, Critical: <10).
+*   Add/Adjust Units Modal: Numeric input field with Increment (+1) and Decrement (-1) controls and a confirmation of the projected new total.
 
-3.1.4 Blood Inventory Management Interface
-Provides real-time visualization of the blood bank's current supply.
+3.2 Hardware Interfaces
+The BDMS is a device-agnostic web application with the following hardware interface characteristics:
+*   Supported Devices: Accessible via standard desktop computers, laptops, tablets, and smartphones.
+*   Client Interaction: Supports standard input peripherals (keyboard, mouse, touchscreens).
+*   Screen Resolution: Responsive design adapts to a minimum resolution of 320px (mobile) and scales up to 1920px+ (ultra-wide desktop).
+*   Nature of Interaction: All data and control interactions occur via the web browser environment using standard I/O protocols.
 
-A) Inventory Overview
-Summary of total units across all types.
-View Batches
-Categorization of stock levels:
-Adequate (Green): 20+ units.
-Low (Yellow): 10-19 units.
-Critical (Red): < 10 units.
+3.3 Software Interfaces
+The system architecture relies on the following software components and libraries:
+*   Operating System: Compatible with any OS capable of running a modern web browser (Windows, macOS, Linux, Android, iOS).
+*   Frontend Framework: React 19.x for component-based UI rendering.
+*   Routing Library: React Router DOM 7.x for client-side navigation.
+*   Backend-as-a-Service (BaaS): Firebase 12.x provides the core infrastructure.
+    - Firebase Authentication: Provides secure user sign-in and session management.
+    - Firebase Realtime Database: Serves as the primary JSON-based data store for donors, appointments, and inventory.
+*   Vite 6.x: Used as the build tool and development server.
 
-C) Add Units Modal
-Display of current count for the selected type.
-Numeric input field with Increment (+1) and Decrement (-1) controls.
-Confirmation showing the projected new total before
+Data Sharing: All software components communicate with the Firebase Realtime Database via the Firebase JS SDK. Data items primarily consist of JSON objects representing User Profiles, Appointment Records, and Inventory Batches.
+
+3.4 Communications Interfaces
+The BDMS utilizes standard web communication channels:
+*   Web Browser: Executes primarily within modern browsers (Chrome, Firefox, Safari, Edge).
+*   Communication Protocol: All client-to-server traffic is conducted over HTTPS (Hypertext Transfer Protocol Secure) for data encryption in transit (TLS 1.2+).
+*   Realtime Synchronization: The system uses WebSockets (via Firebase SDK) for low-latency, real-time updates of inventory levels and appointment statuses.
+*   Authentication Headers: Secure tokens (JWT) managed by Firebase Auth are passed between the client and backend to authorize data requests.
+*   Data Format: All message formatting between the application and the database uses the JSON (JavaScript Object Notation) standard.
