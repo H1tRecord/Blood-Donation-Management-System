@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DonorDashboard from './pages/DonorDashboard';
+import DonorFAQ from './pages/DonorFAQ';
 import StaffDashboard from './pages/StaffDashboard';
 import AppointmentBooking from './pages/AppointmentBooking';
 import StaffAppointments from './pages/StaffAppointments';
@@ -92,6 +93,14 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={['donor']}>
                 <AppointmentBooking />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/donor-faq"
+            element={
+              <ProtectedRoute allowedRoles={['donor']}>
+                <DonorFAQ />
               </ProtectedRoute>
             }
           />

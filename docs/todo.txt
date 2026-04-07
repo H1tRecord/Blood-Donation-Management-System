@@ -1,15 +1,76 @@
-priorities:
-- UPDATE CHAPTER 3 with new stuff
+# 🧠 Product & Feature Ideas
 
-must:
-- All changes are logged with staff ID and timestamp blood inventory 
+### Core Features
 
+* Add **mobile capabilities** (responsive or dedicated app)
+* Add **progress reports** (for users, donors, or admins)
+* Add **FAQ section**
 
-optional:
-- animations?
+  * Include “when to donate” guidance
+  * Possibly surface this on a homepage
 
-???:
-- close weekends since it is closed that day (8am to 5pm??)
-- figure if capping how many people is max capacity per day
-- composite keys??
-- walk in appointment logic?
+### User Flow Improvements
+
+* Add **deny button** for appointment processing
+* Consider **homepage** to surface key info (FAQ, purpose, etc.)
+
+---
+
+# 🧪 Testing & Users
+
+* Find **users for testing** (especially for blood bank workflows)
+
+---
+
+# 📊 Data & Integrations
+
+* Document **data gathering process for Red Cross**
+* Ensure alignment if integrating with external orgs
+
+---
+
+# ⚙️ System Logic Issues
+
+### Expiry Logic
+
+* Review and fix **expiry logic**
+* Update both:
+
+  * Documentation
+  * Actual system behavior
+* Ensure they match
+
+### Batch Logic
+
+* Re-evaluate **batch system**
+
+  * Option A: Allow manual adding to batch list + add “view batch details”
+  * Option B: Remove batch feature entirely
+* Consider real-world use:
+
+  * Nurses may already have their own system → might not need this
+
+---
+
+# 📚 Documentation Cleanup
+
+* Update docs to properly support current system
+* Remove inconsistencies and outdated info
+
+---
+
+# 🧩 Architecture / Tech Decisions
+
+* Investigate or remove **SPA (Single Page Application)**
+
+  * If keeping: research and justify
+  * If not: simplify
+
+---
+
+# ❗ Open Questions / Strategy Decisions
+
+* Do batches actually provide value, or is it unnecessary complexity?
+* Should this system mimic existing workflows (e.g., nurses’ current tools)?
+* Is a homepage necessary, or is this purely a utility tool?
+

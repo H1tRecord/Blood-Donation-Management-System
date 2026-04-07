@@ -335,8 +335,6 @@ const DonorSearch = () => {
                     </button>
                     {!donor.eligible ? (
                       <button className="ds-btn-disabled" disabled>Ineligible</button>
-                    ) : donor.hasActiveRequest ? (
-                      <button className="ds-btn-disabled" disabled>Sent</button>
                     ) : (
                       <button
                         className="ds-btn-request"
@@ -559,7 +557,6 @@ const DonorSearch = () => {
                     placeholder="Enter your message to the donor..."
                     required
                   />
-                  <small>This message will be sent to the donor via email</small>
                 </div>
                 <div className="modal-actions">
                   <button type="button" className="btn-secondary" onClick={handleCancelRequest}>

@@ -1,0 +1,237 @@
+/* ===== Donor FAQ Page ===== */
+.donor-faq {
+  min-height: 100vh;
+  background: var(--gray-50);
+  display: flex;
+  flex-direction: column;
+}
+
+.faq-header {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--accent-600) 100%);
+  color: white;
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.faq-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  margin-top: 0;
+}
+
+.faq-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.95;
+  margin: 0;
+  font-weight: 400;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.faq-content {
+  flex: 1;
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* ===== FAQ Section ===== */
+.faq-section {
+  margin-bottom: 2.5rem;
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--primary-600);
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ===== FAQ Item ===== */
+.faq-item {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all var(--transition-fast);
+}
+
+.faq-item:hover {
+  border-color: var(--primary-300);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.faq-item.open {
+  border-color: var(--primary-400);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.faq-question {
+  width: 100%;
+  padding: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: all var(--transition-fast);
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.faq-question:hover {
+  background: var(--gray-50);
+}
+
+.faq-item.open .faq-question {
+  color: var(--primary-600);
+}
+
+.faq-question span {
+  flex: 1;
+}
+
+.faq-question svg {
+  flex-shrink: 0;
+  color: var(--primary-600);
+}
+
+.faq-answer {
+  padding: 0 1rem 1rem;
+  background: var(--gray-50);
+  border-top: 1px solid var(--gray-200);
+  animation: slideDown var(--transition-normal) ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.faq-answer p {
+  margin: 0;
+  color: var(--gray-700);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* ===== CTA Section ===== */
+.faq-cta {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+}
+
+.cta-content {
+  background: linear-gradient(135deg, var(--success-50) 0%, var(--primary-50) 100%);
+  border: 2px solid var(--success-300);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+}
+
+.cta-content h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.cta-content p {
+  font-size: 1rem;
+  color: var(--gray-700);
+  margin-bottom: 1.5rem;
+}
+
+.cta-btn {
+  background: var(--success-600);
+  color: white;
+  border: none;
+  padding: 0.7rem 2rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.cta-btn:hover {
+  background: var(--success-700);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 768px) {
+  .donor-faq {
+    min-height: calc(100vh - 60px);
+  }
+
+  .faq-header {
+    padding: 1.75rem 1rem;
+  }
+
+  .faq-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .faq-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .faq-content {
+    padding: 1.5rem 0.5rem;
+  }
+
+  .faq-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .faq-question {
+    padding: 0.875rem;
+    font-size: 0.95rem;
+  }
+
+  .faq-answer {
+    padding: 0 0.875rem 0.875rem;
+  }
+
+  .cta-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .cta-content h3 {
+    font-size: 1.25rem;
+  }
+
+  .cta-btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}

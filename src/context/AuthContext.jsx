@@ -29,12 +29,24 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const sessionTimeoutRef = useRef(null);
 
+  const isDatabasePermissionError = (err) =>
+    err?.code === 'PERMISSION_DENIED' || err?.code === 'database/permission-denied';
+
   // ── Helpers ────────────────────────────────────────────────────────
 
   // Fetch user profile from Realtime DB using the Firebase UID
-  const fetchProfile = async (uid) => {
-    const snapshot = await get(ref(db, `users/${uid}`));
-    return snapshot.exists() ? snapshot.val() : null;
+  const fetchProfile = async (uid, retry = true) => {
+    try {
+      const snapshot = await get(ref(db, `users/${uid}`));
+      return snapshot.exists() ? snapshot.val() : null;
+    } catch (err) {
+      // If rules are strict and token is stale, refresh once and retry.
+      if (retry && isDatabasePermissionError(err) && auth.currentUser?.uid === uid) {
+        await auth.currentUser.getIdToken(true);
+        return fetchProfile(uid, false);
+      }
+      throw err;
+    }
   };
 
   // Start / reset 30-minute idle session timeout
@@ -54,24 +66,44 @@ export const AuthProvider = ({ children }) => {
   // ── Session persistence via Firebase Auth listener ─────────────────
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const profile = await fetchProfile(firebaseUser.uid);
-        if (profile && profile.isActive) {
-          setCurrentUser({ uid: firebaseUser.uid, ...profile });
-          setIsAuthenticated(true);
-          startSessionTimeout();
+      try {
+        if (firebaseUser) {
+          let profile = null;
+          try {
+            profile = await fetchProfile(firebaseUser.uid);
+          } catch (err) {
+            if (isDatabasePermissionError(err)) {
+              console.error('Profile read blocked by Realtime Database rules.', err);
+              await signOut(auth);
+              setCurrentUser(null);
+              setIsAuthenticated(false);
+              return;
+            }
+            throw err;
+          }
+
+          if (profile && profile.isActive) {
+            setCurrentUser({ uid: firebaseUser.uid, ...profile });
+            setIsAuthenticated(true);
+            startSessionTimeout();
+          } else {
+            // Profile missing or deactivated – sign out silently
+            await signOut(auth);
+            setCurrentUser(null);
+            setIsAuthenticated(false);
+          }
         } else {
-          // Profile missing or deactivated – sign out silently
-          await signOut(auth);
           setCurrentUser(null);
           setIsAuthenticated(false);
+          if (sessionTimeoutRef.current) clearTimeout(sessionTimeoutRef.current);
         }
-      } else {
+      } catch (err) {
+        console.error('Auth state sync failed.', err);
         setCurrentUser(null);
         setIsAuthenticated(false);
-        if (sessionTimeoutRef.current) clearTimeout(sessionTimeoutRef.current);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -102,6 +134,8 @@ export const AuthProvider = ({ children }) => {
       const msg =
         err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential'
           ? 'Invalid email or password'
+          : isDatabasePermissionError(err)
+            ? 'Database access denied by Firebase rules. Ensure users can read users/{uid} for their own UID.'
           : err.message;
       return { success: false, message: msg };
     }
