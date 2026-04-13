@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   APP_CONFIG,
@@ -391,13 +391,9 @@ const AppointmentBooking = () => {
           {/* Info card */}
           <div className="ab-info-card">
             <h3>Before You Donate</h3>
-            <div className="ab-info-list">
-              <div className="ab-info-item"><span className="ab-check">✓</span><p>Be at least 18 years old and weigh at least 110 lbs</p></div>
-              <div className="ab-info-item"><span className="ab-check">✓</span><p>Be in good general health</p></div>
-              <div className="ab-info-item"><span className="ab-check">✓</span><p>Bring a valid photo ID</p></div>
-              <div className="ab-info-item"><span className="ab-check">✓</span><p>Eat a healthy meal and drink plenty of water beforehand</p></div>
-              <div className="ab-info-item"><span className="ab-check">✓</span><p>Arrive 10 minutes early — process takes ~45–60 minutes</p></div>
-            </div>
+            <p>
+              <Link to="/donor-faq">View the FAQ for eligibility and preparation tips.</Link>
+            </p>
           </div>
         </div>
       </div>

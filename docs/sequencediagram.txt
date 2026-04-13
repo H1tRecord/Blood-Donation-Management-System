@@ -1,97 +1,35 @@
 sequenceDiagram
-    participant User as User
-    participant UI as React UI
-    participant Auth as AuthContext
-    participant System as System Logic
-    participant DB as Firebase RTDB
+    participant User
+    participant UI as App UI
+    participant Sys as System Logic
+    participant DB as Firebase DB
 
-    alt Authentication Flow
-        User->>UI: 1. Login / Register
-        UI->>Auth: Submit credentials
-        Auth->>DB: Query /users/{uid}
-        DB-->>Auth: Validate & fetch profile (uid is primary key)
-        Auth->>Auth: Session management (30 min timeout)
-        Auth-->>UI: User profile + role
-        UI-->>User: Redirect to role dashboard
+    == Authentication ==
+    User->>UI: Login / Register
+    UI->>DB: Validate & Fetch Profile
+    DB-->>UI: Session & Role Redirect
+
+    == Donor Workflow ==
+    User->>UI: View Donor Dashboard
+    UI->>Sys: Check Eligibility
+    Sys->>DB: Fetch Last Donation
+    DB-->>UI: Eligibility Status
+    opt If Eligible
+        User->>UI: Book Appointment
+        UI->>DB: Save Appointment
+        DB-->>UI: Confirmation
     end
 
-    alt Donor Workflow
-        User->>UI: 2. Access Donor Dashboard
-        UI->>System: Check eligibility status
-        System->>DB: Query lastDonationDate
-        DB-->>System: Last donation date
-        System->>System: Calculate days since donation (56-day rule)
-        System-->>UI: Eligibility status & next eligible date
+    == Staff Workflow ==
+    User->>UI: Manage Appointments & Inventory
+    UI->>DB: Fetch Today's Data
+    DB-->>UI: Summary Data
+    User->>UI: Complete Donation
+    UI->>Sys: Process Action
+    Sys->>DB: Sync Database (History, Inventory)
+    DB-->>UI: Acknowledgment
 
-        alt If Eligible
-            User->>UI: 3. Book Appointment (optional: from request)
-            UI->>System: Request new APT### id + availability
-            System->>DB: Read /appointments to check slot counts
-            DB-->>System: Slot availability
-            User->>UI: Select date & time
-            UI->>System: Create appointment (with requestId?)
-            System->>DB: Write /appointments/{APT###}
-            DB-->>System: Confirmation number
-            alt Appointment created from a donation request
-                System->>DB: Update /donationRequests/{id}.status = accepted
-                DB-->>System: Request marked accepted
-            end
-
-            User->>UI: 4. View donation history
-            UI->>DB: Query /donationHistory (donorId = uid)
-            DB-->>UI: List of completed donations
-
-            User->>UI: 5. Respond to donation request
-            UI->>DB: Update /donationRequests/{id} status
-            DB-->>UI: Response recorded
-        else If Ineligible
-            UI-->>User: Show countdown to next eligible date
-        end
-    end
-
-    alt Staff Workflow
-        User->>UI: 6. Access Staff Dashboard
-        UI->>DB: Fetch /appointments (today)
-        DB-->>UI: Today's appointments summary
-
-        User->>UI: 7. Manage Appointments
-        UI->>DB: Update /appointments/{id} status
-        DB-->>UI: Status updated
-
-        alt Complete appointment
-            UI->>System: Submit completion (bloodType?, units, collectionDate)
-            System->>DB: Multi-update
-            DB-->>System: Acknowledged
-            note right of DB: Writes in one step:<br/>- /donationHistory/{DON###} (links appointmentId)<br/>- /users/{donorId}: bloodType, donationCount++, lastDonationDate<br/>- /bloodInventory/{type}: batches[], units, expirationDate<br/>- /appointments/{id}: status=completed, donationHistoryId
-        end
-
-        User->>UI: 8. Search Donors
-        UI->>DB: Query /users (role=donor, filters)
-        DB-->>UI: Donor list with blood type
-
-        User->>UI: 9. Send Donation Request
-        UI->>DB: Create /donationRequests/{id}
-        DB-->>UI: Request sent
-
-        User->>UI: 10. Manage Blood Inventory
-        UI->>DB: Query /bloodInventory
-        DB-->>UI: All blood types + units + batches
-        User->>UI: Update units / add batch
-        UI->>DB: Update /bloodInventory/{type}
-        DB-->>UI: Inventory updated
-    end
-
-    alt Admin Workflow
-        User->>UI: 11. Access Manage Accounts
-        UI->>DB: Query /users (all roles)
-        DB-->>UI: Account list
-
-        User->>UI: 12. Create staff / admin account
-        Auth->>DB: createUserWithEmailAndPassword (secondary app)
-        Auth->>DB: Write /users/{uid} profile
-        DB-->>UI: Account created (uid only)
-
-        User->>UI: 13. Edit / enable / disable / delete account
-        UI->>DB: Update or remove /users/{uid}
-        DB-->>UI: Account updated
-    end
+    == Admin Workflow ==
+    User->>UI: Manage Accounts
+    UI->>DB: Create / Update / Delete User
+    DB-->>UI: Account Updated

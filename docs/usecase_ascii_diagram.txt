@@ -1,0 +1,40 @@
+          Blood Donation Management System
+          
+            +-------------------------------+
+            |                               |
+            |      ( Register )             |
+     O      |                               |
+    /|\ ----+->    ( Login )              <-+----  O
+    / \     |                               |     /|\
+   Donor    |      ( Book Appointment )     |     / \
+            |                               |    Staff
+            |      ( View History )         |
+            |                               |
+            |      ( Manage Inventory )   <-+----  O
+            |                               |     /|\
+            |      ( Manage Users )       <-+---- / \
+            |                               |    Admin
+            |                               | 
+            |                               |
+            +-------------------------------+
+
+
+Donor
+
+Register: Creates a new account in the system.
+Login: Accesses their individual donor account.
+Book Appointment: Schedules a blood donation.
+View History: Views their past donations.
+
+
+Staff
+
+Login: Accesses the system with staff privileges.
+Book Appointment: Can view, manage, or update appointment statuses.
+View History: Can access donation histories for donors they are processing.
+
+
+Admin
+
+Manage Inventory: Oversees blood stock levels, updates units, and tracks expiration dates.
+Manage Users: Handles accounts for Donors, Staff, and

@@ -544,6 +544,33 @@
     min-width: unset;
     width: 100%;
   }
+
+  .admin-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .btn-create-account {
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-stats-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-page-info {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+  
+  .admin-pagination {
+    justify-content: center;
+  }
 }
 
 /* ── Pagination ────────────────────────────────────── */

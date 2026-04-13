@@ -1,206 +1,86 @@
 @startuml ClassDiagram_BloodDonationSystem
 skinparam style ubuntu
-skinparam backgroundColor #FEFEFE
-skinparam classBackgroundColor #AAFFAA
-skinparam classBorderColor #333333
 
-package "Authentication" {
-    class AuthContext {
-        - currentUser: User
-        - isAuthenticated: boolean
-        - sessionTimeout: number
-        + login(email, password): void
-        + logout(): void
-        + register(userData): void
-        + startSessionTimeout(): void
-    }
+class AuthContext {
+    - currentUser: User
+    - isAuthenticated: boolean
+    - sessionTimeout: timeout
+    + login(email, password): void
+    + logout(): void
+    + register(userData): void
+    + adminCreateAccount(userData): void
+    + startSessionTimeout(): void
+    + useAuth(): AuthContextType
 }
 
-package "Models" {
-    abstract class User {
-        - id: string
-        - role: enum(donor|staff|admin)
-        - email: string
-        - password: string
-        - name: string
-        - isActive: boolean
-        - registrationDate: Date
-        + authenticate(): boolean
-        + logout(): void
-    }
-
-    class Donor extends User {
-        - bloodType: string
-        - lastDonationDate: Date
-        - donationCount: integer
-        + checkEligibility(): boolean
-        + getDaysUntilEligible(): integer
-        + getAvailableAppointments(): Appointment[]
-    }
-
-    class Staff extends User {
-        + manageDonations(): void
-        + searchDonors(): void
-        + sendDonationRequest(): void
-    }
-
-    class Admin extends User {
-        + viewAnalytics(): object
-        + generateReports(): void
-    }
-
-    class Appointment {
-        - id: string
-        - donorId: string
-        - donorName: string
-        - bloodType: string
-        - date: Date
-        - time: string
-        - status: enum(pending|confirmed|checked-in|completed|cancelled)
-        - confirmationNumber: string
-        - createdDate: Date
-        - donationHistoryId: string
-        + createAppointment(): void
-        + updateStatus(newStatus): void
-        + cancelAppointment(): void
-    }
-
-    class BloodInventory {
-        - type: string
-        - units: integer
-        - lastUpdated: Date
-        - expirationDate: Date
-        - batches: Batch[]
-        + updateUnits(amount: integer): void
-        + checkExpiration(): void
-        + getStatus(): enum(low|caution|warning|critical)
-    }
-
-    class Batch {
-        - units: integer
-        - expirationDate: Date
-        + isExpired(): boolean
-    }
-
-    class DonationHistory {
-        - id: string
-        - appointmentId: string
-        - donorId: string
-        - donorName: string
-        - bloodType: string
-        - date: Date
-        - units: integer
-        - staffId: string
-        - staffName: string
-        - status: enum(completed)
-        + recordDonation(): void
-        + updateInventory(): void
-    }
-
-    class DonationRequest {
-        - id: string
-        - bloodType: string
-        - requestedBy: string
-        - requestedByName: string
-        - donorId: string
-        - donorName: string
-        - requestDate: Date
-        - status: enum(pending|accepted|declined)
-        - message: string
-        - responseDate: Date
-        - responseMessage: string
-        + sendRequest(): void
-        + respondToRequest(response: string): void
-    }
+class User {
+    - id: string
+    - role: enum(donor, staff, admin)
+    - email: string
+    - password: string
+    - name: string
+    - isActive: boolean
+    - registrationDate: date
 }
 
-package "Pages/Components" {
-    class Login {
-        - email: string
-        - password: string
-        + authenticate(): void
-        + handleError(): void
-    }
-
-    class Register {
-        - formData: object
-        + registerUser(): void
-        + validateInput(): boolean
-    }
-
-    class DonorDashboard {
-        - eligibilityStatus: object
-        - daysUntilEligible: integer
-        - donationHistory: DonationHistory[]
-        + displayEligibility(): void
-        + bookAppointment(): void
-        + viewHistory(): void
-    }
-
-    class StaffDashboard {
-        - appointments: Appointment[]
-        - inventory: BloodInventory[]
-        + viewAppointments(): void
-        + searchDonor(): void
-        + sendRequest(): void
-        + manageInventory(): void
-    }
-
-    class AdminDashboard {
-        - totalDonations: integer
-        - activeAppointments: integer
-        - criticalInventory: BloodInventory[]
-        - analytics: object
-        + viewAnalytics(): void
-        + generateReports(): void
-    }
-
-    class AppointmentBooking {
-        - availableSlots: string[]
-        - selectedDate: Date
-        - selectedTime: string
-        + fetchAvailableSlots(): void
-        + confirmAppointment(): void
-    }
-
-    class InventoryManagement {
-        - bloodInventory: BloodInventory[]
-        - filterCriteria: object
-        + viewInventory(): void
-        + updateBatch(): void
-        + monitorExpiration(): void
-    }
-
-    class DonorSearch {
-        - searchFilters: object
-        - donorList: Donor[]
-        + searchDonors(): void
-        + filterByBloodType(): void
-    }
-
-    class AdminCalendar {
-        - appointments: Appointment[]
-        + displayCalendar(): void
-        + filterAppointments(): void
-    }
-
-    class Navbar {
-        - currentUser: User
-        - navItems: string[]
-        + logout(): void
-        + navigateTo(page: string): void
-    }
+class Donor {
+    - bloodType: string
+    - lastDonationDate: date
+    - donationCount: number
 }
 
-package "Utilities" {
-    class DataHelpers {
-        {static} + getInventoryStatus(units: integer): enum
-        {static} + getInventoryColor(status: string): string
-        {static} + calculateDaysSinceLastDonation(date: Date): integer
-        {static} + isEligibleToDonate(lastDonation: Date): boolean
-        {static} + getDaysUntilEligible(lastDonation: Date): integer
-        {static} + getBloodTypeCompatibility(type: string): string[]
-    }
+class Staff
+class Admin
+
+class Appointment {
+    - id: string
+    - donorId: string
+    - donorName: string
+    - bloodType: string
+    - date: date
+    - time: string
+    - status: enum(pending, confirmed, checked-in, completed, cancelled)
+    - confirmationNumber: string
+    - createdDate: date
+    - donationHistoryId: string
+    + createAppointment(): void
+    + updateStatus(newStatus): void
+    + cancelAppointment(): void
+}
+
+class BloodInventory {
+    - type: string
+    - units: number
+    - lastUpdated: date
+    - expirationDate: date
+    - batches: array
+}
+
+class DonationHistory {
+    - id: string
+    - appointmentId: string
+    - donorId: string
+    - donorName: string
+    - bloodType: string
+    - date: date
+    - units: number
+    - staffId: string
+    - staffName: string
+    - status: enum(completed)
+}
+
+class DonationRequest {
+    - id: string
+    - bloodType: string
+    - requestedBy: string
+    - requestedByName: string
+    - donorId: string
+    - donorName: string
+    - requestDate: date
+    - status: enum(pending, accepted, declined)
+    - message: string
+    - responseDate: date
+    - responseMessage: string
 }
 
 AuthContext --> User
@@ -208,37 +88,11 @@ User <|-- Donor
 User <|-- Staff
 User <|-- Admin
 
-DonorDashboard --> Donor
-DonorDashboard --> Appointment
-DonorDashboard --> DonationHistory
-DonorDashboard --> DataHelpers
-
-StaffDashboard --> Staff
-StaffDashboard --> Appointment
-StaffDashboard --> BloodInventory
-StaffDashboard --> DonationRequest
-StaffDashboard --> DonorSearch
-
-AdminDashboard --> Admin
-AdminDashboard --> Appointment
-AdminDashboard --> BloodInventory
-AdminDashboard --> DonationHistory
-
-AppointmentBooking --> Appointment
-AppointmentBooking --> DataHelpers
-
-InventoryManagement --> BloodInventory
-InventoryManagement --> Batch
-
+Appointment --> Donor
+Appointment --> DonationHistory
 DonationHistory --> Donor
 DonationHistory --> Staff
-DonationHistory --> BloodInventory
-
-DonationRequest --> Staff
 DonationRequest --> Donor
+DonationRequest --> Staff
+BloodInventory --> Appointment
 
-BloodInventory --> Batch
-
-Appointment --> Donor
-
-@enduml

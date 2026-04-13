@@ -1,12 +1,10 @@
-
-
 1. Introduction
 
 1.1 Purpose
 This Software Requirements Specification (SRS) document provides a comprehensive technical description of the Blood Donation Management System (BDMS). Its primary purpose is to establish a clear agreement between project stakeholders, medical staff, and developers by defining the functional and non-functional requirements of the application. This system serves as a central coordination hub for managing blood donation appointments, monitoring inventory levels in real-time, and identifying eligible donors to maintain a stable blood supply.
 
 1.2 Document Conventions
-This document adheres to the IEEE 830-1998 standard for software requirements. To ensure technical precision and clarity for developers, testers, and stakeholders, the following structural and typographical conventions are employed:
+This document adheres to the IEEE 830-1998 standard for software requirements. To ensure technical precision and clarity for developers, testers, and stakeholders, the following structural and typographical conventions are employed
 
 1.2.1 Terminology and Obligation
 The following keywords are used to denote the priority and mandatory nature of specific
@@ -39,8 +37,10 @@ Eligibility Logic: Automated calculation of the 56-day deferral period based on 
 
 1.4.2 Exclusions (Out-of-Scope):
 Advanced Blood Inventory Logic: The system will not implement a full blood inventory management system. It will only provide basic monitoring of blood supply levels rather than comprehensive inventory tracking and management..
-Donor Screening and Medical Processing: The system does not handle medical screening or testing, as these procedures remain under the responsibility of medical professionals and existing clinical workflows.
+Advance Donor Screening and Medical Processing: The system does not handle donor medical screening procedures such as hemoglobin testing, blood pressure checks, infectious disease screening (e.g., HIV, hepatitis), or physician eligibility assessment. These processes remain the responsibility of qualified medical personnel and existing clinical workflows.
+Multiple Location Management: The system is designed to support only a single blood donation center. Management of multiple blood bank locations, including cross-location scheduling and inventory coordination, is outside the scope of this system.
 Notifications: SMS notifications are not supported; communication is limited to in-app alerts and manual contact facilitation.
+
 1.5 References
 ISO/IEC/IEEE. (2018). Systems and software engineering — Life cycle processes — Requirements engineering (ISO/IEC/IEEE Standard No. 29148:2018). 
 ISO/IEC. (2023). Systems and software engineering — Systems and software Quality Requirements and Evaluation (SQuaRE) — Product quality model (ISO/IEC Standard No. 25010:2023).
@@ -103,83 +103,176 @@ Browser LocalStorage: Dependency on persistent local storage not being cleared b
 The Blood Donation Management System (BDMS) user interface shall be designed for high responsiveness and accessibility, following modern web design principles (Single Page Application architecture) and WCAG accessibility standards. The system shall maintain a consistent design language across all modules while optimizing for specific user roles.
 
 3.1.1 Global UI Standards and Layout
-*   Navigation Bar: A persistent top navigation bar (Navbar) shall be displayed for all authenticated users. It shall include the system branding "(+) BDMS", role-specific menu links (Dashboard, Appointments, Inventory, etc.), a user profile indicator, and a "Logout" button.
-*   Standard Buttons: Primary actions (Login, Submit, Confirm) shall use consistent high-contrast styling. Secondary actions (Cancel, Go Back) shall use neutral or outlined styles.
-*   Form Controls: All input fields shall include clear labels, placeholder text, and real-time validation feedback. Password fields shall include a visibility toggle.
-*   Error Messaging: System-level errors and validation failures shall be displayed as localized alert messages (e.g., "Invalid email format" or "Incorrect password") directly above the relevant interactive elements.
-*   Loading States: Visual indicators (spinners or skeleton screens) shall be used during asynchronous data fetching from the database.
+Navigation Bar: A persistent top navigation bar (Navbar) shall be displayed for all authenticated users. It shall include the system branding, role-specific menu links (Dashboard, Appointments, Inventory, etc.), a user profile indicator, and a "Logout" button.
+Standard Buttons: Primary actions (Login, Submit, Confirm) shall use consistent high-contrast styling. Secondary actions (Cancel, Go Back) shall use neutral or outlined styles.
+Form Controls: All input fields shall include clear labels, placeholder text, and real-time validation feedback. Password fields shall include a visibility toggle.
+Error Messaging: System-level errors and validation failures shall be displayed as localized alert messages (e.g., "Invalid email format" or "Incorrect password") directly above the relevant interactive elements.
+Loading States: Visual indicators (spinners or skeleton screens) shall be used during asynchronous data fetching from the database.
 
 3.1.2 Donor User Interface
 The donor interface focuses on ease of use for account management and appointment scheduling.
 
-A) AUTHENTICATION INTERFACE
-Login Screen:
-*   Email address input field with validation.
-*   Password input field with character masking.
-*   "Login" button.
-*   "Create New Account" link to registration.
+- Authentication Interface:
+  - Login Screen:
+    - Email address input field with validation.
+    - Password input field with character masking.
+    - "Login" button.
+    - "Create New Account" link to registration.
+  - Registration Screen:
+    - Full Name input (Required, max 100 characters).
+    - Email Address input field with format validation.
+    - Password input field (required, minimum 6 characters).
+    - "Create Account" button.
 
-Registration Screen:
-*   Full Name input (Required, max 100 characters).
-*   Email Address input field with format validation.
-*   Password input field (required, minimum 6 characters).
-*   "Create Account" button.
+- Donor Dashboard:
+  - Navigation: Global header containing donor name and logout functionality.
+  - Profile Card: Summary of blood type, email, and total lifetime donations.
+  - Eligibility Tracker: Dynamic status message or countdown timer indicating when the donor can next donate (based on the 56-day deferral rule).
+  - Donation History: A chronological timeline of all past successful donations.
 
-B) DONOR DASHBOARD
-*   Navigation: Global header containing donor name and logout functionality.
-*   Profile Card: Summary of blood type, email, and total lifetime donations.
-*   Eligibility Tracker: Dynamic status message or countdown timer indicating when the donor can next donate (based on the 56-day deferral rule).
-*   Donation History: A chronological timeline of all past successful donations.
-
-C) APPOINTMENT BOOKING INTERFACE
-*   Scheduler: Interactive 7-day calendar with real-time slot availability.
-*   Confirmation View: Summary displaying donor name, blood type, and booking terms.
-*   Controls: "Confirm Booking" to finalize, "Go Back" to modify, and "Cancel" to abandon the flow.
+- Appointment Booking Interface:
+  - Scheduler: Interactive calendar.
+  - Confirmation View: Summary displaying donor name, blood type, and booking terms.
+  - Controls: "Confirm Booking" to finalize and "Cancel" to abandon the flow.
 
 3.1.3 Staff User Interface
 The staff interface is optimized for data density and quick operational actions.
 
-A) STAFF DASHBOARD
-*   Overview Statistics: High-level metric cards for total inventory, critical stock alerts, today's confirmed appointments, and total registered donors.
-*   Inventory Status: Color-coded table (Green/Yellow/Red) showing stock by type and units expiring within 7 days.
-*   Quick Actions: Large shortcut buttons for Search Donors, Manage Appointments, Manage Inventory, and View Reports.
+- Staff Dashboard:
+  - Overview Statistics: High-level metric cards for total inventory, critical stock alerts, today's confirmed appointments, and total registered donors.
+  - Inventory Status: Color-coded table (Green/Yellow/Red) showing stock by type and units expiring within 7 days.
+  - Quick Actions: Large shortcut buttons for Search Donors, Manage Appointments, Manage Inventory, and View Reports.
 
-B) APPOINTMENT MANAGEMENT INTERFACE
-*   Weekly Calendar View: 7-day grid showing numerical dates, appointment counts, and status-colored indicators.
-*   Daily List: Chronological list of appointments featuring Donor ID, Name, Blood Type, and status.
-*   Donation Processing Modal: A focused window to confirm donor identity and "Complete Donation" to update system records and inventory.
+- Appointment Management Interface:
+  - Weekly Calendar View: 7-day grid showing numerical dates, appointment counts, and status-colored indicators.
+  - Donation Processing Modal: A focused window to confirm donor identity and "Complete Donation" to update system records and inventory.
 
 3.1.4 Donor Search Interface
-*   Search & Filter: Multi-parameter search (Name, ID, or Email) and dropdown filters for Blood Type and Status.
-*   Donor Records Table: Sortable columns for ID, Name, Blood Type, and Last Donation date with a "View" action button for detailed profiles.
+- Search & Filter: Multi-parameter search (Name, ID, or Email) and dropdown filters for Blood Type and Status.
+- Donor Records Table: Sortable columns for ID, Name, Blood Type, and Last Donation date with a "View" action button for detailed profiles.
 
 3.1.5 Blood Inventory Management Interface
-*   Inventory Overview: Summary of total units across all types with color-coded health indicators (Adequate: 20+, Low: 10-19, Critical: <10).
-*   Add/Adjust Units Modal: Numeric input field with Increment (+1) and Decrement (-1) controls and a confirmation of the projected new total.
+- Inventory Overview: Summary of total units across all types with color-coded health indicators (Adequate: 20+, Low: 10-19, Critical: <10).
+- Add/Adjust Units Modal: Numeric input field with Increment (+1) and Decrement (-1) controls and a confirmation of the projected new total.
 
 3.2 Hardware Interfaces
 The BDMS is a device-agnostic web application with the following hardware interface characteristics:
-*   Supported Devices: Accessible via standard desktop computers, laptops, tablets, and smartphones.
-*   Client Interaction: Supports standard input peripherals (keyboard, mouse, touchscreens).
-*   Screen Resolution: Responsive design adapts to a minimum resolution of 320px (mobile) and scales up to 1920px+ (ultra-wide desktop).
-*   Nature of Interaction: All data and control interactions occur via the web browser environment using standard I/O protocols.
+Supported Devices: Accessible via standard desktop computer.
+Nature of Interaction: All data and control interactions occur via the web browser environment using standard I/O protocols.
 
 3.3 Software Interfaces
 The system architecture relies on the following software components and libraries:
-*   Operating System: Compatible with any OS capable of running a modern web browser (Windows, macOS, Linux, Android, iOS).
-*   Frontend Framework: React 19.x for component-based UI rendering.
-*   Routing Library: React Router DOM 7.x for client-side navigation.
-*   Backend-as-a-Service (BaaS): Firebase 12.x provides the core infrastructure.
-    - Firebase Authentication: Provides secure user sign-in and session management.
-    - Firebase Realtime Database: Serves as the primary JSON-based data store for donors, appointments, and inventory.
-*   Vite 6.x: Used as the build tool and development server.
-
-Data Sharing: All software components communicate with the Firebase Realtime Database via the Firebase JS SDK. Data items primarily consist of JSON objects representing User Profiles, Appointment Records, and Inventory Batches.
+Operating System: Compatible with any OS capable of running a modern web browser.
+Frontend Framework: React 19.x for component-based UI rendering.
+Routing Library: React Router DOM 7.x for client-side navigation.
+Backend-as-a-Service (BaaS): Firebase 12.x provides the core infrastructure.
 
 3.4 Communications Interfaces
 The BDMS utilizes standard web communication channels:
-*   Web Browser: Executes primarily within modern browsers (Chrome, Firefox, Safari, Edge).
-*   Communication Protocol: All client-to-server traffic is conducted over HTTPS (Hypertext Transfer Protocol Secure) for data encryption in transit (TLS 1.2+).
-*   Realtime Synchronization: The system uses WebSockets (via Firebase SDK) for low-latency, real-time updates of inventory levels and appointment statuses.
-*   Authentication Headers: Secure tokens (JWT) managed by Firebase Auth are passed between the client and backend to authorize data requests.
-*   Data Format: All message formatting between the application and the database uses the JSON (JavaScript Object Notation) standard.
+Web Browser: Executes primarily within modern browsers (Chrome, Firefox, Safari, Edge).
+Communication Protocol: All client-to-server traffic is conducted over HTTPS (Hypertext Transfer Protocol Secure) for data encryption in transit (TLS 1.2+).
+Realtime Synchronization: The system uses WebSockets (via Firebase SDK) for low-latency, real-time updates of inventory levels and appointment statuses.
+Authentication Headers: Secure tokens (JWT) managed by Firebase Auth are passed between the client and backend to authorize data requests.
+Data Format: All message formatting between the application and the database uses the JSON (JavaScript Object Notation) standard.
+
+4.	System Features
+
+4.1	User Management and Authentication
+4.1.1	Description and Priority
+This feature handles the registration, login, and role-based access control for Donors, Staff, and Administrators.
+Priority: High
+4.1.2	Stimulus/Response Sequences
+Stimulus: A donor submits a registration form with valid credentials.
+Response: The system shall create an account, assign the 'donor' role, and authenticate the user.
+Stimulus: A user attempts to access a protected route (e.g., Staff Dashboard) without sufficient permissions.
+Response: The system shall deny access and redirect the user to the login screen.
+4.1.3	Functional Requirements
+REQ-1: The system shall allow users to create an account using a valid email address and password.
+REQ-2: The system shall evaluate the user's role upon login to selectively route them to the appropriate dashboard.
+REQ-3: The system shall manage secure session tokens via Firebase Authentication.
+
+4.2	Dynamic Eligibility Calculation
+4.2.1	Description and Priority
+An automated tracker that calculates a donor's eligibility status strictly based on the 56-day whole blood deferral rule.
+Priority: High
+4.2.2	Stimulus/Response Sequences
+Stimulus: A donor logs into their dashboard.
+Response: The system shall calculate the time elapsed since their last donation and display their current eligibility status.
+Stimulus: An ineligible donor attempts to access the appointment booking interface.
+Response: The system shall block the transaction and indicate the date they will next be eligible to donate.
+4.2.3	Functional Requirements
+REQ-4: The system shall enforce a mandatory 56-day deferral period for donors following a completed donation.
+REQ-5: The system shall provide a dynamic countdown or status indicator on the donor dashboard showing remaining deferral days.
+
+4.3	Appointment Scheduling and Management
+4.3.1	Description and Priority
+Allows donors to schedule blood donation sessions and equips staff with a calendar interface to coordinate and process these appointments.
+Priority: High
+4.3.2	Stimulus/Response Sequences
+Stimulus: A donor selects an available date and confirms the booking.
+Response: The system shall record the appointment, assign a confirmation number, and display a summary view.
+Stimulus: A staff member processes an active appointment and clicks "Complete Donation".
+Response: The system shall mark the appointment as complete, log the new donation date for the donor, and update system records.
+4.3.3	Functional Requirements
+REQ-6: The system shall provide an interactive calendar interface for donors to select appointment dates.
+REQ-7: The system shall allow staff to view confirmed appointments plotted on a 7-day grid or list.
+REQ-8: The system shall automate the updating of donor history when staff finalize an appointment.
+
+4.4	Blood Inventory Monitoring and Management
+4.4.1	Description and Priority
+Real-time tracking of blood units stratified by type, featuring visual alerts for critical stock or expiring units.
+Priority: High
+4.4.2	Stimulus/Response Sequences
+Stimulus: The aggregate supply of O- blood drops below 10 units.
+Response: The system shall flag the O- stock row with a "Critical" (red) visual indicator on the staff dashboard.
+Stimulus: A staff member uses the inventory modal to manually add 5 units of A+ blood.
+Response: The system shall increment the database total for A+ and broadcast the updated value in real-time to all connected clients.
+4.4.3	Functional Requirements
+REQ-9: The system shall maintain global counts for all major blood types (A+, A-, B+, B-, AB+, AB-, O-, O+).
+REQ-10: The system shall employ color-coded health indicators to warn staff of Low (10-19 units) and Critical (<10 units) inventory levels.
+REQ-11: The system shall allow staff to manually increment or decrement specific blood type totals to perform physical reconciliation.
+
+
+5.	Other Nonfunctional Requirements
+
+5.1	Performance Requirements
+- The system shall render the initial application payload and dashboard in under 3 seconds on a standard 4G/LTE/Broadband connection to prevent user abandonment during booking.
+- Real-time inventory updates and state changes handled by Firebase WebSockets shall reflect across all connected client dashboards within 1 second of a database write.
+- The application shall compute the 56-day eligibility deferral locally in under 0.5 seconds upon user login.
+
+5.2	Safety Requirements
+- To ensure donor health and safety, the system shall never permit the booking of an appointment if less than 56 days have passed since the donor's previous completed donation.
+- The system shall display a permanent disclaimer stating that the digital eligibility calculation is a preliminary estimate and that a physical health screening (e.g., hemoglobin, vitals) by on-site medical staff is strictly required prior to actual donation.
+- Data retrieval failures concerning stock levels must result in an "Unavailable" status rather than displaying inaccurate static numbers, preventing staff from making critical operational decisions on outdated data.
+
+5.3	Security Requirements
+- All user credentials, specifically passwords, shall be handled securely and hashed by Firebase Authentication; plain-text passwords shall never be stored or transmitted.
+- All data transmitted between the client application and the backend database must be encrypted in transit using industry-standard TLS 1.2+ via HTTPS.
+- The system shall implement an automatic session timeout, logging users out after 30 minutes of inactivity to mitigate the risk of unauthorized physical access to private health or inventory data.
+- Data access shall be restricted via strict role-based rules, meaning donors cannot access inventory data, and staff cannot access the global user authentication registry.
+
+5.4	Software Quality Attributes
+- Usability: The application must prioritize an intuitive interface for donors (ease of use), targeting a high satisfaction score by keeping the appointment booking process linear and under 4 clicks.
+- Availability: Leveraging the serverless architecture of Firebase, the system shall maintain an operational uptime of 99.9%, excluding scheduled maintenance windows.
+- Maintainability: The frontend software design shall adhere strictly to a modular React Architecture utilizing functional components, hooks, and clear separation of concerns to allow future developers to easily update or extend the codebase.
+- Robustness: The client application should fail gracefully if the network connection is lost, displaying clear "Offline Mode" indicators to users rather than crashing.
+
+5.5	Business Rules
+- BR-1: Only users authenticated with the explicitly assigned "Staff" or "Admin" role have the authority to alter blood inventory levels or process/complete a donation appointment.
+- BR-2: A donor may only have one active (pending) appointment booked at any given time.
+- BR-3: The 56-day deferral period strictly starts from the calendar date an appointment is marked as "Completed" by medical staff. Cancelled or no-show appointments do not trigger a deferral.
+- BR-4: A Critical Inventory Alert (<10 units) cannot be manually dismissed by staff; it remains persistently visible until the inventory count for that specific blood type is raised to 10 or more units.
+
+6. Appendix
+
+6.1 Glossary of Terms
+- Deferral Period: The mandatory, medically-required waiting time between successful whole blood donations (56 days) to allow the donor's body to replenish red blood cells.
+- Whole Blood: A standard blood donation where all components (red cells, plasma, platelets) are collected together, as opposed to apheresis or double red cell donations.
+
+6.2 Acronyms and Abbreviations
+- AABB: Association for the Advancement of Blood & Biotherapies (sets clinical standards for blood banking).
+- BDMS: Blood Donation Management System.
+- SRS: Software Requirements Specification.
+- JSON: JavaScript Object Notation.
+- JWT: JSON Web Token.
+- WCAG: Web Content Accessibility Guidelines.

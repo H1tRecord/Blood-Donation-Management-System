@@ -83,6 +83,7 @@ classDiagram
         -responseDate: date
         -responseMessage: string
     }
+
     AuthContext --> User
     User <|-- Donor
     User <|-- Staff

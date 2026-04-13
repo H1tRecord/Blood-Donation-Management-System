@@ -1,0 +1,115 @@
+AUTH CONTEXT
+- currentUser: User
+- isAuthenticated: boolean
+- sessionTimeout: timeout
+
+Methods:
++ login(email, password)
++ logout()
++ register(userData)
++ adminCreateAccount(userData)
++ startSessionTimeout()
++ useAuth()
+
+---
+
+USER
+- id: string
+- role: donor, staff, admin
+- email: string
+- password: string
+- name: string
+- isActive: boolean
+- registrationDate: date
+
+---
+
+DONOR (extends User)
+- bloodType: string
+- lastDonationDate: date
+- donationCount: number
+
+---
+
+STAFF (extends User)
+
+---
+
+ADMIN (extends User)
+
+---
+
+APPOINTMENT
+- id: string
+- donorId: string
+- donorName: string
+- bloodType: string
+- date: date
+- time: string
+- status: pending, confirmed, checked-in, completed, cancelled
+- confirmationNumber: string
+- createdDate: date
+- donationHistoryId: string
+
+Methods:
++ createAppointment()
++ updateStatus(newStatus)
++ cancelAppointment()
+
+Related to: Donor, DonationHistory
+
+---
+
+BLOOD INVENTORY
+- type: string
+- units: number
+- lastUpdated: date
+- expirationDate: date
+- batches: array
+
+---
+
+DONATION HISTORY
+- id: string
+- appointmentId: string
+- donorId: string
+- donorName: string
+- bloodType: string
+- date: date
+- units: number
+- staffId: string
+- staffName: string
+- status: completed
+
+Related to: Donor, Staff
+
+---
+
+DONATION REQUEST
+- id: string
+- bloodType: string
+- requestedBy: string
+- requestedByName: string
+- donorId: string
+- donorName: string
+- requestDate: date
+- status: pending, accepted, declined
+- message: string
+- responseDate: date
+- responseMessage: string
+
+Related to: Donor, Staff
+
+---
+
+RELATIONSHIPS:
+AuthContext --> User
+User <|-- Donor (inherits)
+User <|-- Staff (inherits)
+User <|-- Admin (inherits)
+Appointment --> Donor
+Appointment --> DonationHistory
+DonationHistory --> Donor
+DonationHistory --> Staff
+DonationRequest --> Donor
+DonationRequest --> Staff

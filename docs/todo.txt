@@ -2,12 +2,8 @@
 
 ### Core Features
 
-* Add **mobile capabilities** (responsive or dedicated app)
-* Add **progress reports** (for users, donors, or admins)
-* Add **FAQ section**
+* Add **progress reports** (for users, donors, or admins) this is doc
 
-  * Include “when to donate” guidance
-  * Possibly surface this on a homepage
 
 ### User Flow Improvements
 
@@ -74,3 +70,9 @@
 * Should this system mimic existing workflows (e.g., nurses’ current tools)?
 * Is a homepage necessary, or is this purely a utility tool?
 
+- registration must be valid email shit
+
+
+
+- use case diagram stickman shit
+- class diagram add admin shit

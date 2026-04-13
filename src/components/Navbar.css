@@ -153,6 +153,7 @@
   width: 100%;
   max-width: 320px;
   height: 100vh;
+  height: 100dvh;
   background: white;
   border-right: 1px solid var(--gray-200);
   z-index: 100;
