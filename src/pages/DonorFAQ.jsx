@@ -63,7 +63,7 @@ const DonorFAQ = () => {
         {
           id: 'bd-1',
           q: 'What should I do before donating blood?',
-          a: 'To prepare for donation: Get adequate sleep (7-8 hours), eat a healthy meal with iron-rich foods 2-3 hours before donation, drink plenty of water, and avoid caffeine 2 hours before. Wear comfortable, loose-fitting clothing and bring a valid ID.',
+          a: 'To prepare for donation: Get adequate sleep (7-8 hours), eat a healthy meal with iron-rich foods 2-3 hours before donation, drink plenty of water, and avoid caffeine 2 hours before.',
         },
         {
           id: 'bd-2',
@@ -84,12 +84,7 @@ const DonorFAQ = () => {
           id: 'bd-5',
           q: 'Can I donate if I have a cold or flu?',
           a: 'No, we recommend postponing your donation if you have symptoms of a cold, flu, or any infection. You should be symptom-free for at least 48 hours before donation.',
-        },
-        {
-          id: 'bd-6',
-          q: 'What documents do I need to bring?',
-          a: 'Bring a valid government-issued photo ID (passport, driver\'s license, national ID). If it\'s your first time, you may also need to complete a questionnaire about your medical history.',
-        },
+        },,
       ],
     },
     {
