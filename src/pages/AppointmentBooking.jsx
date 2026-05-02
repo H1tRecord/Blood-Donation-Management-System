@@ -40,6 +40,7 @@ const AppointmentBooking = () => {
         const existing = apts.find(
           a => a.donorId === currentUser.uid &&
                a.status !== 'cancelled' &&
+               a.status !== 'deferred' &&
                a.date >= todayStr
         );
         setExistingAppointment(existing || null);
