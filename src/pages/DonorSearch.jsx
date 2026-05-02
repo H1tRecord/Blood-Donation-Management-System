@@ -229,7 +229,7 @@ const DonorSearch = () => {
             <input
               type="text"
               className="ds-search-input"
-              placeholder="Name, email, phone, or ID..."
+              placeholder="Name, email, or ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
