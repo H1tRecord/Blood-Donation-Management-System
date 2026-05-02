@@ -19,6 +19,7 @@ const AppointmentBooking = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationNumber, setConfirmationNumber] = useState('');
   const [isFirstTime, setIsFirstTime] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
   const [allAppointments, setAllAppointments] = useState([]);
   const [existingAppointment, setExistingAppointment] = useState(null);
 
@@ -143,31 +144,37 @@ const AppointmentBooking = () => {
       return;
     }
 
-    const confNum = `CONF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    setIsBooking(true);
 
-    const newAppointment = {
-      donorId: currentUser.uid,
-      donorName: currentUser.name,
-      bloodType: currentUser.bloodType || null,
-      date: selectedDate,
-      status: 'pending',
-      confirmationNumber: confNum,
-      createdDate: new Date().toISOString().split('T')[0],
-    };
+    try {
+      const confNum = `CONF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-    await createAppointment(newAppointment);
+      const newAppointment = {
+        donorId: currentUser.uid,
+        donorName: currentUser.name,
+        bloodType: currentUser.bloodType || null,
+        date: selectedDate,
+        status: 'pending',
+        confirmationNumber: confNum,
+        createdDate: new Date().toISOString().split('T')[0],
+      };
 
-    // If donor came here via a donation request, mark it accepted now
-    const pendingRequestId = location.state?.requestId;
-    if (pendingRequestId) {
-      await updateDonationRequest(pendingRequestId, {
-        status: 'accepted',
-        responseDate: new Date().toISOString().split('T')[0],
-      });
+      await createAppointment(newAppointment);
+
+      // If donor came here via a donation request, mark it accepted now
+      const pendingRequestId = location.state?.requestId;
+      if (pendingRequestId) {
+        await updateDonationRequest(pendingRequestId, {
+          status: 'accepted',
+          responseDate: new Date().toISOString().split('T')[0],
+        });
+      }
+
+      setConfirmationNumber(confNum);
+      setShowConfirmation(true);
+    } finally {
+      setIsBooking(false);
     }
-
-    setConfirmationNumber(confNum);
-    setShowConfirmation(true);
   };
 
   const handleBackToDashboard = () => {
@@ -372,11 +379,11 @@ const AppointmentBooking = () => {
                 </div>
 
                 <div className="ab-form-actions">
-                  <button type="button" className="ab-btn ab-btn-ghost" onClick={handleBackToDashboard}>
+                  <button type="button" className="ab-btn ab-btn-ghost" onClick={handleBackToDashboard} disabled={isBooking}>
                     Cancel
                   </button>
-                  <button type="submit" className="ab-btn ab-btn-primary">
-                    Confirm Appointment
+                  <button type="submit" className="ab-btn ab-btn-primary" disabled={isBooking}>
+                    {isBooking ? 'Processing Appointment…' : 'Confirm Appointment'}
                   </button>
                 </div>
               </form>

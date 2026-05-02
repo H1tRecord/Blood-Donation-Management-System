@@ -153,8 +153,14 @@ const InventoryManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedType || quantity < 1) {
-      alert('Please select a blood type and enter a valid quantity');
+    const minQuantity = action === 'add' ? 10 : 1;
+    if (!selectedType || quantity < minQuantity) {
+      alert(`Please select a blood type and enter at least ${minQuantity} unit${minQuantity === 1 ? '' : 's'}`);
+      return;
+    }
+
+    if (action === 'add' && quantity < 10) {
+      alert('Minimum 10 units are required when adding blood to inventory.');
       return;
     }
 
@@ -412,12 +418,15 @@ const InventoryManagement = () => {
               <input
                 type="number"
                 id="quantity"
-                min="1"
+                min={action === 'add' ? 10 : 1}
                 max="50"
                 value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
                 required
               />
+              {action === 'add' && (
+                <small>Minimum of 10 units is required when adding blood to inventory.</small>
+              )}
             </div>
 
             {action === 'add' && (

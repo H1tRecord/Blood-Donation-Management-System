@@ -150,61 +150,61 @@ const users = [
 const bloodInventory = [
   {
     // DON003 — Sarah Jones donated A+ on 2026-02-15 (1 unit, tracked batch)
-    type: 'A+', units: 25, lastUpdated: '2026-02-25', expirationDate: '2026-03-07',
+    type: 'A+', units: 25, lastUpdated: '2026-04-20', expirationDate: '2026-05-20',
     batches: [
-      { units: 5,  expirationDate: '2026-03-07', donationHistoryId: null },
-      { units: 20, expirationDate: '2026-03-30', donationHistoryId: 'DON003' },
+      { units: 5,  expirationDate: '2026-05-20', donationHistoryId: null },
+      { units: 20, expirationDate: '2026-06-10', donationHistoryId: 'DON003' },
     ],
   },
   {
-    type: 'A-', units: 8, lastUpdated: '2026-02-24', expirationDate: '2026-03-06',
+    type: 'A-', units: 8, lastUpdated: '2026-04-22', expirationDate: '2026-05-25',
     batches: [
-      { units: 4, expirationDate: '2026-03-06', donationHistoryId: null },
-      { units: 4, expirationDate: '2026-03-25', donationHistoryId: null },
+      { units: 4, expirationDate: '2026-05-25', donationHistoryId: null },
+      { units: 4, expirationDate: '2026-06-15', donationHistoryId: null },
     ],
   },
   {
     // DON004 — Michael Brown donated B+ on 2025-12-20 (1 unit, tracked batch)
-    type: 'B+', units: 15, lastUpdated: '2026-02-25', expirationDate: '2026-03-04',
+    type: 'B+', units: 15, lastUpdated: '2026-04-21', expirationDate: '2026-05-22',
     batches: [
-      { units: 3,  expirationDate: '2026-03-04', donationHistoryId: null },
-      { units: 12, expirationDate: '2026-04-01', donationHistoryId: 'DON004' },
+      { units: 3,  expirationDate: '2026-05-22', donationHistoryId: null },
+      { units: 12, expirationDate: '2026-06-05', donationHistoryId: 'DON004' },
     ],
   },
   {
-    type: 'B-', units: 5, lastUpdated: '2026-02-23', expirationDate: '2026-03-04',
+    type: 'B-', units: 5, lastUpdated: '2026-04-20', expirationDate: '2026-05-28',
     batches: [
-      { units: 5, expirationDate: '2026-03-04', donationHistoryId: null },
+      { units: 5, expirationDate: '2026-05-28', donationHistoryId: null },
     ],
   },
   {
-    type: 'AB+', units: 12, lastUpdated: '2026-02-25', expirationDate: '2026-03-02',
+    type: 'AB+', units: 12, lastUpdated: '2026-04-23', expirationDate: '2026-06-01',
     batches: [
-      { units: 2,  expirationDate: '2026-03-02', donationHistoryId: null },
-      { units: 10, expirationDate: '2026-03-28', donationHistoryId: null },
+      { units: 2,  expirationDate: '2026-06-01', donationHistoryId: null },
+      { units: 10, expirationDate: '2026-06-20', donationHistoryId: null },
     ],
   },
   {
-    type: 'AB-', units: 3, lastUpdated: '2026-02-22', expirationDate: '2026-02-28',
+    type: 'AB-', units: 3, lastUpdated: '2026-04-21', expirationDate: '2026-05-30',
     batches: [
-      { units: 3, expirationDate: '2026-02-28', donationHistoryId: null },
+      { units: 3, expirationDate: '2026-05-30', donationHistoryId: null },
     ],
   },
   {
     // DON001 — John Smith donated O+ on 2026-01-01
     // DON002 — John Smith donated O+ on 2025-11-05
-    type: 'O+', units: 30, lastUpdated: '2026-02-26', expirationDate: '2026-03-03',
+    type: 'O+', units: 30, lastUpdated: '2026-04-24', expirationDate: '2026-05-24',
     batches: [
-      { units: 2,  expirationDate: '2026-03-03', donationHistoryId: 'DON001' },
-      { units: 28, expirationDate: '2026-04-05', donationHistoryId: null },
+      { units: 2,  expirationDate: '2026-05-24', donationHistoryId: 'DON001' },
+      { units: 28, expirationDate: '2026-06-12', donationHistoryId: null },
     ],
   },
   {
     // DON005 — David Wilson donated O- on 2025-11-30
-    type: 'O-', units: 7, lastUpdated: '2026-02-24', expirationDate: '2026-03-05',
+    type: 'O-', units: 7, lastUpdated: '2026-04-22', expirationDate: '2026-05-26',
     batches: [
-      { units: 3, expirationDate: '2026-03-05', donationHistoryId: 'DON005' },
-      { units: 4, expirationDate: '2026-03-22', donationHistoryId: null },
+      { units: 3, expirationDate: '2026-05-26', donationHistoryId: 'DON005' },
+      { units: 4, expirationDate: '2026-06-08', donationHistoryId: null },
     ],
   },
 ];

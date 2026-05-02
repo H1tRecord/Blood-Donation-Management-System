@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { DEMO_ACCOUNTS } from '../data';
 import './Login.css';
 
 const EyeIcon = () => (
@@ -55,14 +54,6 @@ const Login = () => {
     } else {
       setError(result.message);
       setIsLoading(false);
-    }
-  };
-
-  const handleDemoLogin = (role) => {
-    const account = DEMO_ACCOUNTS[role];
-    if (account) {
-      setEmail(account.email);
-      setPassword(account.password);
     }
   };
 
@@ -132,34 +123,6 @@ const Login = () => {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-
-          <div className="login-divider">
-            <span>Quick Demo Access</span>
-          </div>
-
-          <div className="demo-buttons">
-            <button
-              onClick={() => handleDemoLogin('donor')}
-              className="btn-demo"
-            >
-              <span className="demo-role">Donor</span>
-              <span className="demo-desc">View donor experience</span>
-            </button>
-            <button
-              onClick={() => handleDemoLogin('staff')}
-              className="btn-demo"
-            >
-              <span className="demo-role">Staff</span>
-              <span className="demo-desc">View staff experience</span>
-            </button>
-            <button
-              onClick={() => handleDemoLogin('admin')}
-              className="btn-demo"
-            >
-              <span className="demo-role">Admin</span>
-              <span className="demo-desc">View admin experience</span>
-            </button>
-          </div>
 
           <div className="login-footer">
             <p>

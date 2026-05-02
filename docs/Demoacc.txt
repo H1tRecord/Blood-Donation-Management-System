@@ -1,0 +1,3 @@
+donor: { email: 'john.smith@email.com', password: 'donor123' },
+staff: { email: 'nurse.smith@bdms.org',  password: 'staff123' },
+admin: { email: 'admin@bdms.org',        password: 'admin123' },
