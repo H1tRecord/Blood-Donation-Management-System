@@ -70,9 +70,9 @@ const StaffAppointments = () => {
         isOtherMonth: false,
         isToday,
         total: dayAppts.length,
-        pending: dayAppts.filter(a => a.status === 'pending').length,
         confirmed: dayAppts.filter(a => a.status === 'confirmed').length,
         completed: dayAppts.filter(a => a.status === 'completed').length,
+        deferred: dayAppts.filter(a => a.status === 'deferred').length,
       });
     }
 
@@ -158,9 +158,8 @@ const StaffAppointments = () => {
   };
 
   const prevStatusMap = {
-    confirmed: 'pending',
     'checked-in': 'confirmed',
-    cancelled: 'pending',
+    'deferred': 'checked-in',
   };
 
   const handleRevertAppointment = (appointmentId, currentStatus) => {
@@ -249,10 +248,10 @@ const StaffAppointments = () => {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'pending': return 'sa-status-pending';
       case 'confirmed': return 'sa-status-confirmed';
       case 'checked-in': return 'sa-status-checkedin';
       case 'completed': return 'sa-status-completed';
+      case 'deferred': return 'sa-status-deferred';
       case 'cancelled': return 'sa-status-cancelled';
       default: return '';
     }
@@ -260,10 +259,10 @@ const StaffAppointments = () => {
 
   const stats = {
     total: dateAppointments.length,
-    pending: dateAppointments.filter(a => a.status === 'pending').length,
     confirmed: dateAppointments.filter(a => a.status === 'confirmed').length,
     checkedIn: dateAppointments.filter(a => a.status === 'checked-in').length,
     completed: dateAppointments.filter(a => a.status === 'completed').length,
+    deferred: dateAppointments.filter(a => a.status === 'deferred').length,
     cancelled: dateAppointments.filter(a => a.status === 'cancelled').length,
   };
 
@@ -283,10 +282,6 @@ const StaffAppointments = () => {
           <span className="sa-stat-num">{stats.total}</span>
           <span className="sa-stat-lbl">Total</span>
         </div>
-        <div className="sa-stat pending">
-          <span className="sa-stat-num">{stats.pending}</span>
-          <span className="sa-stat-lbl">Pending</span>
-        </div>
         <div className="sa-stat confirmed">
           <span className="sa-stat-num">{stats.confirmed}</span>
           <span className="sa-stat-lbl">Confirmed</span>
@@ -298,6 +293,10 @@ const StaffAppointments = () => {
         <div className="sa-stat completed">
           <span className="sa-stat-num">{stats.completed}</span>
           <span className="sa-stat-lbl">Completed</span>
+        </div>
+        <div className="sa-stat deferred">
+          <span className="sa-stat-num">{stats.deferred}</span>
+          <span className="sa-stat-lbl">Deferred</span>
         </div>
       </div>
 
@@ -328,9 +327,9 @@ const StaffAppointments = () => {
                   <span className="sa-cell-day">{cell.day}</span>
                   {!cell.isOtherMonth && cell.total > 0 && (
                     <div className="sa-cell-indicators">
-                      {cell.pending > 0 && <span className="sa-dot pending" />}
                       {cell.confirmed > 0 && <span className="sa-dot confirmed" />}
                       {cell.completed > 0 && <span className="sa-dot completed" />}
+                      {cell.deferred > 0 && <span className="sa-dot deferred" />}
                     </div>
                   )}
                   {!cell.isOtherMonth && cell.total > 0 && (
@@ -341,9 +340,9 @@ const StaffAppointments = () => {
             </div>
 
             <div className="sa-legend">
-              <span className="sa-legend-item"><span className="sa-dot pending" /> Pending</span>
               <span className="sa-legend-item"><span className="sa-dot confirmed" /> Confirmed</span>
               <span className="sa-legend-item"><span className="sa-dot completed" /> Completed</span>
+              <span className="sa-legend-item"><span className="sa-dot deferred" /> Deferred</span>
             </div>
           </div>
         </div>
@@ -381,7 +380,7 @@ const StaffAppointments = () => {
                     </div>
                     <div className="sa-appt-actions">
                       <button className="sa-action-view" onClick={() => handleViewDetails(apt)}>View</button>
-                      {['pending', 'confirmed', 'checked-in', 'cancelled'].includes(apt.status) && (
+                      {['confirmed', 'checked-in', 'deferred', 'cancelled'].includes(apt.status) && (
                         <select
                           className="sa-action-dropdown"
                           value=""
@@ -391,16 +390,17 @@ const StaffAppointments = () => {
                             if (action === 'confirm') handleStatusChange(apt.id, 'confirmed');
                             else if (action === 'checkin') handleStatusChange(apt.id, 'checked-in');
                             else if (action === 'complete') openCompleteModal(apt);
+                            else if (action === 'defer') handleStatusChange(apt.id, 'deferred');
                             else if (action === 'cancel') handleCancelAppointment(apt.id);
                             else if (action === 'revert') handleRevertAppointment(apt.id, apt.status);
                             e.target.value = '';
                           }}
                         >
                           <option value="">Actions...</option>
-                          {apt.status === 'pending' && <option value="confirm">Confirm</option>}
                           {apt.status === 'confirmed' && <option value="checkin">Check In</option>}
                           {apt.status === 'checked-in' && <option value="complete">Complete</option>}
-                          {(apt.status === 'pending' || apt.status === 'confirmed') && <option value="cancel">Cancel</option>}
+                          {apt.status === 'checked-in' && <option value="defer">Defer</option>}
+                          {apt.status === 'confirmed' && <option value="cancel">Cancel</option>}
                           {prevStatusMap[apt.status] && (
                             <option value="revert">↩ Revert to {prevStatusMap[apt.status]}</option>
                           )}
@@ -421,13 +421,15 @@ const StaffAppointments = () => {
           <div className="sa-flow-card">
             <h3>Status Flow</h3>
             <div className="sa-flow">
-              <span className="sa-flow-badge pending">Pending</span>
-              <span className="sa-flow-arrow">&rarr;</span>
               <span className="sa-flow-badge confirmed">Confirmed</span>
               <span className="sa-flow-arrow">&rarr;</span>
               <span className="sa-flow-badge checkedin">Checked In</span>
               <span className="sa-flow-arrow">&rarr;</span>
-              <span className="sa-flow-badge completed">Completed</span>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+                <span className="sa-flow-badge completed">Completed</span>
+                <span style={{ color: '#666' }}>or</span>
+                <span className="sa-flow-badge deferred">Deferred</span>
+              </div>
             </div>
           </div>
         </div>

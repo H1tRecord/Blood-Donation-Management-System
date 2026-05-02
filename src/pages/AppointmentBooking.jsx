@@ -154,7 +154,7 @@ const AppointmentBooking = () => {
         donorName: currentUser.name,
         bloodType: currentUser.bloodType || null,
         date: selectedDate,
-        status: 'pending',
+        status: 'confirmed',
         confirmationNumber: confNum,
         createdDate: new Date().toISOString().split('T')[0],
       };
