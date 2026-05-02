@@ -157,9 +157,13 @@ const StaffAppointments = () => {
     }
   };
 
-  const handleDeferAppointment = (appointmentId) => {
+  const handleDeferAppointment = async (appointmentId) => {
     if (window.confirm('⚠️ Defer this appointment?\n\nOnce deferred, this action cannot be undone. The donor will need to book a new appointment.')) {
-      handleStatusChange(appointmentId, 'deferred');
+      const apt = allAppointments.find(a => a.id === appointmentId);
+      if (apt) {
+        await updateAppointment(appointmentId, { status: 'deferred' });
+        loadAppointments();
+      }
     }
   };
 
