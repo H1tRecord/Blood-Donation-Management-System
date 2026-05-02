@@ -152,8 +152,14 @@ const StaffAppointments = () => {
   };
 
   const handleCancelAppointment = (appointmentId) => {
-    if (window.confirm('Are you sure you want to cancel this appointment?')) {
+    if (window.confirm('⚠️ Cancel this appointment?\n\nOnce cancelled, this action cannot be undone.')) {
       handleStatusChange(appointmentId, 'cancelled');
+    }
+  };
+
+  const handleDeferAppointment = (appointmentId) => {
+    if (window.confirm('⚠️ Defer this appointment?\n\nOnce deferred, this action cannot be undone. The donor will need to book a new appointment.')) {
+      handleStatusChange(appointmentId, 'deferred');
     }
   };
 
@@ -390,7 +396,7 @@ const StaffAppointments = () => {
                             if (action === 'confirm') handleStatusChange(apt.id, 'confirmed');
                             else if (action === 'checkin') handleStatusChange(apt.id, 'checked-in');
                             else if (action === 'complete') openCompleteModal(apt);
-                            else if (action === 'defer') handleStatusChange(apt.id, 'deferred');
+                            else if (action === 'defer') handleDeferAppointment(apt.id);
                             else if (action === 'cancel') handleCancelAppointment(apt.id);
                             else if (action === 'revert') handleRevertAppointment(apt.id, apt.status);
                             e.target.value = '';

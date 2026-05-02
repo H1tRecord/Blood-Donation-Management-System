@@ -71,7 +71,7 @@ const DonorDashboard = () => {
 
     // Filter by Firebase UID
     const userAppts = allAppts.filter(
-      (apt) => apt.donorId === currentUser.uid && apt.status !== 'cancelled'
+      (apt) => apt.donorId === currentUser.uid && apt.status !== 'cancelled' && apt.status !== 'deferred'
     );
     setUserAppointments(userAppts);
 
