@@ -248,16 +248,6 @@ const AppointmentBooking = () => {
               )}
             </div>
           </div>
-          <div className="confirmation-info">
-            <h3>What to expect:</h3>
-            <ul>
-              <li>Please arrive 10 minutes early</li>
-              <li>Bring a valid photo ID</li>
-              <li>Eat a healthy meal before donating</li>
-              <li>Stay hydrated - drink plenty of water</li>
-              <li>The donation process takes about 45-60 minutes</li>
-            </ul>
-          </div>
           <div className="confirmation-actions">
             <button className="ab-btn ab-btn-primary" onClick={handleBackToDashboard}>
               {isFirstTime ? 'Continue to Login' : 'Back to Dashboard'}
