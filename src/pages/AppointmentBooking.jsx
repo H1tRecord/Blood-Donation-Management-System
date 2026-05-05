@@ -85,7 +85,7 @@ const AppointmentBooking = () => {
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const cellDate = new Date(dateStr + 'T12:00:00');
-      const isPast = cellDate <= today;
+      const isPast = cellDate < today;
       const isToday = dateStr === todayStr;
       days.push({
         day: d,
