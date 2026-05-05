@@ -263,16 +263,17 @@ REQ-11: The system shall allow staff to manually increment or decrement specific
 - BR-3: The 56-day deferral period strictly starts from the calendar date an appointment is marked as "Completed" by medical staff. Cancelled or no-show appointments do not trigger a deferral.
 - BR-4: A Critical Inventory Alert (<10 units) cannot be manually dismissed by staff; it remains persistently visible until the inventory count for that specific blood type is raised to 10 or more units.
 
-6. Appendix
+6. Other Requirements
 
-6.1 Glossary of Terms
-- Deferral Period: The mandatory, medically-required waiting time between successful whole blood donations (56 days) to allow the donor's body to replenish red blood cells.
-- Whole Blood: A standard blood donation where all components (red cells, plasma, platelets) are collected together, as opposed to apheresis or double red cell donations.
+6.1 Database Requirements
+[FR-12] Cloud Persistence: The system shall utilize Firebase to manage the central storage of user profiles, appointments, and blood inventory records.
+[FR-13] Data Synchronization: The database shall enable real-time synchronization of blood stock levels across all connected client applications using WebSockets.
 
-6.2 Acronyms and Abbreviations
-- AABB: Association for the Advancement of Blood & Biotherapies (sets clinical standards for blood banking).
-- BDMS: Blood Donation Management System.
-- SRS: Software Requirements Specification.
-- JSON: JavaScript Object Notation.
-- JWT: JSON Web Token.
-- WCAG: Web Content Accessibility Guidelines.
+6.2 Internationalization and Localization
+[FR-14] Date and Time Standards: The system shall support localized date and time formats suitable for appointment scheduling, ensuring clear communication of 56-day deferral periods.
+
+6.3 Legal and Regulatory Requirements
+[NFR-20] Health Data Privacy: The application shall ensure that donor history and appointment records are kept confidential, with access strictly limited to authorized Staff and Administrator roles.
+
+6.4 Reuse Objectives
+[FR-15] Component Modularity: The React-based frontend architecture should employ reusable UI components (e.g., inventory tracking tables, scheduling calendars) to accelerate future feature development or system adoption by other clinics.

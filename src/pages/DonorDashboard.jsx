@@ -197,8 +197,15 @@ const DonorDashboard = () => {
       .slice(0, 3);
   };
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const upcomingAppointment = userAppointments.find(
-    apt => new Date(apt.date) >= new Date() && apt.status !== 'cancelled'
+    apt => {
+      const aptDate = new Date(apt.date);
+      aptDate.setHours(0, 0, 0, 0);
+      return aptDate >= today && apt.status !== 'cancelled';
+    }
   );
 
   return (
