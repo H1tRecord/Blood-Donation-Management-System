@@ -267,28 +267,33 @@ const AppointmentBooking = () => {
     });
     return (
       <div className="appointment-booking">
-        <div className="ineligible-notice">
-          <div className="notice-icon">!</div>
+        <div className="confirmation-card">
+          <div className="confirmation-icon">!</div>
           <h2>Appointment Already Booked</h2>
-          <p>You already have an upcoming appointment.</p>
-          <div className="appointment-summary" style={{ marginTop: '1rem' }}>
-            <p className="summary-item">
-              <span className="summary-label">Date:</span>
-              <span className="summary-value">{apptDateLabel}</span>
+          <p style={{ marginTop: '0.5rem', color: '#666' }}>You already have an upcoming appointment.</p>
+          <div className="confirmation-details" style={{ marginTop: '1.5rem' }}>
+            <p className="confirmation-number">
+              Confirmation Number: <strong>{existingAppointment.confirmationNumber}</strong>
             </p>
-            <p className="summary-item">
-              <span className="summary-label">Status:</span>
-              <span className="summary-value" style={{ textTransform: 'capitalize' }}>{existingAppointment.status}</span>
-            </p>
-            <p className="summary-item">
-              <span className="summary-label">Confirmation:</span>
-              <span className="summary-value">{existingAppointment.confirmationNumber}</span>
-            </p>
+            <div className="appointment-summary">
+              <p className="summary-item">
+                <span className="summary-label">Date:</span>
+                <span className="summary-value">{apptDateLabel}</span>
+              </p>
+              <p className="summary-item">
+                <span className="summary-label">Status:</span>
+                <span className="summary-value" style={{ textTransform: 'capitalize' }}>{existingAppointment.status}</span>
+              </p>
+            </div>
           </div>
-          <p style={{ marginTop: '1rem', color: '#666' }}>Cancel your existing appointment from the dashboard before booking a new one.</p>
-          <button className="ab-btn ab-btn-primary" onClick={handleBackToDashboard}>
-            Back to Dashboard
-          </button>
+          <p style={{ marginTop: '1.5rem', color: '#666', fontSize: '0.9rem' }}>
+            Cancel your existing appointment from the dashboard before booking a new one.
+          </p>
+          <div className="confirmation-actions" style={{ marginTop: '1.5rem' }}>
+            <button className="ab-btn ab-btn-primary" onClick={handleBackToDashboard}>
+              Back to Dashboard
+            </button>
+          </div>
         </div>
       </div>
     );
