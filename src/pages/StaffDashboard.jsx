@@ -47,7 +47,7 @@ const StaffDashboard = () => {
       {/* ── Header ── */}
       <div className="sd-header">
         <div>
-          <h1>Good morning, {currentUser?.name?.split(' ')[0]}!</h1>
+          <h1>Good morning, {currentUser?.name}!</h1>
           <p className="sd-subtitle">Here's what needs your attention today</p>
         </div>
         <div className="sd-header-right">
