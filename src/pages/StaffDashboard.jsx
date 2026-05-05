@@ -38,7 +38,6 @@ const StaffDashboard = () => {
   const stats = [
     { value: todayAppointments.length,                                       label: 'Appointments',  accent: 'blue'   },
     { value: todayAppointments.filter((a) => a.status === 'confirmed').length, label: 'Confirmed',    accent: 'green'  },
-    { value: todayAppointments.filter((a) => a.status === 'pending').length,   label: 'Pending',      accent: 'yellow' },
     { value: criticalTypes.length + lowTypes.length,                           label: 'Types Needed', accent: 'red'    },
   ];
 
