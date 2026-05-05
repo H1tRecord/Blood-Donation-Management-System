@@ -421,7 +421,7 @@ const InventoryManagement = () => {
                 min={action === 'add' ? 10 : 1}
                 max="50"
                 value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
+                onChange={(e) => setQuantity(e.target.value === '' ? '' : parseInt(e.target.value))}
                 required
               />
               {action === 'add' && (
