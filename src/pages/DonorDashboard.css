@@ -285,6 +285,17 @@
   padding: 2rem;
   color: var(--gray-400);
   font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.no-appointment p {
+  margin-bottom: auto;
+}
+
+.no-appointment .btn-secondary {
+  margin-top: 1.5rem;
 }
 
 /* ===== Requests Card ===== */
@@ -412,6 +423,11 @@
   color: var(--gray-800);
 }
 
+.appointment-card {
+  display: flex;
+  flex-direction: column;
+}
+
 /* ===== Needed Blood Types Card ===== */
 .needed-info {
   color: var(--gray-400);
@@ -476,6 +492,8 @@
 /* ===== History Card ===== */
 .history-card {
   grid-column: span 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .history-timeline {

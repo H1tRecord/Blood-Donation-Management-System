@@ -336,12 +336,15 @@ const DonorDashboard = () => {
             <div className="no-appointment">
               <p>No upcoming appointments</p>
               {isEligible && (
-                <button
-                  className="btn-secondary"
-                  onClick={() => navigate('/appointment-booking')}
-                >
-                  Book Now
-                </button>
+                <div style={{ marginTop: 'auto', paddingTop: '1.5rem' }}>
+                  <button
+                    className="btn-secondary"
+                    onClick={() => navigate('/appointment-booking')}
+                    style={{ width: '100%' }}
+                  >
+                    Book Now
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -438,9 +441,11 @@ const DonorDashboard = () => {
                   </div>
                 ))}
               </div>
-              <button className="btn-view-history" onClick={() => setShowHistoryModal(true)}>
-                View Full History →
-              </button>
+              <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+                <button className="btn-view-history" onClick={() => setShowHistoryModal(true)} style={{ width: '100%' }}>
+                  View Full History →
+                </button>
+              </div>
             </>
           ) : (
             <div className="no-history">
@@ -467,7 +472,7 @@ const DonorDashboard = () => {
                   {profileError}
                 </div>
               )}
-              <div className="form-group">
+              <div className="edit-field" style={{ marginBottom: '1rem' }}>
                 <label>Email</label>
                 <input
                   type="email"
@@ -476,38 +481,41 @@ const DonorDashboard = () => {
                   placeholder="your@email.com"
                 />
               </div>
-              <div className="form-group">
+              <div className="edit-field">
                 <label>Change Password <span className="optional-label">(optional — leave blank to keep current)</span></label>
-                <div className="pw-wrapper" style={{ marginBottom: '0.5rem' }}>
+                <div className="pw-wrapper" style={{ marginBottom: '0.5rem', position: 'relative' }}>
                   <input
                     type={showCurrentPw ? 'text' : 'password'}
                     value={editCurrentPassword}
                     onChange={(e) => setEditCurrentPassword(e.target.value)}
                     placeholder="Current password"
+                    style={{ width: '100%', paddingRight: '2.5rem' }}
                   />
-                  <button type="button" className="pw-toggle" onClick={() => setShowCurrentPw(p => !p)} tabIndex={-1} aria-label="Toggle visibility">
+                  <button type="button" className="pw-toggle" onClick={() => setShowCurrentPw(p => !p)} tabIndex={-1} aria-label="Toggle visibility" style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-500)' }}>
                     {showCurrentPw ? <EyeOffIcon /> : <EyeIcon />}
                   </button>
                 </div>
-                <div className="pw-wrapper" style={{ marginBottom: '0.5rem' }}>
+                <div className="pw-wrapper" style={{ marginBottom: '0.5rem', position: 'relative' }}>
                   <input
                     type={showNewPw ? 'text' : 'password'}
                     value={editNewPassword}
                     onChange={(e) => setEditNewPassword(e.target.value)}
                     placeholder="New password (min 6 chars)"
+                    style={{ width: '100%', paddingRight: '2.5rem' }}
                   />
-                  <button type="button" className="pw-toggle" onClick={() => setShowNewPw(p => !p)} tabIndex={-1} aria-label="Toggle visibility">
+                  <button type="button" className="pw-toggle" onClick={() => setShowNewPw(p => !p)} tabIndex={-1} aria-label="Toggle visibility" style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-500)' }}>
                     {showNewPw ? <EyeOffIcon /> : <EyeIcon />}
                   </button>
                 </div>
-                <div className="pw-wrapper">
+                <div className="pw-wrapper" style={{ position: 'relative' }}>
                   <input
                     type={showConfirmPw ? 'text' : 'password'}
                     value={editConfirmPassword}
                     onChange={(e) => setEditConfirmPassword(e.target.value)}
                     placeholder="Confirm new password"
+                    style={{ width: '100%', paddingRight: '2.5rem' }}
                   />
-                  <button type="button" className="pw-toggle" onClick={() => setShowConfirmPw(p => !p)} tabIndex={-1} aria-label="Toggle visibility">
+                  <button type="button" className="pw-toggle" onClick={() => setShowConfirmPw(p => !p)} tabIndex={-1} aria-label="Toggle visibility" style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-500)' }}>
                     {showConfirmPw ? <EyeOffIcon /> : <EyeIcon />}
                   </button>
                 </div>
