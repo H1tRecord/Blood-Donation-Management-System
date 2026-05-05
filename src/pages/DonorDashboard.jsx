@@ -197,16 +197,16 @@ const DonorDashboard = () => {
       .slice(0, 3);
   };
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const todayStr = new Date().toLocaleDateString('en-CA'); // 'YYYY-MM-DD' locale format
 
-  const upcomingAppointment = userAppointments.find(
-    apt => {
-      const aptDate = new Date(apt.date);
-      aptDate.setHours(0, 0, 0, 0);
-      return aptDate >= today && apt.status !== 'cancelled';
-    }
-  );
+  const upcomingAppointment = userAppointments
+    // Sort appointments so the closest one comes first
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .find(apt => {
+      // Compare ISO string dates ignoring time
+      const aptDateStr = new Date(apt.date).toLocaleDateString('en-CA');
+      return aptDateStr >= todayStr && apt.status !== 'cancelled';
+    });
 
   return (
     <div className="donor-dashboard">
