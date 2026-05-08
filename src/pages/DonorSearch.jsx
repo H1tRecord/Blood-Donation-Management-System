@@ -150,7 +150,7 @@ const DonorSearch = () => {
 
   const handleRequestDonation = (donor) => {
     setSelectedDonor(donor);
-    setRequestMessage(`We urgently need ${donor.bloodType} blood. Would you be able to donate soon? Your donation can save lives!`);
+    setRequestMessage(`We urgently need ${donor.bloodType || 'your'} blood. Would you be able to donate soon? Your donation can save lives!`);
     setShowRequestForm(true);
   };
 
@@ -162,11 +162,11 @@ const DonorSearch = () => {
     }
 
     const newRequest = {
-      bloodType: selectedDonor.bloodType,
-      requestedBy: currentUser.uid,
-      requestedByName: currentUser.name,
-      donorId: selectedDonor.uid,
-      donorName: selectedDonor.name,
+      bloodType: selectedDonor.bloodType || 'Unknown',
+      requestedBy: currentUser.uid || 'Unknown',
+      requestedByName: currentUser.name || 'Unknown',
+      donorId: selectedDonor.uid || 'Unknown',
+      donorName: selectedDonor.name || 'Unknown',
       requestDate: new Date().toISOString().split('T')[0],
       status: 'pending',
       message: requestMessage,
