@@ -92,10 +92,10 @@ const DonorSearch = () => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(d =>
-        d.name.toLowerCase().includes(q) ||
-        d.email.toLowerCase().includes(q) ||
-        d.id.toLowerCase().includes(q) ||
-        (d.bloodType && d.bloodType.toLowerCase().includes(q))
+        (d.name || '').toLowerCase().includes(q) ||
+        (d.email || '').toLowerCase().includes(q) ||
+        (d.uid || '').toLowerCase().includes(q) ||
+        (d.bloodType || '').toLowerCase().includes(q)
       );
     }
 
