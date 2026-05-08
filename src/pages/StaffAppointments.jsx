@@ -187,8 +187,8 @@ const StaffAppointments = () => {
       return;
     }
     const units = parseInt(completionUnits, 10);
-    if (!units || units < 1) {
-      setCompletionError('Units collected must be at least 1.');
+    if (!units || units < 10) {
+      setCompletionError('Units collected must be at least 10.');
       return;
     }
     if (!completionDate) {
