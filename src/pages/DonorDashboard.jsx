@@ -164,6 +164,8 @@ const DonorDashboard = () => {
       setShowConfirmPw(false);
       setProfileSuccess('Profile updated successfully');
       setTimeout(() => setProfileSuccess(''), 3000);
+    } else {
+      setProfileError(result.message);
     }
   };
 

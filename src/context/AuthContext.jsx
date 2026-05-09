@@ -7,6 +7,7 @@ import {
   signOut,
   onAuthStateChanged,
   updatePassword,
+  updateEmail,
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from 'firebase/auth';
@@ -253,10 +254,22 @@ export const AuthProvider = ({ children }) => {
   // ── Update current user's own profile ─────────────────────────────
   const updateProfile = async (updates) => {
     if (!currentUser?.uid) return { success: false, message: 'Not authenticated' };
-    await update(ref(db, `users/${currentUser.uid}`), updates);
-    const updatedUser = { ...currentUser, ...updates };
-    setCurrentUser(updatedUser);
-    return { success: true };
+
+    try {
+      if (updates.email && updates.email !== auth.currentUser.email) {
+        await updateEmail(auth.currentUser, updates.email);
+      }
+      
+      await update(ref(db, `users/${currentUser.uid}`), updates);
+      const updatedUser = { ...currentUser, ...updates };
+      setCurrentUser(updatedUser);
+      return { success: true };
+    } catch (err) {
+      if (err.code === 'auth/requires-recent-login') {
+        return { success: false, message: 'Please log out and log back in to change your email.' };
+      }
+      return { success: false, message: err.message };
+    }
   };
 
   // ── Change current user's own password ───────────────────────────
