@@ -139,13 +139,12 @@ const AdminDashboard = () => {
   };
 
   const handleSaveEdit = async () => {
-    if (!editForm.name || !editForm.email) {
-      alert('All fields are required');
+    if (!editForm.name) {
+      alert('Name is required');
       return;
     }
     const updates = {
       name: editForm.name,
-      email: editForm.email,
     };
     if (editingUser.role === 'donor') {
       updates.bloodType = editForm.bloodType || null;
@@ -525,7 +524,8 @@ const AdminDashboard = () => {
                 <input
                   type="email"
                   value={editForm.email}
-                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  disabled
+                  title="Emails cannot be changed directly by administrators"
                 />
               </div>
 
